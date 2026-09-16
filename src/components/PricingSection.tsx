@@ -26,7 +26,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({
   onOrderClick
 }) => {
   const activeTiers = selectedProduct === '5-burner' ? PRICING_TIERS_5B : PRICING_TIERS_2B;
-  const currentProduct = PRODUCT_OPTIONS[selectedProduct];
+  const currentProduct = PRODUCT_OPTIONS[selectedProduct] || PRODUCT_OPTIONS['2-burner'];
 
   return (
     <section id="pricing" className="py-16 md:py-24 bg-white border-b border-neutral-200 scroll-mt-16">

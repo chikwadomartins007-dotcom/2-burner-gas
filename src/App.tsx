@@ -72,27 +72,25 @@ export default function App() {
     });
   }, []);
 
-  const scrollToOrderForm = (modelPreference?: ProductId) => {
-    if (modelPreference) {
-      setSelectedProduct(modelPreference);
+  const scrollToOrderForm = (modelPreference?: unknown) => {
+    // Only update selectedProduct if modelPreference is an explicit string match ('2-burner' or '5-burner')
+    // and NOT a SyntheticEvent or MouseEvent passed by onClick handlers
+    if (typeof modelPreference === 'string' && (modelPreference === '2-burner' || modelPreference === '5-burner')) {
+      setSelectedProduct(modelPreference as ProductId);
     }
+
     // If an order was already placed, unlock the form so customer can place a new order
     if (hasPlacedOrder) {
       handleResetOrder();
       setResetOrderSignal((prev) => prev + 1);
     }
+
     const element =
       document.getElementById('order-form') ||
-      document.getElementById('order-form-section') ||
-      document.querySelector('form');
+      document.getElementById('order-form-section');
+
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setTimeout(() => {
-        const firstInput = element.querySelector('input[name="fullName"], input') as HTMLInputElement;
-        if (firstInput && document.activeElement !== firstInput) {
-          firstInput.focus({ preventScroll: true });
-        }
-      }, 450);
     }
   };
 
