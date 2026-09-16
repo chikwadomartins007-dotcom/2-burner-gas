@@ -24,6 +24,7 @@ import { FloatingOrderNow } from './components/FloatingOrderNow';
 import { CartDrawer } from './components/CartDrawer';
 import { RecentSalesPopup } from './components/RecentSalesPopup';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
+import { GeminiChatBot } from './components/GeminiChatBot';
 import { ImageLightboxModal } from './components/ImageLightboxModal';
 import { PolicyModals } from './components/PolicyModals';
 import { PolicyType, ProductId, CartState } from './types';
@@ -45,6 +46,7 @@ export default function App() {
     '5-burner': 0
   });
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
+  const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
   const [hasPlacedOrder, setHasPlacedOrder] = useState<boolean>(false);
   const [orderWhatsappUrl, setOrderWhatsappUrl] = useState<string>('');
 
@@ -286,6 +288,7 @@ export default function App() {
           cartCount={totalCartCount}
           hasPlacedOrder={hasPlacedOrder}
           whatsappUrl={orderWhatsappUrl}
+          isChatOpen={isChatOpen}
         />
       )}
 
@@ -316,6 +319,12 @@ export default function App() {
       <FloatingWhatsApp
         hasPlacedOrder={hasPlacedOrder}
         whatsappUrl={orderWhatsappUrl}
+      />
+
+      {/* Official Max Luxury Bathrooms Gemini AI Customer Support Assistant */}
+      <GeminiChatBot
+        onOrderClick={scrollToOrderForm}
+        onOpenChange={setIsChatOpen}
       />
 
       {/* Fullscreen Product Image Lightbox Modal */}

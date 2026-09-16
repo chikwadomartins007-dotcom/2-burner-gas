@@ -47,35 +47,35 @@ export const FloatingOrderNow: React.FC<FloatingOrderNowProps> = ({
     <aside
       id="floating-order-cta-container"
       aria-label="Floating Order CTA"
-      className="hidden md:flex fixed z-40 transition-all duration-300 bottom-8 right-8 animate-fade-in"
+      className="hidden md:flex fixed z-40 transition-all duration-300 bottom-6 right-64 animate-fade-in"
     >
       <button
         onClick={onOrderClick}
         id="floating-order-now-btn"
-        className="animate-black-red group relative flex items-center gap-3 px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl md:rounded-full border-2 cursor-pointer select-none shadow-2xl active:scale-95 transition-all"
+        className="animate-black-red group relative flex items-center gap-3 px-5 py-3 rounded-full border-2 cursor-pointer select-none shadow-2xl active:scale-95 transition-all text-white"
         title="Order Now — Pay on Delivery"
       >
         {/* Animated pulse dot */}
-        <span className="relative flex h-3.5 w-3.5 shrink-0">
+        <span className="relative flex h-3 w-3 shrink-0">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
-          <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-amber-400" />
+          <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-400" />
         </span>
 
         {/* Icon */}
-        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/20 backdrop-blur-xs text-white shrink-0 group-hover:rotate-6 transition-transform">
+        <div className="flex items-center justify-center w-7 h-7 rounded-full bg-white/20 backdrop-blur-xs text-white shrink-0 group-hover:rotate-6 transition-transform">
           <ShoppingBag className="w-4 h-4" />
         </div>
 
         {/* Text Block */}
         <div className="text-left flex flex-col justify-center">
-          <div className="flex items-center gap-1.5 leading-tight">
-            <span className="text-xs sm:text-sm md:text-base font-black tracking-wider uppercase drop-shadow-xs">
+          <div className="flex items-center gap-1 leading-tight">
+            <span className="text-sm font-black tracking-wider uppercase whitespace-nowrap drop-shadow-xs">
               ORDER NOW — PAY ON DELIVERY
             </span>
             <ChevronRight className="w-4 h-4 shrink-0 group-hover:translate-x-1 transition-transform" />
           </div>
-          <div className="text-[10px] sm:text-xs font-bold text-neutral-200/90 flex items-center gap-1 mt-0.5 tracking-tight">
-            <Truck className="w-3 h-3 text-amber-300 shrink-0" />
+          <div className="flex text-[10px] font-bold text-neutral-200/90 items-center gap-1 tracking-tight">
+            <Truck className="w-2.5 h-2.5 text-amber-300 shrink-0" />
             <span>Pay Zero Upfront • Inspect Before Paying</span>
           </div>
         </div>
