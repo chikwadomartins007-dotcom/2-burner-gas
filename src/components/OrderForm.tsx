@@ -17,6 +17,8 @@ import {
   ArrowRight,
   ShieldCheck,
   Check,
+  CheckCircle2,
+  X,
   AlertCircle,
   MessageSquare,
   Minus,
@@ -173,11 +175,22 @@ export const OrderForm: React.FC<OrderFormProps> = ({
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [submittedOrderId, setSubmittedOrderId] = useState('');
+  const [showToast, setShowToast] = useState(false);
+
+  // Auto-dismiss toast notification after 5 seconds
+  useEffect(() => {
+    if (!showToast) return;
+    const timer = setTimeout(() => {
+      setShowToast(false);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [showToast]);
 
   // Reset submitted state if parent signals a new order attempt via Order Now click
   useEffect(() => {
     if (resetSignal && resetSignal > 0) {
       setIsSubmitted(false);
+      setShowToast(false);
       setErrorMessage('');
     }
   }, [resetSignal]);
@@ -408,6 +421,7 @@ Please confirm my delivery dispatch.`;
 
       setIsSubmitting(false);
       setIsSubmitted(true);
+      setShowToast(true);
 
       if (onOrderSuccess) {
         onOrderSuccess({
@@ -435,12 +449,52 @@ Please confirm my delivery dispatch.`;
 
   const handleReset = () => {
     setIsSubmitted(false);
+    setShowToast(false);
     if (onResetOrder) onResetOrder();
   };
 
   return (
     <section id="order-form" className="py-14 sm:py-20 px-4 bg-slate-50 text-slate-900 relative scroll-mt-20">
       <div id="order-form-section" className="scroll-mt-20 -mt-20 absolute" />
+
+      {/* Floating Order Success Toast Notification */}
+      {showToast && (
+        <div
+          id="order-success-toast"
+          role="status"
+          aria-live="polite"
+          className="fixed top-5 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-50 animate-bounce-short bg-slate-900/95 backdrop-blur-md text-white border-2 border-emerald-500 rounded-2xl p-4 shadow-2xl transition-all flex items-start gap-3.5"
+        >
+          <div className="w-9 h-9 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center shrink-0 mt-0.5">
+            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+          </div>
+
+          <div className="flex-1 min-w-0 pr-1">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 font-mono">
+                Order Registered!
+              </span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+            </div>
+            <p className="text-sm font-bold text-white mt-0.5 leading-snug">
+              Thank you, {formData.fullName.trim() || 'Valued Customer'}!
+            </p>
+            <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+              Your request for <span className="text-amber-300 font-semibold">{orderCalc.productName}</span> ({formatNaira(orderCalc.total)}) has been confirmed. Pay on Delivery.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowToast(false)}
+            aria-label="Close notification"
+            className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors shrink-0 -mr-1 -mt-1 cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="text-center mb-10">
