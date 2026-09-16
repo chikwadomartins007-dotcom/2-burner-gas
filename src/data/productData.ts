@@ -400,17 +400,77 @@ export const FAQ_ITEMS: FAQItem[] = [
   }
 ];
 
-// Safe Meta Pixel tracking helpers (NO personal customer data sent to Meta)
-export function trackPixelEvent(eventName: string, data?: Record<string, unknown>) {
+// Meta Pixel & Conversions API (CAPI) Tracking Helper
+// Sends client-side pixel events to both active datasets, and mirrors them to /api/meta-conversions with shared eventID for deduplication
+export function trackPixelEvent(
+  eventName: string,
+  data?: Record<string, unknown>,
+  options?: {
+    eventId?: string;
+    user?: {
+      email?: string;
+      phone?: string;
+      firstName?: string;
+      lastName?: string;
+      city?: string;
+      state?: string;
+      country?: string;
+    };
+  }
+) {
+  // Generate consistent eventId for Meta deduplication between browser pixel and server CAPI
+  const generatedEventId = options?.eventId || (data?.order_id as string) || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `evt_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`);
+
+  // 1. Browser Meta Pixel Dispatch (both pixels initialized in index.html)
   if (typeof window !== 'undefined' && (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq) {
     try {
-      if (data) {
-        (window as unknown as { fbq: (...args: unknown[]) => void }).fbq('track', eventName, data);
-      } else {
-        (window as unknown as { fbq: (...args: unknown[]) => void }).fbq('track', eventName);
-      }
+      const pixelParams = data ? { ...data } : {};
+      (window as unknown as { fbq: (...args: unknown[]) => void }).fbq('track', eventName, pixelParams, {
+        eventID: generatedEventId
+      });
     } catch {
       // Ignore tracking errors in sandboxed environments
     }
   }
+
+  // 2. Server-Side Conversions API (CAPI) Dispatch
+  if (typeof window !== 'undefined') {
+    try {
+      // Extract _fbp and _fbc browser cookies if present
+      let fbp: string | undefined;
+      let fbc: string | undefined;
+      if (document.cookie) {
+        const cookies = document.cookie.split('; ');
+        for (const c of cookies) {
+          if (c.startsWith('_fbp=')) fbp = c.substring(5);
+          if (c.startsWith('_fbc=')) fbc = c.substring(5);
+        }
+      }
+
+      fetch('/api/meta-conversions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        keepalive: true,
+        body: JSON.stringify({
+          eventName,
+          eventId: generatedEventId,
+          eventSourceUrl: window.location.href,
+          user: {
+            ...options?.user,
+            fbp,
+            fbc
+          },
+          customData: data
+        })
+      }).catch(() => {
+        // Non-blocking background call
+      });
+    } catch {
+      // Silent error fallback
+    }
+  }
+
+  return generatedEventId;
 }

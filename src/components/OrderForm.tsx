@@ -409,15 +409,47 @@ Please confirm my delivery dispatch.`;
         // Ignore localStorage error
       }
 
-      trackPixelEvent('Purchase', {
-        value: orderCalc.total,
-        currency: 'NGN',
-        content_name: orderCalc.productName,
-        content_type: 'product',
-        num_items: orderCalc.totalQuantity,
-        order_id: orderId
-      });
-      trackPixelEvent('Lead');
+      const nameParts = formData.fullName.trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+      const userParam = {
+        phone: formData.phoneNumber.trim(),
+        firstName,
+        lastName,
+        city: formData.city.trim(),
+        state: formData.state,
+        country: 'ng'
+      };
+
+      trackPixelEvent(
+        'Purchase',
+        {
+          value: orderCalc.total,
+          currency: 'NGN',
+          content_name: orderCalc.productName,
+          content_type: 'product',
+          num_items: orderCalc.totalQuantity,
+          order_id: orderId
+        },
+        {
+          eventId: orderId,
+          user: userParam
+        }
+      );
+
+      trackPixelEvent(
+        'Lead',
+        {
+          value: orderCalc.total,
+          currency: 'NGN',
+          content_name: orderCalc.productName,
+          order_id: orderId
+        },
+        {
+          eventId: `lead_${orderId}`,
+          user: userParam
+        }
+      );
 
       setIsSubmitting(false);
       setIsSubmitted(true);

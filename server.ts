@@ -3,6 +3,7 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
+import { sendMetaConversionEvent, MetaCapiEventData } from "./server/metaCapi";
 
 dotenv.config();
 
@@ -120,6 +121,30 @@ async function startServer() {
   // Health check
   app.get("/api/health", (_req, res) => {
     res.json({ status: "ok" });
+  });
+
+  // Meta Conversions API (CAPI) Proxy Endpoint
+  app.post("/api/meta-conversions", async (req, res) => {
+    try {
+      const eventData: MetaCapiEventData = req.body;
+      if (!eventData || !eventData.eventName) {
+        return res.status(400).json({ error: "Missing required eventName" });
+      }
+
+      // Extract client network identifiers safely for Meta attribution matching
+      const ip = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() || req.socket.remoteAddress || "";
+      const userAgent = req.headers["user-agent"] || "";
+      const referer = req.headers["referer"] || "";
+
+      const result = await sendMetaConversionEvent(eventData, { ip, userAgent, referer });
+      return res.json({ status: "processed", result });
+    } catch (capiErr) {
+      console.error("[Meta CAPI Error in /api/meta-conversions]:", capiErr);
+      return res.status(500).json({
+        status: "error",
+        error: capiErr instanceof Error ? capiErr.message : String(capiErr),
+      });
+    }
   });
 
   // Gemini AI Chat API
