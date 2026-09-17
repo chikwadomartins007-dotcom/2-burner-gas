@@ -99,10 +99,10 @@ export const PricingSection: React.FC<PricingSectionProps> = ({
                     : 'border border-neutral-200 shadow-sm hover:border-red-300 hover:shadow-md'
                 }`}
               >
-                {/* Popular Badge */}
+                {/* Popular Badge with Dark Yellow Accent */}
                 {tier.isPopular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-red-600 text-white px-3 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wide shadow-sm">
-                    Most Popular
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 to-yellow-600 text-neutral-950 font-black px-3.5 py-0.5 rounded-full text-[11px] uppercase tracking-wider shadow-md border border-amber-400">
+                    ★ MOST POPULAR CHOICE
                   </div>
                 )}
 

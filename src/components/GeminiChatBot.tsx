@@ -10,27 +10,101 @@ import {
   Truck,
   Sparkles,
   RefreshCw,
-  Minus
+  Minus,
+  ShoppingCart,
+  ArrowRight,
+  Flame,
+  CheckCircle2
 } from 'lucide-react';
-import { PHONE_NUMBER, CALL_LINK } from '../data/productData';
+import { PHONE_NUMBER, CALL_LINK, BRAND_NAME, OFFICIAL_WEBSITE } from '../data/productData';
+import { ProductId } from '../types';
 
 export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: string;
+  action?: {
+    type: 'order_now';
+    modelPreference?: ProductId;
+    label?: string;
+  };
 }
 
 interface GeminiChatBotProps {
-  onOrderClick?: () => void;
+  onOrderClick?: (modelPreference?: ProductId) => void;
   onOpenChange?: (isOpen: boolean) => void;
+}
+
+// Regex to detect explicit or implicit ordering intent in messages
+const ORDER_INTENT_PATTERN =
+  /\b(order|buy|purchase|checkout|pay\s+on\s+delivery|how\s+to\s+get|i\s+want\s+to\s+buy|i\s+need\s+one|i\s+need\s+2|place\s+an\s+order|ordering|book\s+one|send\s+me|deliver\s+to|i\s+want\s+the|immediate\s+order)\b/i;
+
+function parseBotMessage(
+  rawText: string,
+  userPromptText: string
+): { cleanContent: string; action?: { type: 'order_now'; modelPreference?: ProductId; label?: string } } {
+  let text = rawText;
+  let action: { type: 'order_now'; modelPreference?: ProductId; label?: string } | undefined = undefined;
+
+  // Check for explicit action tags sent by AI
+  const actionTagMatch = text.match(/\[ACTION:ORDER_NOW(?::(2-burner|5-burner))?\]/i);
+  if (actionTagMatch) {
+    const pref = actionTagMatch[1] ? (actionTagMatch[1].toLowerCase() as ProductId) : undefined;
+    action = {
+      type: 'order_now',
+      modelPreference: pref,
+      label: pref === '5-burner'
+        ? 'ORDER 5-BURNER NOW — FILL DELIVERY FORM'
+        : pref === '2-burner'
+        ? 'ORDER 2-BURNER NOW — FILL DELIVERY FORM'
+        : 'ORDER NOW — CHOOSE MODEL & FILL FORM'
+    };
+    text = text.replace(/\[ACTION:ORDER_NOW(?::(2-burner|5-burner))?\]/gi, '').trim();
+  } else {
+    // If the customer asked for immediate order or how to order, or the AI discussed placing an order
+    const hasOrderIntent =
+      ORDER_INTENT_PATTERN.test(userPromptText) ||
+      ORDER_INTENT_PATTERN.test(rawText) ||
+      /\b(fill\s+(the\s+)?form|submit\s+(your\s+)?order|confirm\s+&?\s*submit|dispatch\s+agent\s+will\s+call)\b/i.test(
+        rawText
+      );
+
+    if (hasOrderIntent) {
+      const mentions5B = /\b(5-burner|five-burner|hybrid)\b/i.test(userPromptText) || /\b(5-burner|five-burner)\b/i.test(rawText);
+      const mentions2B = /\b(2-burner|two-burner|glass\s+cooker)\b/i.test(userPromptText) || /\b(2-burner|two-burner)\b/i.test(rawText);
+
+      let pref: ProductId | undefined = undefined;
+      if (mentions5B && !mentions2B) {
+        pref = '5-burner';
+      } else if (mentions2B && !mentions5B) {
+        pref = '2-burner';
+      }
+
+      action = {
+        type: 'order_now',
+        modelPreference: pref,
+        label: pref === '5-burner'
+          ? 'ORDER 5-BURNER NOW — FILL DELIVERY FORM'
+          : pref === '2-burner'
+          ? 'ORDER 2-BURNER NOW — FILL DELIVERY FORM'
+          : 'ORDER NOW — CHOOSE MODEL & FILL FORM'
+      };
+    }
+  }
+
+  return { cleanContent: text, action };
 }
 
 const INITIAL_WELCOME_MESSAGE: ChatMessage = {
   id: 'welcome-1',
   role: 'assistant',
   content:
-    "Hello! 👋 Welcome to Max Luxury Bathrooms.\n\nI'm your AI shopping assistant, and I'm here to help you with product questions, pricing, delivery information, and placing your order.\n\nWhat would you like help with today?",
+    "Hello! Welcome to Max Luxury Bathrooms. 👋\n\nI'm your official 24/7 AI Customer Support Agent. I'm here to help you with:\n• Cooker features, specifications & dimensions\n• Verified pricing & multi-unit discounts\n• 100% Payment on Delivery terms & nationwide dispatch\n• Step-by-step help completing your order\n\nHow may I assist you today?",
+  action: {
+    type: 'order_now',
+    label: 'ORDER NOW — CHOOSE MODEL & FILL FORM'
+  },
   timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 };
 
@@ -112,21 +186,32 @@ export const GeminiChatBot: React.FC<GeminiChatBotProps> = ({ onOrderClick, onOp
         throw new Error(data.error || 'Unable to connect to AI assistant');
       }
 
+      const rawReply =
+        data.reply ||
+        "I'm here to help! For direct phone support, you can also reach Max Luxury Bathrooms at 08147778029.";
+      const { cleanContent, action } = parseBotMessage(rawReply, text);
+
       const botMsg: ChatMessage = {
         id: `assistant-${Date.now()}`,
         role: 'assistant',
-        content: data.reply || "I'm here to help! For direct phone support, you can also reach Max Luxury Bathrooms at 08147778029.",
+        content: cleanContent,
+        action,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
       setMessages((prev) => [...prev, botMsg]);
     } catch (err: unknown) {
       console.error('Chat error:', err);
+      const fallbackText =
+        "I apologize, I'm having a brief connection delay. Please feel free to call or WhatsApp Max Luxury Bathrooms directly on 08147778029, or click the button below to proceed directly to the order form with 100% Payment on Delivery!";
       const fallbackMsg: ChatMessage = {
         id: `assistant-err-${Date.now()}`,
         role: 'assistant',
-        content:
-          "I apologize, I'm having a brief connection delay. Please feel free to call or WhatsApp Max Luxury Bathrooms directly on 08147778029, or scroll down to the order form on the page to submit your details with Payment on Delivery!",
+        content: fallbackText,
+        action: {
+          type: 'order_now',
+          label: 'ORDER NOW — CHOOSE MODEL & FILL FORM'
+        },
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages((prev) => [...prev, fallbackMsg]);
@@ -271,13 +356,43 @@ export const GeminiChatBot: React.FC<GeminiChatBotProps> = ({ onOrderClick, onOp
                       className={`flex flex-col ${isUser ? 'items-end' : 'items-start'}`}
                     >
                       <div
-                        className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 leading-relaxed shadow-xs whitespace-pre-line ${
+                        className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 leading-relaxed shadow-xs whitespace-pre-line ${
                           isUser
                             ? 'bg-neutral-900 text-white rounded-tr-xs'
                             : 'bg-white text-neutral-900 border border-neutral-200 rounded-tl-xs'
                         }`}
                       >
-                        {m.content}
+                        <div>{m.content}</div>
+
+                        {/* Interactive Order Action Button attached directly to message */}
+                        {!isUser && m.action && (
+                          <div className="mt-3 pt-2.5 border-t border-neutral-100 flex flex-col gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsOpen(false);
+                                onOrderClick?.(m.action?.modelPreference);
+                              }}
+                              className="w-full group/btn relative overflow-hidden flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-bold text-xs shadow-md shadow-red-600/25 transition-all duration-200 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+                            >
+                              <div className="flex items-center gap-1.5 text-left">
+                                <ShoppingCart className="w-3.5 h-3.5 shrink-0 text-white animate-pulse" />
+                                <span className="leading-tight">
+                                  {m.action.label || 'ORDER NOW — CHOOSE MODEL & FILL FORM'}
+                                </span>
+                              </div>
+                              <ArrowRight className="w-3.5 h-3.5 shrink-0 group-hover/btn:translate-x-0.5 transition-transform" />
+                            </button>
+
+                            <div className="flex items-center justify-between text-[10px] text-neutral-500 px-1">
+                              <span className="flex items-center gap-1 text-emerald-700 font-medium">
+                                <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                                100% Pay on Delivery
+                              </span>
+                              <span>Choose model & quantity</span>
+                            </div>
+                          </div>
+                        )}
                       </div>
                       <span className="text-[9px] text-neutral-400 mt-1 px-1">
                         {m.timestamp}

@@ -13,9 +13,9 @@ export const FinalOfferSection: React.FC<FinalOfferSectionProps> = ({ onOrderCli
     <section className="py-16 md:py-24 bg-white border-b border-neutral-200">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
         <div className="space-y-4 max-w-3xl mx-auto">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-50 border border-red-200 text-red-600">
-            <Sparkles className="w-3.5 h-3.5 text-red-600" />
-            Limited Daily Dispatch Slots • Payment On Delivery
+          <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-black bg-gradient-to-r from-amber-500 to-yellow-600 border border-amber-600 text-neutral-950 shadow-xs">
+            <Sparkles className="w-3.5 h-3.5 text-neutral-950" />
+            Limited Daily Dispatch Slots • 100% Payment On Delivery
           </span>
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-extrabold text-neutral-900 tracking-tight">
             READY TO UPGRADE YOUR KITCHEN?

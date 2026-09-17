@@ -28,11 +28,16 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-red-100 shadow-sm transition-colors">
-      {/* Slim Top Promotional Bar in Red */}
-      <div className="w-full bg-red-600 text-white text-xs py-2 px-4 text-center font-semibold tracking-wide shadow-inner">
-        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2">
-          <span className="inline-block w-2 h-2 rounded-full bg-white animate-pulse"></span>
-          <span>PAYMENT ON DELIVERY AVAILABLE NATIONWIDE • INSPECT BEFORE YOU PAY</span>
+      {/* Slim Top Promotional Bar in Red with Dark Yellow / Gold Highlights */}
+      <div className="w-full bg-red-700 text-white text-xs py-2 px-4 text-center font-semibold tracking-wide shadow-inner border-b border-amber-500/30">
+        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 flex-wrap">
+          <span className="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+          <span className="bg-amber-400 text-neutral-950 font-extrabold px-2 py-0.5 rounded-xs text-[10px] uppercase tracking-wider">
+            Verified
+          </span>
+          <span className="font-bold">100% PAYMENT ON DELIVERY NATIONWIDE</span>
+          <span className="text-amber-300 hidden sm:inline">•</span>
+          <span className="text-amber-200 hidden sm:inline">INSPECT PHYSICALLY BEFORE MAKING PAYMENT</span>
         </div>
       </div>
 

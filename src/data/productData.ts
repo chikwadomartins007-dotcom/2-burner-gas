@@ -2,6 +2,8 @@ import { FAQItem, PricingTier, ProductImage, ProductId, ProductOption } from '..
 export type { ProductId, ProductOption };
 
 export const BRAND_NAME = 'MAX LUXURY BATHROOMS';
+export const OFFICIAL_WEBSITE = 'https://www.maxluxurybathrooms.shop/';
+export const OFFICIAL_WEBSITE_MIRROR = 'https://www.maxluxurybathrooms.online/';
 export const PRODUCT_NAME = 'Premium 2-Burner Glass Gas Cooker';
 export const PRODUCT_NAME_2B = 'Premium 2-Burner Glass Gas Cooker';
 export const PRODUCT_NAME_5B = 'Executive 5-Burner Gas & Electric Hybrid Cooktop (With Timer & Auto-Off)';

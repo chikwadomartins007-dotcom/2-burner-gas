@@ -530,9 +530,9 @@ Please confirm my delivery dispatch.`;
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 bg-blue-100 border border-blue-200 text-blue-700 text-xs font-bold uppercase tracking-wider px-3.5 py-1 rounded-full mb-3">
-            <Package className="w-3.5 h-3.5" />
-            <span>Direct Order Request</span>
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-600 border border-amber-600 text-neutral-950 text-xs font-black uppercase tracking-wider px-4 py-1.5 rounded-full mb-3 shadow-xs">
+            <Package className="w-3.5 h-3.5 text-neutral-950" />
+            <span>Direct Order Request • 100% Pay on Delivery</span>
           </div>
           <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 mb-3">
             PLACE YOUR ORDER NOW
