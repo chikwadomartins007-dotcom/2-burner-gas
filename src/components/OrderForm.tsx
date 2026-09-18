@@ -271,6 +271,35 @@ export const OrderForm: React.FC<OrderFormProps> = ({
     if (errorMessage) setErrorMessage('');
   };
 
+  const [hasTriggeredCheckout, setHasTriggeredCheckout] = useState(false);
+  const handleTriggerCheckoutOnce = () => {
+    if (!hasTriggeredCheckout) {
+      setHasTriggeredCheckout(true);
+      trackPixelEvent('InitiateCheckout', {
+        value: orderCalc.total,
+        currency: 'NGN',
+        content_name: orderCalc.productName,
+        content_ids: [orderCalc.mode],
+        num_items: orderCalc.totalQuantity
+      });
+    }
+  };
+
+  const handlePhoneBlur = () => {
+    if (typeof window !== 'undefined' && (window as unknown as { ttq?: { identify: (p: Record<string, unknown>) => void } }).ttq) {
+      const formatted = formatPhoneForWhatsApp(formData.phoneNumber);
+      if (formatted && formatted.length >= 10) {
+        try {
+          (window as unknown as { ttq: { identify: (p: Record<string, unknown>) => void } }).ttq.identify({
+            phone_number: `+${formatted}`
+          });
+        } catch {
+          // ignore error
+        }
+      }
+    }
+  };
+
   // WhatsApp confirmation message builder
   const getWhatsAppConfirmationUrl = () => {
     const targetPhone = formatPhoneForWhatsApp(PHONE_NUMBER);
@@ -379,6 +408,71 @@ Please confirm my delivery dispatch.`;
       _subject: `New Order #${orderId}: ${orderCalc.shortName} (${orderCalc.totalQuantity} units) - ${formData.fullName.trim()} (${formData.city.trim()}, ${formData.state})`
     };
 
+    const nameParts = formData.fullName.trim().split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+    const userParam = {
+      phone: formData.phoneNumber.trim(),
+      firstName,
+      lastName,
+      city: formData.city.trim(),
+      state: formData.state,
+      country: 'ng'
+    };
+
+    // 1. Dispatch conversion events immediately (zero delay for TikTok, Meta, GTM, and CAPI)
+    trackPixelEvent(
+      'Purchase',
+      {
+        value: orderCalc.total,
+        currency: 'NGN',
+        content_name: orderCalc.productName,
+        content_type: 'product',
+        content_ids: [orderCalc.mode],
+        num_items: orderCalc.totalQuantity,
+        order_id: orderId
+      },
+      {
+        eventId: orderId,
+        user: userParam
+      }
+    );
+
+    trackPixelEvent(
+      'Lead',
+      {
+        value: orderCalc.total,
+        currency: 'NGN',
+        content_name: orderCalc.productName,
+        content_ids: [orderCalc.mode],
+        order_id: orderId
+      },
+      {
+        eventId: `lead_${orderId}`,
+        user: userParam
+      }
+    );
+
+    try {
+      const stored = JSON.parse(localStorage.getItem('burner_orders') || '[]');
+      stored.unshift({
+        id: orderId,
+        ...formData,
+        productModel: orderCalc.mode,
+        productName: orderCalc.productName,
+        itemsOrdered: orderCalc.itemsSummary,
+        qty2Burner: orderCalc.qty2Burner,
+        qty5Burner: orderCalc.qty5Burner,
+        quantity: orderCalc.totalQuantity,
+        totalPrice: orderCalc.total,
+        comboDiscount: orderCalc.comboDiscount,
+        createdAt: new Date().toISOString()
+      });
+      localStorage.setItem('burner_orders', JSON.stringify(stored));
+    } catch {
+      // Ignore localStorage error
+    }
+
     try {
       await fetch(formspreeUrl, {
         method: 'POST',
@@ -391,68 +485,6 @@ Please confirm my delivery dispatch.`;
     } catch (err) {
       console.error('Error dispatching order to Formspree:', err);
     } finally {
-      try {
-        const stored = JSON.parse(localStorage.getItem('burner_orders') || '[]');
-        stored.unshift({
-          id: orderId,
-          ...formData,
-          productModel: orderCalc.mode,
-          productName: orderCalc.productName,
-          itemsOrdered: orderCalc.itemsSummary,
-          qty2Burner: orderCalc.qty2Burner,
-          qty5Burner: orderCalc.qty5Burner,
-          quantity: orderCalc.totalQuantity,
-          totalPrice: orderCalc.total,
-          comboDiscount: orderCalc.comboDiscount,
-          createdAt: new Date().toISOString()
-        });
-        localStorage.setItem('burner_orders', JSON.stringify(stored));
-      } catch {
-        // Ignore localStorage error
-      }
-
-      const nameParts = formData.fullName.trim().split(' ');
-      const firstName = nameParts[0] || '';
-      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
-      const userParam = {
-        phone: formData.phoneNumber.trim(),
-        firstName,
-        lastName,
-        city: formData.city.trim(),
-        state: formData.state,
-        country: 'ng'
-      };
-
-      trackPixelEvent(
-        'Purchase',
-        {
-          value: orderCalc.total,
-          currency: 'NGN',
-          content_name: orderCalc.productName,
-          content_type: 'product',
-          num_items: orderCalc.totalQuantity,
-          order_id: orderId
-        },
-        {
-          eventId: orderId,
-          user: userParam
-        }
-      );
-
-      trackPixelEvent(
-        'Lead',
-        {
-          value: orderCalc.total,
-          currency: 'NGN',
-          content_name: orderCalc.productName,
-          order_id: orderId
-        },
-        {
-          eventId: `lead_${orderId}`,
-          user: userParam
-        }
-      );
-
       setIsSubmitting(false);
       setIsSubmitted(true);
       setShowToast(true);
@@ -651,7 +683,7 @@ Please confirm my delivery dispatch.`;
         ) : (
           /* ================= ORDER FORM ================= */
           <div className="bg-white border border-blue-200/80 rounded-3xl p-6 sm:p-8 shadow-xl">
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} onFocus={handleTriggerCheckoutOnce} className="space-y-6">
               {/* Error banner */}
               {errorMessage && (
                 <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs sm:text-sm flex items-center gap-2">
@@ -1253,6 +1285,7 @@ Please confirm my delivery dispatch.`;
                       required
                       value={formData.phoneNumber}
                       onChange={handleInputChange}
+                      onBlur={handlePhoneBlur}
                       placeholder="e.g. +234 801 234 5678 or 08012345678"
                       className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 text-sm placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition-colors"
                     />

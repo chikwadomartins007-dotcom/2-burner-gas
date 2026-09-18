@@ -402,6 +402,19 @@ export const FAQ_ITEMS: FAQItem[] = [
   }
 ];
 
+function toE164Phone(rawPhone?: string): string | undefined {
+  if (!rawPhone) return undefined;
+  let digits = rawPhone.replace(/\D/g, '');
+  if (digits.startsWith('2340') && digits.length === 14) {
+    digits = '234' + digits.slice(4);
+  } else if (digits.startsWith('0') && digits.length === 11) {
+    digits = '234' + digits.slice(1);
+  } else if (!digits.startsWith('234') && digits.length === 10) {
+    digits = '234' + digits;
+  }
+  return digits.length >= 10 ? `+${digits}` : undefined;
+}
+
 // Multi-Platform Pixel & Conversions API Tracking Helper (Meta + TikTok + GTM)
 // Sends client-side pixel events and mirrors them to server-side APIs with shared eventID for deduplication
 export function trackPixelEvent(
@@ -423,7 +436,62 @@ export function trackPixelEvent(
   // Generate consistent eventId for deduplication between browser pixel and server API
   const generatedEventId = options?.eventId || (data?.order_id as string) || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `evt_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`);
 
-  // 1. Browser Meta Pixel Dispatch
+  const val = typeof data?.value === 'number' ? data.value : 0;
+  const curr = (data?.currency as string) || 'NGN';
+  const cName = (data?.content_name as string) || 'Premium Gas Cooker';
+  const cId = ((data?.content_ids as string[])?.[0]) || (data?.order_id as string) || 'cooker';
+  const numItems = (data?.num_items as number) || 1;
+  const unitPrice = val > 0 && numItems > 0 ? Math.round(val / numItems) : val;
+
+  const normalizedPhone = toE164Phone(options?.user?.phone);
+
+  // 1. Google Tag Manager (dataLayer push for GTM, GA4, Google Ads)
+  if (typeof window !== 'undefined') {
+    try {
+      const gtm = (window as unknown as { dataLayer?: Array<Record<string, unknown>> });
+      if (Array.isArray(gtm.dataLayer)) {
+        const gtmEventMap: Record<string, string> = {
+          PageView: 'page_view',
+          ViewContent: 'view_item',
+          AddToCart: 'add_to_cart',
+          InitiateCheckout: 'begin_checkout',
+          Purchase: 'purchase',
+          Lead: 'generate_lead'
+        };
+        const gtmEventName = gtmEventMap[eventName] || eventName;
+
+        gtm.dataLayer.push({
+          event: gtmEventName,
+          event_id: generatedEventId,
+          ecommerce: {
+            currency: curr,
+            value: val,
+            items: [
+              {
+                item_id: cId,
+                item_name: cName,
+                price: unitPrice,
+                quantity: numItems
+              }
+            ]
+          },
+          user_data: options?.user ? {
+            phone_number: normalizedPhone,
+            email: options.user.email,
+            address: {
+              city: options.user.city,
+              region: options.user.state,
+              country: 'NG'
+            }
+          } : undefined
+        });
+      }
+    } catch {
+      // Ignore GTM push error
+    }
+  }
+
+  // 2. Browser Meta Pixel Dispatch
   if (typeof window !== 'undefined' && (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq) {
     try {
       const pixelParams = data ? { ...data } : {};
@@ -435,73 +503,72 @@ export function trackPixelEvent(
     }
   }
 
-  // 2. Browser TikTok Pixel Dispatch (Pixel ID: DAMG8E3C77UF5LAHFVF0)
+  // 3. Browser TikTok Pixel Dispatch (Pixel ID: DAMG8E3C77UF5LAHFVF0)
   if (typeof window !== 'undefined' && (window as unknown as { ttq?: { page: () => void; track: (...args: unknown[]) => void; identify: (params: Record<string, unknown>) => void } }).ttq) {
     try {
       const ttq = (window as unknown as { ttq: { page: () => void; track: (...args: unknown[]) => void; identify: (params: Record<string, unknown>) => void } }).ttq;
 
-      // Identify user if contact information is available
-      if (options?.user?.phone || options?.user?.email) {
+      // Identify user with E.164 phone and email for TikTok Advanced Matching
+      if (normalizedPhone || options?.user?.email) {
         ttq.identify({
-          phone_number: options.user.phone,
-          email: options.user.email
+          ...(normalizedPhone ? { phone_number: normalizedPhone } : {}),
+          ...(options?.user?.email ? { email: options.user.email } : {})
         });
       }
 
       const eventOpts = { event_id: generatedEventId };
-      const val = typeof data?.value === 'number' ? data.value : 0;
-      const curr = (data?.currency as string) || 'NGN';
-      const cName = (data?.content_name as string) || 'Premium Gas Cooker';
-      const cId = ((data?.content_ids as string[])?.[0]) || (data?.order_id as string) || 'cooker';
+
+      // Standard TikTok Pixel contents array format required by TikTok Pixel Helper
+      const tiktokContents = [
+        {
+          content_id: cId,
+          content_type: 'product',
+          content_name: cName,
+          quantity: numItems,
+          price: unitPrice
+        }
+      ];
+
+      const standardTikTokPayload = {
+        contents: tiktokContents,
+        content_type: 'product',
+        content_id: cId,
+        content_name: cName,
+        quantity: numItems,
+        value: val,
+        currency: curr
+      };
 
       if (eventName === 'PageView') {
         ttq.page();
       } else if (eventName === 'ViewContent') {
-        ttq.track('ViewContent', {
-          content_id: cId,
-          content_type: 'product',
-          content_name: cName,
-          value: val,
-          currency: curr
-        }, eventOpts);
+        ttq.track('ViewContent', standardTikTokPayload, eventOpts);
       } else if (eventName === 'AddToCart') {
-        ttq.track('AddToCart', {
-          content_id: cId,
-          content_type: 'product',
-          content_name: cName,
-          quantity: (data?.num_items as number) || 1,
-          value: val,
-          currency: curr
-        }, eventOpts);
+        ttq.track('AddToCart', standardTikTokPayload, eventOpts);
+      } else if (eventName === 'InitiateCheckout') {
+        ttq.track('InitiateCheckout', standardTikTokPayload, eventOpts);
       } else if (eventName === 'Lead') {
         ttq.track('SubmitForm', {
-          content_name: cName,
-          value: val,
-          currency: curr
+          ...standardTikTokPayload,
+          description: 'Order Form Submission'
         }, eventOpts);
       } else if (eventName === 'Purchase') {
+        // CompletePayment is TikTok's standard Purchase optimization event
         ttq.track('CompletePayment', {
-          content_id: cId,
-          content_type: 'product',
-          content_name: cName,
-          quantity: (data?.num_items as number) || 1,
-          value: val,
-          currency: curr
+          ...standardTikTokPayload,
+          description: 'Cash On Delivery Order'
         }, eventOpts);
-        ttq.track('PlaceAnOrder', {
-          content_id: cId,
-          content_type: 'product',
-          content_name: cName,
-          value: val,
-          currency: curr
-        }, eventOpts);
+        // Also dispatch PlaceAnOrder with unique event_id to prevent collision
+        ttq.track('PlaceAnOrder', standardTikTokPayload, {
+          event_id: `${generatedEventId}_pao`
+        });
       }
     } catch {
       // Ignore TikTok tracking errors in sandboxed/offline environments
     }
   }
 
-  // 3. Server-Side Conversions & Events API Dispatch (Meta CAPI + TikTok Events API)
+  // 4. Server-Side Conversions & Events API Dispatch (Meta CAPI + TikTok Events API)
   if (typeof window !== 'undefined') {
     try {
       // Extract browser cookies if present (_fbp, _fbc, _ttp, ttclid)
@@ -520,6 +587,23 @@ export function trackPixelEvent(
         }
       }
 
+      // Prepare custom data with contents array
+      const customDataWithContents = {
+        ...data,
+        value: val,
+        currency: curr,
+        content_name: cName,
+        content_type: 'product',
+        contents: [
+          {
+            content_id: cId,
+            content_name: cName,
+            quantity: numItems,
+            price: unitPrice
+          }
+        ]
+      };
+
       // Meta Conversions API
       fetch('/api/meta-conversions', {
         method: 'POST',
@@ -531,10 +615,11 @@ export function trackPixelEvent(
           eventSourceUrl: window.location.href,
           user: {
             ...options?.user,
+            phone: normalizedPhone || options?.user?.phone,
             fbp,
             fbc
           },
-          customData: data
+          customData: customDataWithContents
         })
       }).catch(() => {});
 
@@ -549,10 +634,11 @@ export function trackPixelEvent(
           eventSourceUrl: window.location.href,
           user: {
             ...options?.user,
+            phone: normalizedPhone || options?.user?.phone,
             ttp,
             ttclid
           },
-          customData: data
+          customData: customDataWithContents
         })
       }).catch(() => {});
     } catch {

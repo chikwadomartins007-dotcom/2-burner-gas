@@ -31,6 +31,8 @@ import { PolicyType, ProductId, CartState } from './types';
 import {
   trackPixelEvent,
   PRODUCT_NAME,
+  PRODUCT_NAME_2B,
+  PRODUCT_NAME_5B,
   calculateMultiProductTotals
 } from './data/productData';
 
@@ -77,9 +79,25 @@ export default function App() {
   const scrollToOrderForm = (modelPreference?: unknown) => {
     // Only update selectedProduct if modelPreference is an explicit string match ('2-burner' or '5-burner')
     // and NOT a SyntheticEvent or MouseEvent passed by onClick handlers
+    const pref = (typeof modelPreference === 'string' && (modelPreference === '2-burner' || modelPreference === '5-burner'))
+      ? (modelPreference as ProductId)
+      : selectedProduct;
+
     if (typeof modelPreference === 'string' && (modelPreference === '2-burner' || modelPreference === '5-burner')) {
       setSelectedProduct(modelPreference as ProductId);
     }
+
+    // Fire InitiateCheckout conversion tracking for TikTok, Meta, and GTM
+    const checkoutItem = pref === '5-burner'
+      ? { name: PRODUCT_NAME_5B, price: 380000 }
+      : { name: PRODUCT_NAME_2B, price: 170000 };
+    trackPixelEvent('InitiateCheckout', {
+      content_name: checkoutItem.name,
+      content_ids: [pref],
+      value: checkoutItem.price,
+      currency: 'NGN',
+      num_items: 1
+    });
 
     // If an order was already placed, unlock the form so customer can place a new order
     if (hasPlacedOrder) {

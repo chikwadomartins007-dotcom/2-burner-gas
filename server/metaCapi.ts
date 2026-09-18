@@ -40,9 +40,12 @@ function hashSha256(val: string | undefined): string | undefined {
 function normalizePhone(phone: string | undefined): string | undefined {
   if (!phone) return undefined;
   let digits = phone.replace(/\D/g, "");
-  // If Nigerian format starting with 0, convert to +234
-  if (digits.startsWith("0") && digits.length === 11) {
+  if (digits.startsWith("2340") && digits.length === 14) {
+    digits = "234" + digits.slice(4);
+  } else if (digits.startsWith("0") && digits.length === 11) {
     digits = "234" + digits.slice(1);
+  } else if (!digits.startsWith("234") && digits.length === 10) {
+    digits = "234" + digits;
   }
   return hashSha256(digits);
 }
