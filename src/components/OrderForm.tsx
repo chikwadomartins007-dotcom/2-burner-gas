@@ -117,7 +117,9 @@ function calculateOrderDetails(
 
 function formatPhoneForWhatsApp(phone: string): string {
   let cleaned = phone.replace(/[^0-9]/g, '');
-  if (cleaned.startsWith('0') && cleaned.length === 11) {
+  if (cleaned.startsWith('2340') && cleaned.length === 14) {
+    cleaned = '234' + cleaned.slice(4);
+  } else if (cleaned.startsWith('0') && cleaned.length === 11) {
     cleaned = '234' + cleaned.slice(1);
   } else if (!cleaned.startsWith('234') && cleaned.length === 10) {
     cleaned = '234' + cleaned;
@@ -1238,9 +1240,12 @@ Please confirm my delivery dispatch.`;
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="phoneNumber" className="block text-xs font-medium text-slate-600 mb-1">
-                      PHONE NUMBER <span className="text-blue-600">*</span>
-                    </label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label htmlFor="phoneNumber" className="block text-xs font-medium text-slate-600">
+                        PHONE NUMBER <span className="text-blue-600">*</span>
+                      </label>
+                      <span className="text-[11px] text-slate-500 font-medium">🇳🇬 +234</span>
+                    </div>
                     <input
                       type="tel"
                       id="phoneNumber"
@@ -1248,24 +1253,33 @@ Please confirm my delivery dispatch.`;
                       required
                       value={formData.phoneNumber}
                       onChange={handleInputChange}
-                      placeholder="e.g. 08012345678"
+                      placeholder="e.g. +234 801 234 5678 or 08012345678"
                       className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 text-sm placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition-colors"
                     />
+                    <p className="text-[11px] text-slate-500 mt-1">
+                      You can enter your normal number without adding +234.
+                    </p>
                   </div>
 
                   <div>
-                    <label htmlFor="whatsappNumber" className="block text-xs font-medium text-slate-600 mb-1">
-                      WHATSAPP NUMBER (If different)
-                    </label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label htmlFor="whatsappNumber" className="block text-xs font-medium text-slate-600">
+                        WHATSAPP NUMBER (If different)
+                      </label>
+                      <span className="text-[11px] text-slate-500 font-medium">🇳🇬 +234</span>
+                    </div>
                     <input
                       type="tel"
                       id="whatsappNumber"
                       name="whatsappNumber"
                       value={formData.whatsappNumber}
                       onChange={handleInputChange}
-                      placeholder="e.g. 08012345678"
+                      placeholder="e.g. +234 801 234 5678 or 08012345678"
                       className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 text-sm placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white transition-colors"
                     />
+                    <p className="text-[11px] text-slate-500 mt-1">
+                      You can enter your normal WhatsApp number without +234.
+                    </p>
                   </div>
                 </div>
 
