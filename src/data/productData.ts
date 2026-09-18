@@ -494,7 +494,23 @@ export function trackPixelEvent(
   // 2. Browser Meta Pixel Dispatch
   if (typeof window !== 'undefined' && (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq) {
     try {
-      const pixelParams = data ? { ...data } : {};
+      const metaContents = [
+        {
+          id: cId,
+          quantity: numItems,
+          item_price: unitPrice
+        }
+      ];
+      const pixelParams = {
+        ...data,
+        value: val,
+        currency: curr,
+        content_name: cName,
+        content_type: 'product',
+        content_ids: [cId],
+        contents: metaContents,
+        num_items: numItems
+      };
       (window as unknown as { fbq: (...args: unknown[]) => void }).fbq('track', eventName, pixelParams, {
         eventID: generatedEventId
       });
@@ -553,12 +569,19 @@ export function trackPixelEvent(
           description: 'Order Form Submission'
         }, eventOpts);
       } else if (eventName === 'Purchase') {
-        // CompletePayment is TikTok's standard Purchase optimization event
-        ttq.track('CompletePayment', {
+        // Standard TikTok Purchase event (recommended by TikTok for all purchase campaigns)
+        ttq.track('Purchase', {
           ...standardTikTokPayload,
           description: 'Cash On Delivery Order'
         }, eventOpts);
-        // Also dispatch PlaceAnOrder with unique event_id to prevent collision
+        // CompletePayment event (supported concurrently for advertisers optimizing on CompletePayment)
+        ttq.track('CompletePayment', {
+          ...standardTikTokPayload,
+          description: 'Cash On Delivery Order'
+        }, {
+          event_id: `${generatedEventId}_cp`
+        });
+        // Also dispatch PlaceAnOrder with unique event_id
         ttq.track('PlaceAnOrder', standardTikTokPayload, {
           event_id: `${generatedEventId}_pao`
         });
@@ -647,4 +670,37 @@ export function trackPixelEvent(
   }
 
   return generatedEventId;
+}
+
+// Global browser test helper for advertisers to test & activate Purchase events
+if (typeof window !== 'undefined') {
+  (window as unknown as { trackPixelEvent: typeof trackPixelEvent }).trackPixelEvent = trackPixelEvent;
+  (window as unknown as { triggerPurchaseEvent: (amount?: number) => string }).triggerPurchaseEvent = (amount: number = 170000) => {
+    const testOrderId = `ORD-${Date.now().toString().slice(-6)}`;
+    trackPixelEvent(
+      'Purchase',
+      {
+        value: amount,
+        currency: 'NGN',
+        content_name: 'Premium 2-Burner Glass Gas Cooker',
+        content_type: 'product',
+        content_ids: ['2-burner'],
+        num_items: 1,
+        order_id: testOrderId
+      },
+      {
+        eventId: testOrderId,
+        user: {
+          phone: '+2348147778029',
+          firstName: 'Test',
+          lastName: 'Customer',
+          city: 'Lagos',
+          state: 'Lagos',
+          country: 'ng'
+        }
+      }
+    );
+    console.log(`[Pixel Tracking] Fired Purchase conversion event successfully with Order ID: #${testOrderId}`);
+    return testOrderId;
+  };
 }

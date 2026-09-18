@@ -135,26 +135,62 @@ export async function sendTikTokEvent(
       },
     ];
 
+  const eventsList =
+    event.eventName === "Purchase"
+      ? [
+          {
+            event: "Purchase",
+            event_time: Math.floor(Date.now() / 1000),
+            event_id: event.eventId || undefined,
+            user: userPayload,
+            properties: {
+              currency: event.customData?.currency || "NGN",
+              value: event.customData?.value || undefined,
+              content_type: "product",
+              contents,
+            },
+            page: {
+              url: sourceUrl,
+            },
+          },
+          {
+            event: "CompletePayment",
+            event_time: Math.floor(Date.now() / 1000),
+            event_id: event.eventId ? `${event.eventId}_cp` : undefined,
+            user: userPayload,
+            properties: {
+              currency: event.customData?.currency || "NGN",
+              value: event.customData?.value || undefined,
+              content_type: "product",
+              contents,
+            },
+            page: {
+              url: sourceUrl,
+            },
+          },
+        ]
+      : [
+          {
+            event: tiktokEventName,
+            event_time: Math.floor(Date.now() / 1000),
+            event_id: event.eventId || undefined,
+            user: userPayload,
+            properties: {
+              currency: event.customData?.currency || "NGN",
+              value: event.customData?.value || undefined,
+              content_type: "product",
+              contents,
+            },
+            page: {
+              url: sourceUrl,
+            },
+          },
+        ];
+
   const bodyData: Record<string, unknown> = {
     event_source: "web",
     event_source_id: pixelId,
-    data: [
-      {
-        event: tiktokEventName,
-        event_time: Math.floor(Date.now() / 1000),
-        event_id: event.eventId || undefined,
-        user: userPayload,
-        properties: {
-          currency: event.customData?.currency || "NGN",
-          value: event.customData?.value || undefined,
-          content_type: "product",
-          contents,
-        },
-        page: {
-          url: sourceUrl,
-        },
-      },
-    ],
+    data: eventsList,
   };
 
   if (testEventCode) {

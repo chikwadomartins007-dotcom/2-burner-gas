@@ -74,6 +74,38 @@ export default function App() {
       value: 170000,
       currency: 'NGN'
     });
+
+    // If advertiser/tester visits with ?test_purchase=1 or ?trigger_purchase=1 in URL
+    if (typeof window !== 'undefined' && window.location.search) {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('test_purchase') === '1' || params.get('trigger_purchase') === '1' || params.get('test_event') === 'purchase') {
+        const testOrderId = `ORD-TEST-${Date.now().toString().slice(-4)}`;
+        trackPixelEvent(
+          'Purchase',
+          {
+            value: 170000,
+            currency: 'NGN',
+            content_name: PRODUCT_NAME,
+            content_type: 'product',
+            content_ids: ['2-burner'],
+            num_items: 1,
+            order_id: testOrderId
+          },
+          {
+            eventId: testOrderId,
+            user: {
+              phone: '+2348147778029',
+              firstName: 'Test',
+              lastName: 'Buyer',
+              city: 'Lagos',
+              state: 'Lagos',
+              country: 'ng'
+            }
+          }
+        );
+        console.log(`[Pixel Verification] Fired test Purchase event (#${testOrderId}) from URL parameter.`);
+      }
+    }
   }, []);
 
   const scrollToOrderForm = (modelPreference?: unknown) => {
