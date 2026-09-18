@@ -1,21 +1,14 @@
 import React, { useState } from 'react';
-import {
-  PRODUCT_OPTIONS,
-  formatNaira
-} from '../data/productData';
 import { ProductId } from '../types';
 import {
-  Flame,
-  Zap,
-  Clock,
-  ShieldAlert,
-  Sparkles,
+  formatNaira
+} from '../data/productData';
+import {
   ArrowRight,
-  Check,
+  ShoppingBag,
   Maximize2,
-  ExternalLink,
-  Tag,
-  ShoppingBag
+  CheckCircle2,
+  Zap
 } from 'lucide-react';
 
 interface AlternativeProductSectionProps {
@@ -31,84 +24,71 @@ export const AlternativeProductSection: React.FC<AlternativeProductSectionProps>
   onImageClick,
   onOrderClick
 }) => {
-  const product = PRODUCT_OPTIONS['5-burner'];
   const [activeImageIdx, setActiveImageIdx] = useState(0);
 
   const images = [
     {
       url: '/images/Hd84f5f7654644224945b4ea055aa07a1Y.png',
-      title: '5-Burner Hybrid Cooktop Blueprint & Overview',
-      subtitle: '4 Gas Burners + 1 Radiant Ceramic Electric Zone'
+      title: '5-Burner Hybrid Cooktop Overview'
     },
     {
       url: '/images/H4183961f34a64d47a5f116fa6bfddf7eE.png',
-      title: 'Articulated Flip-Up Hinged Burners',
-      subtitle: 'Lifts Upward for Effortless 10-Second 1-Wipe Cleaning'
+      title: 'Flip-Up Hinged Burners for 10-Second Cleaning'
     },
     {
       url: '/images/Hfcba7190a6324ecf8c6f0db5852a902fC.jpg',
-      title: 'Official Dimension Blueprint (900 × 510 mm)',
-      subtitle: 'Cutout: 870 × 480 mm • Package: 970 × 570 × 250 mm'
-    },
-    {
-      url: '/images/H6d042f563b4c47b08ba59b298031b8c1A.jpg',
-      title: 'Simultaneous Multi-Pot Cooking Experience',
-      subtitle: '5 Well-Spaced Cooking Stations with Zero Crowding'
+      title: '5-Burner Dimensions (900 × 510 mm)'
     }
   ];
 
   return (
-    <section id="alternative-product" className="py-16 md:py-24 bg-white border-b border-neutral-200 scroll-mt-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="max-w-3xl mx-auto text-center space-y-4 mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-red-50 border border-red-200 text-red-600 shadow-sm">
-            <Sparkles className="w-3.5 h-3.5 text-red-600" />
-            Alternative Kitchen Upgrade Option
+    <section id="alternative-product" className="py-12 md:py-16 bg-slate-50 border-b border-slate-200 scroll-mt-16">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
+        {/* Simple Section Header */}
+        <div className="text-center space-y-1.5 mb-8">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red-100 text-red-700">
+            <Zap className="w-3.5 h-3.5" />
+            <span>Alternative Model</span>
           </div>
-          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-neutral-900 tracking-tight">
-            LOOKING FOR LARGER CAPACITY?
+          <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Need More Cooking Space?
           </h2>
-          <p className="text-base sm:text-lg text-neutral-600 leading-relaxed">
-            Upgrade to the <strong className="text-neutral-900">5-Burner Gas & Electric Hybrid Cooktop</strong> — featuring 4 hinged gas burners, a central radiant ceramic electric hotplate, digital countdown timer, and automatic off safety key.
+          <p className="text-sm text-slate-600">
+            For large families or simultaneous cooking, we also offer the 5-Burner Gas & Electric Hybrid Cooktop.
           </p>
         </div>
 
-        {/* Main Product Showcase Box */}
-        <div className="rounded-3xl bg-gradient-to-b from-white to-red-50/20 border-2 border-red-100 p-6 sm:p-10 shadow-xl space-y-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-            {/* Left: Image Carousel / Preview */}
-            <div className="lg:col-span-6 space-y-4">
+        {/* Simple, Streamlined Card */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-md p-5 sm:p-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            {/* Left: Product Image & Mini Thumbnails */}
+            <div className="space-y-3">
               <div
-                className="relative rounded-2xl bg-white border border-neutral-200 overflow-hidden aspect-[4/3] flex items-center justify-center cursor-pointer group shadow-md"
+                className="relative rounded-xl bg-slate-100 border border-slate-200 aspect-[4/3] flex items-center justify-center cursor-pointer overflow-hidden group"
                 onClick={() => onImageClick(images[activeImageIdx].url, images[activeImageIdx].title)}
               >
                 <img
                   src={images[activeImageIdx].url}
                   alt={images[activeImageIdx].title}
-                  className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300"
                 />
-
-                <div className="absolute top-3 left-3 bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-bold shadow-sm">
-                  {images[activeImageIdx].subtitle}
-                </div>
-
-                <div className="absolute bottom-3 right-3 bg-neutral-900/80 text-white backdrop-blur-md px-2.5 py-1 rounded-lg text-xs flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Maximize2 className="w-3.5 h-3.5 text-white" />
-                  <span>Tap to Enlarge</span>
+                <div className="absolute bottom-2 right-2 bg-slate-900/80 text-white text-[11px] font-semibold px-2 py-1 rounded-md flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Maximize2 className="w-3 h-3" />
+                  <span>Enlarge</span>
                 </div>
               </div>
 
               {/* Thumbnails */}
-              <div className="grid grid-cols-4 gap-3">
+              <div className="flex gap-2 justify-center">
                 {images.map((img, i) => (
                   <button
                     key={i}
+                    type="button"
                     onClick={() => setActiveImageIdx(i)}
-                    className={`rounded-xl bg-white border overflow-hidden p-1.5 transition-all aspect-square flex items-center justify-center cursor-pointer ${
+                    className={`w-14 h-12 rounded-lg bg-slate-50 border overflow-hidden p-1 transition-all cursor-pointer ${
                       activeImageIdx === i
-                        ? 'border-2 border-red-600 shadow-md scale-95 ring-2 ring-red-100'
-                        : 'border-neutral-200 opacity-70 hover:opacity-100'
+                        ? 'border-2 border-red-600 ring-2 ring-red-100'
+                        : 'border-slate-200 opacity-60 hover:opacity-100'
                     }`}
                   >
                     <img
@@ -121,98 +101,58 @@ export const AlternativeProductSection: React.FC<AlternativeProductSectionProps>
               </div>
             </div>
 
-            {/* Right: Detailed Highlights & Specs */}
-            <div className="lg:col-span-6 space-y-6">
-              <div className="space-y-2">
-                <span className="text-xs uppercase font-extrabold tracking-wider text-red-600">
-                  Dual-Fuel Gas + Electric Built-In Hob
+            {/* Right: Essential Info & Action */}
+            <div className="space-y-4">
+              <div>
+                <span className="text-[11px] font-bold text-red-600 uppercase tracking-wide">
+                  5-Burner Gas & Electric Hybrid
                 </span>
-                <h3 className="font-display text-2xl sm:text-3xl font-extrabold text-neutral-900">
-                  5-Burner Gas & Electric Cooktop with Digital Timer
+                <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">
+                  Executive 5-Burner Cooktop
                 </h3>
-                <p className="text-sm text-neutral-600 leading-relaxed">
-                  Never get stranded when your gas cylinder finishes in the middle of a meal. With 4 heavy-duty gas burners and 1 central radiant ceramic electric hotplate, you enjoy uninterrupted cooking flexibility at all times.
+                <p className="text-xs text-slate-500 mt-1">
+                  Dimensions: 900 × 510 mm (Cutout: 870 × 480 mm)
                 </p>
               </div>
 
-              {/* Highlight Bullets */}
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-red-50 border border-red-200 flex items-center justify-center flex-shrink-0 text-red-600 mt-0.5">
-                    <Zap className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <strong className="text-sm text-neutral-900 block">Dual-Fuel Gas + Electric Power:</strong>
-                    <span className="text-xs text-neutral-600">
-                      4 high-speed gas burners + 1 radiant ceramic electric zone (2000W). If gas finishes, switch to electric instantly.
-                    </span>
-                  </div>
+              {/* Price Tag */}
+              <div className="bg-red-50/70 border border-red-200 rounded-xl p-3 flex items-center justify-between">
+                <div>
+                  <span className="text-[11px] text-slate-600 block">Starting Price:</span>
+                  <span className="text-2xl font-black text-red-600">{formatNaira(280000)}</span>
                 </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-red-50 border border-red-200 flex items-center justify-center flex-shrink-0 text-red-600 mt-0.5">
-                    <Clock className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <strong className="text-sm text-neutral-900 block">Digital Touch Timer (1 to 99 Mins):</strong>
-                    <span className="text-xs text-neutral-600">
-                      Countdown timer with automatic power cutoff on the digital display so sauces and stews never burn.
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-red-50 border border-red-200 flex items-center justify-center flex-shrink-0 text-red-600 mt-0.5">
-                    <ShieldAlert className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <strong className="text-sm text-neutral-900 block">Automatic-Off Safety Key & Child Lock:</strong>
-                    <span className="text-xs text-neutral-600">
-                      One-touch master emergency shutdown immediately cuts active heating for maximum household safety.
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-red-50 border border-red-200 flex items-center justify-center flex-shrink-0 text-red-600 mt-0.5">
-                    <Sparkles className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <strong className="text-sm text-neutral-900 block">Flip-Up Hinged Burners for 10-Second Cleaning:</strong>
-                    <span className="text-xs text-neutral-600">
-                      Simply tilt each burner upward to wipe underneath without dismantling dirty caps or soaking parts.
-                    </span>
-                  </div>
-                </div>
+                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-md">
+                  Pay on Delivery
+                </span>
               </div>
 
-              {/* Dimensions Card */}
-              <div className="p-4 rounded-xl bg-white border border-red-200 shadow-sm flex items-center justify-between text-xs text-neutral-700">
-                <div>
-                  <span className="text-neutral-500 block font-medium">Panel Dimensions:</span>
-                  <strong className="text-neutral-900 font-bold">900 × 510 mm</strong>
-                </div>
-                <div>
-                  <span className="text-neutral-500 block font-medium">Cutout Dimensions:</span>
-                  <strong className="text-neutral-900 font-bold">870 × 480 mm</strong>
-                </div>
-                <div>
-                  <span className="text-neutral-500 block font-medium">Starting Price:</span>
-                  <strong className="text-red-600 font-extrabold text-sm">₦280,000</strong>
-                </div>
-              </div>
+              {/* Simple Feature Highlights */}
+              <ul className="space-y-2 text-xs sm:text-sm text-slate-700">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span><strong>Dual-Fuel:</strong> 4 gas burners + 1 electric hotplate (2000W)</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span><strong>Flip-Up Hinges:</strong> Lifts up for quick 10-second wipe cleaning</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span><strong>Digital Timer:</strong> Auto-cutoff countdown & emergency child lock</span>
+                </li>
+              </ul>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+              <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
                 <button
                   type="button"
                   onClick={() => {
                     onSelectProduct('5-burner');
                     onOrderClick();
                   }}
-                  className="w-full sm:w-auto flex-1 py-3.5 px-6 rounded-xl bg-red-600 text-white font-bold text-xs uppercase tracking-wider hover:bg-red-700 transition-all shadow-lg shadow-red-600/25 active:scale-95 flex items-center justify-center gap-2 cursor-pointer animate-order-loop"
+                  className="flex-1 py-3 px-4 rounded-xl bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer"
                 >
-                  <span>ORDER 5-BURNER NOW</span>
+                  <span>ORDER 5-BURNER</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
 
@@ -220,68 +160,17 @@ export const AlternativeProductSection: React.FC<AlternativeProductSectionProps>
                   <button
                     type="button"
                     onClick={() => onAddToCart('5-burner')}
-                    className="w-full sm:w-auto py-3.5 px-5 rounded-xl border-2 border-red-600 bg-white hover:bg-red-50 text-red-600 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer active:scale-98"
+                    className="py-3 px-4 rounded-xl border border-red-600 hover:bg-red-50 text-red-600 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                   >
-                    <ShoppingBag className="w-4 h-4 text-red-600" />
+                    <ShoppingBag className="w-4 h-4" />
                     <span>ADD TO CART</span>
                   </button>
                 )}
-
-                <a
-                  href="https://www.maxluxurybathrooms.online/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full sm:w-auto py-3.5 px-4 rounded-xl bg-white border border-neutral-300 hover:border-red-300 text-neutral-800 hover:text-red-600 font-bold text-xs flex items-center justify-center gap-2 transition-colors shadow-sm"
-                >
-                  <span>Original Website</span>
-                  <ExternalLink className="w-3.5 h-3.5 text-neutral-500" />
-                </a>
               </div>
-            </div>
-          </div>
 
-          {/* 5-Burner Bulk Pricing Tiers */}
-          <div className="border-t border-neutral-200 pt-8">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-bold uppercase tracking-wider text-red-600 flex items-center gap-1.5">
-                <Tag className="w-3.5 h-3.5 text-red-600" />
-                5-Burner Hybrid Bulk Pricing Tiers (Payment on Delivery)
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {product.pricingTiers.map((tier) => (
-                <div
-                  key={tier.quantity}
-                  onClick={() => {
-                    onSelectProduct('5-burner');
-                    onOrderClick();
-                  }}
-                  className="p-4 rounded-xl bg-white border border-neutral-200 shadow-sm hover:border-red-400 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
-                >
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-sm text-neutral-900">{tier.label}</span>
-                      {tier.isPopular && (
-                        <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-red-600 text-white shadow-sm">
-                          Popular
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-xl font-extrabold text-red-600">
-                      {formatNaira(tier.unitPrice)}
-                      <span className="text-xs font-normal text-neutral-500 ml-1">each</span>
-                    </div>
-                    <div className="text-xs text-neutral-500">
-                      Total: <span className="text-neutral-900 font-bold">{formatNaira(tier.totalPrice)}</span>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 text-[11px] text-emerald-700 font-bold">
-                    {tier.savingsNote}
-                  </div>
-                </div>
-              ))}
+              <div className="text-center text-[11px] text-slate-500">
+                ✓ Free nationwide delivery included • 1-Year warranty
+              </div>
             </div>
           </div>
         </div>

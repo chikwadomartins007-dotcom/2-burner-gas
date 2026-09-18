@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
+import { TopAlternativeBanner } from './components/TopAlternativeBanner';
 import { UrgencyStockBar } from './components/UrgencyStockBar';
 import { HeroSection } from './components/HeroSection';
 import { ProblemSolutionSection } from './components/ProblemSolutionSection';
@@ -11,7 +12,6 @@ import { ProductGallery } from './components/ProductGallery';
 import { DimensionsSection } from './components/DimensionsSection';
 import { WhyYouWillLoveIt } from './components/WhyYouWillLoveIt';
 import { LifestyleSection } from './components/LifestyleSection';
-import { ReviewsSection } from './components/ReviewsSection';
 import { HowItWorks } from './components/HowItWorks';
 import { PricingSection } from './components/PricingSection';
 import { TrustSection } from './components/TrustSection';
@@ -195,6 +195,14 @@ export default function App() {
     setLightboxImage({ url, title });
   };
 
+  const scrollToAlternative = () => {
+    setSelectedProduct('5-burner');
+    const el = document.getElementById('alternative-product');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   // Compute live cart figures
   const cartTotals = calculateMultiProductTotals(cart);
   const totalCartCount = (cart['2-burner'] || 0) + (cart['5-burner'] || 0);
@@ -208,6 +216,9 @@ export default function App() {
         cartCount={totalCartCount}
         cartTotal={cartTotals.grandTotal}
       />
+
+      {/* Top Moving Button to Alternative Product (5-Burner Hybrid) */}
+      <TopAlternativeBanner onNavigateToAlternative={scrollToAlternative} />
 
       {/* Scarcity / Countdown / Stock Bar (Inspired by luxury home tech store) */}
       <UrgencyStockBar onOrderClick={scrollToOrderForm} />
@@ -260,9 +271,6 @@ export default function App() {
         <ProductGallery
           onImageClick={handleOpenLightbox}
         />
-
-        {/* Customer Reviews & Testimonials Section (Imitating live user feedback) */}
-        <ReviewsSection onOrderClick={scrollToOrderForm} />
 
         {/* Dimensions & Installation Guide */}
         <DimensionsSection

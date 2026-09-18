@@ -14,6 +14,12 @@
 }
 
 /* Custom smooth styling */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -262,5 +268,27 @@ html {
 
 .animate-fade-in {
   animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* Continuous one-direction linear movement animation for top alternative product button */
+@keyframes moveOneDirection {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-one-direction {
+  display: flex;
+  width: max-content;
+  animation: moveOneDirection 20s linear infinite;
+  will-change: transform;
+}
+
+.animate-one-direction:hover,
+.animate-one-direction:active {
+  animation-play-state: paused;
 }
 

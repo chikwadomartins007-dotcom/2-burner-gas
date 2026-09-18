@@ -65,11 +65,6 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPolicy, onOrderClick }) =>
                 </a>
               </li>
               <li>
-                <a href="#reviews" className="hover:text-red-600 transition-colors">
-                  Customer Reviews
-                </a>
-              </li>
-              <li>
                 <a href="#pricing" className="hover:text-red-600 transition-colors">
                   Bulk Pricing Tiers
                 </a>
