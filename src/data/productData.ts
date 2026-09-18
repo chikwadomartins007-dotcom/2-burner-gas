@@ -402,8 +402,8 @@ export const FAQ_ITEMS: FAQItem[] = [
   }
 ];
 
-// Meta Pixel & Conversions API (CAPI) Tracking Helper
-// Sends client-side pixel events to both active datasets, and mirrors them to /api/meta-conversions with shared eventID for deduplication
+// Multi-Platform Pixel & Conversions API Tracking Helper (Meta + TikTok + GTM)
+// Sends client-side pixel events and mirrors them to server-side APIs with shared eventID for deduplication
 export function trackPixelEvent(
   eventName: string,
   data?: Record<string, unknown>,
@@ -420,10 +420,10 @@ export function trackPixelEvent(
     };
   }
 ) {
-  // Generate consistent eventId for Meta deduplication between browser pixel and server CAPI
+  // Generate consistent eventId for deduplication between browser pixel and server API
   const generatedEventId = options?.eventId || (data?.order_id as string) || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `evt_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`);
 
-  // 1. Browser Meta Pixel Dispatch (both pixels initialized in index.html)
+  // 1. Browser Meta Pixel Dispatch
   if (typeof window !== 'undefined' && (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq) {
     try {
       const pixelParams = data ? { ...data } : {};
@@ -435,25 +435,95 @@ export function trackPixelEvent(
     }
   }
 
-  // 2. Server-Side Conversions API (CAPI) Dispatch
+  // 2. Browser TikTok Pixel Dispatch (Pixel ID: DAMG8E3C77UF5LAHFVF0)
+  if (typeof window !== 'undefined' && (window as unknown as { ttq?: { page: () => void; track: (...args: unknown[]) => void; identify: (params: Record<string, unknown>) => void } }).ttq) {
+    try {
+      const ttq = (window as unknown as { ttq: { page: () => void; track: (...args: unknown[]) => void; identify: (params: Record<string, unknown>) => void } }).ttq;
+
+      // Identify user if contact information is available
+      if (options?.user?.phone || options?.user?.email) {
+        ttq.identify({
+          phone_number: options.user.phone,
+          email: options.user.email
+        });
+      }
+
+      const eventOpts = { event_id: generatedEventId };
+      const val = typeof data?.value === 'number' ? data.value : 0;
+      const curr = (data?.currency as string) || 'NGN';
+      const cName = (data?.content_name as string) || 'Premium Gas Cooker';
+      const cId = ((data?.content_ids as string[])?.[0]) || (data?.order_id as string) || 'cooker';
+
+      if (eventName === 'PageView') {
+        ttq.page();
+      } else if (eventName === 'ViewContent') {
+        ttq.track('ViewContent', {
+          content_id: cId,
+          content_type: 'product',
+          content_name: cName,
+          value: val,
+          currency: curr
+        }, eventOpts);
+      } else if (eventName === 'AddToCart') {
+        ttq.track('AddToCart', {
+          content_id: cId,
+          content_type: 'product',
+          content_name: cName,
+          quantity: (data?.num_items as number) || 1,
+          value: val,
+          currency: curr
+        }, eventOpts);
+      } else if (eventName === 'Lead') {
+        ttq.track('SubmitForm', {
+          content_name: cName,
+          value: val,
+          currency: curr
+        }, eventOpts);
+      } else if (eventName === 'Purchase') {
+        ttq.track('CompletePayment', {
+          content_id: cId,
+          content_type: 'product',
+          content_name: cName,
+          quantity: (data?.num_items as number) || 1,
+          value: val,
+          currency: curr
+        }, eventOpts);
+        ttq.track('PlaceAnOrder', {
+          content_id: cId,
+          content_type: 'product',
+          content_name: cName,
+          value: val,
+          currency: curr
+        }, eventOpts);
+      }
+    } catch {
+      // Ignore TikTok tracking errors in sandboxed/offline environments
+    }
+  }
+
+  // 3. Server-Side Conversions & Events API Dispatch (Meta CAPI + TikTok Events API)
   if (typeof window !== 'undefined') {
     try {
-      // Extract _fbp and _fbc browser cookies if present
+      // Extract browser cookies if present (_fbp, _fbc, _ttp, ttclid)
       let fbp: string | undefined;
       let fbc: string | undefined;
+      let ttp: string | undefined;
+      let ttclid: string | undefined;
+
       if (document.cookie) {
         const cookies = document.cookie.split('; ');
         for (const c of cookies) {
           if (c.startsWith('_fbp=')) fbp = c.substring(5);
           if (c.startsWith('_fbc=')) fbc = c.substring(5);
+          if (c.startsWith('_ttp=')) ttp = c.substring(5);
+          if (c.startsWith('ttclid=')) ttclid = c.substring(7);
         }
       }
 
+      // Meta Conversions API
       fetch('/api/meta-conversions', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         keepalive: true,
         body: JSON.stringify({
           eventName,
@@ -466,9 +536,25 @@ export function trackPixelEvent(
           },
           customData: data
         })
-      }).catch(() => {
-        // Non-blocking background call
-      });
+      }).catch(() => {});
+
+      // TikTok Events API
+      fetch('/api/tiktok-events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        keepalive: true,
+        body: JSON.stringify({
+          eventName,
+          eventId: generatedEventId,
+          eventSourceUrl: window.location.href,
+          user: {
+            ...options?.user,
+            ttp,
+            ttclid
+          },
+          customData: data
+        })
+      }).catch(() => {});
     } catch {
       // Silent error fallback
     }

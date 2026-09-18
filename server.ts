@@ -4,6 +4,7 @@ import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
 import { sendMetaConversionEvent, MetaCapiEventData } from "./server/metaCapi";
+import { sendTikTokEvent, TikTokEventData } from "./server/tiktokEventsApi";
 
 dotenv.config();
 
@@ -220,6 +221,29 @@ async function startServer() {
       return res.status(500).json({
         status: "error",
         error: capiErr instanceof Error ? capiErr.message : String(capiErr),
+      });
+    }
+  });
+
+  // TikTok Events API (Conversions API) Proxy Endpoint
+  app.post("/api/tiktok-events", async (req, res) => {
+    try {
+      const eventData: TikTokEventData = req.body;
+      if (!eventData || !eventData.eventName) {
+        return res.status(400).json({ error: "Missing required eventName" });
+      }
+
+      const ip = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() || req.socket.remoteAddress || "";
+      const userAgent = (req.headers["user-agent"] as string) || "";
+      const referer = (req.headers["referer"] as string) || "";
+
+      const result = await sendTikTokEvent(eventData, { ip, userAgent, referer });
+      return res.json({ status: "processed", result });
+    } catch (ttErr) {
+      console.error("[TikTok Events API Error in /api/tiktok-events]:", ttErr);
+      return res.status(500).json({
+        status: "error",
+        error: ttErr instanceof Error ? ttErr.message : String(ttErr),
       });
     }
   });
