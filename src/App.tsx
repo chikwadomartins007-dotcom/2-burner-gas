@@ -27,6 +27,8 @@ import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { GeminiChatBot } from './components/GeminiChatBot';
 import { ImageLightboxModal } from './components/ImageLightboxModal';
 import { PolicyModals } from './components/PolicyModals';
+import { AlternativeProductModal } from './components/AlternativeProductModal';
+import { AlternativeProductData } from './data/alternativeProductsData';
 import { PolicyType, ProductId, CartState } from './types';
 import {
   trackPixelEvent,
@@ -53,6 +55,15 @@ export default function App() {
   const [orderWhatsappUrl, setOrderWhatsappUrl] = useState<string>('');
 
   const [resetOrderSignal, setResetOrderSignal] = useState<number>(0);
+
+  // Alternative product modal state
+  const [modalAlternativeProduct, setModalAlternativeProduct] = useState<AlternativeProductData | null>(null);
+  const [isAlternativeModalOpen, setIsAlternativeModalOpen] = useState<boolean>(false);
+
+  const handleOpenAlternativeModal = (product: AlternativeProductData) => {
+    setModalAlternativeProduct(product);
+    setIsAlternativeModalOpen(true);
+  };
 
   const handleOrderSuccess = (details: { whatsappUrl?: string }) => {
     setHasPlacedOrder(true);
@@ -195,8 +206,19 @@ export default function App() {
     setLightboxImage({ url, title });
   };
 
+  const [alternativeTab, setAlternativeTab] = useState<'5-burner' | 'piano-sink'>('5-burner');
+
   const scrollToAlternative = () => {
     setSelectedProduct('5-burner');
+    setAlternativeTab('5-burner');
+    const el = document.getElementById('alternative-product');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const scrollToAlternativeSink = () => {
+    setAlternativeTab('piano-sink');
     const el = document.getElementById('alternative-product');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
@@ -205,7 +227,7 @@ export default function App() {
 
   // Compute live cart figures
   const cartTotals = calculateMultiProductTotals(cart);
-  const totalCartCount = (cart['2-burner'] || 0) + (cart['5-burner'] || 0);
+  const totalCartCount = (cart['2-burner'] || 0) + (cart['5-burner'] || 0) + (cart['piano-sink'] || 0);
 
   return (
     <div className="min-h-screen bg-white text-neutral-900 flex flex-col selection:bg-red-600 selection:text-white">
@@ -217,8 +239,15 @@ export default function App() {
         cartTotal={cartTotals.grandTotal}
       />
 
-      {/* Top Moving Button to Alternative Product (5-Burner Hybrid) */}
-      <TopAlternativeBanner onNavigateToAlternative={scrollToAlternative} />
+      {/* Top Moving Button to Alternative Products (Matching Cooktops & Sinks) */}
+      <TopAlternativeBanner
+        onViewProduct={handleOpenAlternativeModal}
+        onSelectForOrder={(pid) => {
+          setSelectedProduct(pid);
+          handleAddToCart(pid, 1);
+          scrollToOrderForm();
+        }}
+      />
 
       {/* Scarcity / Countdown / Stock Bar (Inspired by luxury home tech store) */}
       <UrgencyStockBar onOrderClick={scrollToOrderForm} />
@@ -246,8 +275,10 @@ export default function App() {
           onImageClick={handleOpenLightbox}
         />
 
-        {/* Alternative Product Showcase: 5-Burner Gas & Electric Hybrid */}
+        {/* Alternative Product Showcase: 5-Burner Gas & Electric Hybrid & Smart Piano Sink */}
         <AlternativeProductSection
+          activeAlternativeTab={alternativeTab}
+          onTabChange={setAlternativeTab}
           onSelectProduct={(pid) => {
             setSelectedProduct(pid);
             handleAddToCart(pid, 1);
@@ -370,7 +401,7 @@ export default function App() {
         onScrollToAlternatives={scrollToAlternatives}
       />
 
-      {/* Live Social Proof Recent Sales Popup (from moonlightluxuryhometech.shop) */}
+      {/* Live Social Proof Recent Sales Popup */}
       <RecentSalesPopup onOrderClick={scrollToOrderForm} />
 
       {/* Floating WhatsApp Chat Button (Only visible after order is placed) */}
@@ -397,6 +428,23 @@ export default function App() {
       <PolicyModals
         activePolicy={activePolicy}
         onClose={() => setActivePolicy(null)}
+      />
+
+      {/* Alternative Product Detail Modal */}
+      <AlternativeProductModal
+        product={modalAlternativeProduct}
+        isOpen={isAlternativeModalOpen}
+        onClose={() => setIsAlternativeModalOpen(false)}
+        onSelectForOrder={(pid) => {
+          setIsAlternativeModalOpen(false);
+          setSelectedProduct(pid);
+          handleAddToCart(pid, 1);
+          scrollToOrderForm();
+        }}
+        onAddToCart={(pid) => {
+          handleAddToCart(pid, 1);
+          setIsCartOpen(true);
+        }}
       />
     </div>
   );

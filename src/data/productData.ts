@@ -80,6 +80,31 @@ export const PRICING_TIERS_5B: PricingTier[] = [
   }
 ];
 
+export const PRICING_TIERS_SINK: PricingTier[] = [
+  {
+    quantity: 1,
+    unitPrice: 140000,
+    totalPrice: 140000,
+    label: '1 COMPLETE SET',
+    savingsNote: 'Special Promo (Regular ₦160,000)'
+  },
+  {
+    quantity: 2,
+    unitPrice: 135000,
+    totalPrice: 270000,
+    label: '2 COMPLETE SETS',
+    savingsNote: 'Save ₦10,000 extra (₦135,000 each)',
+    isPopular: true
+  },
+  {
+    quantity: 3,
+    unitPrice: 130000,
+    totalPrice: 390000,
+    label: '3 SETS & ABOVE',
+    savingsNote: 'Contractor / Villa Tier: ₦130,000 each'
+  }
+];
+
 export const PRODUCT_OPTIONS: Record<ProductId, ProductOption> = {
   '2-burner': {
     id: '2-burner',
@@ -122,10 +147,36 @@ export const PRODUCT_OPTIONS: Record<ProductId, ProductOption> = {
       'Executive 900×510mm flush built-in seamless fitment'
     ],
     pricingTiers: PRICING_TIERS_5B
+  },
+  'piano-sink': {
+    id: 'piano-sink',
+    name: 'Smart Kitchen Piano Sink Workstation (With Digital Temp Display & Waterfall)',
+    shortName: 'Smart Kitchen Piano Sink',
+    tagline: 'Multifunctional Nano Stainless Steel Workstation with Flying Rain Waterfall',
+    description: 'Luxury 750×450mm nano honeycomb stainless steel smart workstation sink with independent mechanical piano keys, flying rain waterfall, 360° pull-out sprayer, high-pressure cup washer, and zero-wiring hydroelectric real-time LED temperature display.',
+    basePrice: 140000,
+    mainImage: '/images/smart_piano_sink.jpg',
+    dimensions: '750 × 450 mm (205 mm Deep Basin)',
+    cutout: '720 × 420 mm (Topmount / Undermount / Flush)',
+    fuelType: 'Hydroelectric Self-Powered LED (Zero Batteries / Zero Wiring)',
+    burnerCount: '4 Piano Key Modes + Waterfall, Sprayer & Glass Rinser',
+    features: [
+      'Tactile piano push keys for instant water outlet mode switching',
+      'Flying rain horizontal waterfall for splash-free washing of produce',
+      'Hydroelectric LED digital temperature display powered by internal water turbine',
+      'Integrated double-track rails for cutting board, colander, and prep basin',
+      'Complete installation set with drainage kit, angle valves, and hot/cold pipes'
+    ],
+    pricingTiers: PRICING_TIERS_SINK
   }
 };
 
 export function getUnitPrice(quantity: number, productId: ProductId = '2-burner'): number {
+  if (productId === 'piano-sink') {
+    if (quantity === 1) return 140000;
+    if (quantity === 2) return 135000;
+    return 130000;
+  }
   if (productId === '5-burner') {
     if (quantity === 1) return 280000;
     if (quantity === 2) return 275000;
@@ -149,6 +200,9 @@ export interface MultiProductCalculation {
   price5B: number;
   qty5B: number;
   total5B: number;
+  priceSink: number;
+  qtySink: number;
+  totalSink: number;
   comboDiscount: number;
   totalUnits: number;
   grandTotal: number;
@@ -157,6 +211,7 @@ export interface MultiProductCalculation {
 export function calculateMultiProductTotals(cart: Record<ProductId, number>): MultiProductCalculation {
   const qty2B = Math.max(0, cart['2-burner'] || 0);
   const qty5B = Math.max(0, cart['5-burner'] || 0);
+  const qtySink = Math.max(0, cart['piano-sink'] || 0);
 
   const price2B = qty2B > 0 ? getUnitPrice(qty2B, '2-burner') : 0;
   const total2B = qty2B * price2B;
@@ -164,11 +219,15 @@ export function calculateMultiProductTotals(cart: Record<ProductId, number>): Mu
   const price5B = qty5B > 0 ? getUnitPrice(qty5B, '5-burner') : 0;
   const total5B = qty5B * price5B;
 
-  // If ordering BOTH products (combo), give an additional ₦20,000 combo bonus discount!
-  const comboDiscount = qty2B > 0 && qty5B > 0 ? 20000 : 0;
+  const priceSink = qtySink > 0 ? getUnitPrice(qtySink, 'piano-sink') : 0;
+  const totalSink = qtySink * priceSink;
 
-  const totalUnits = qty2B + qty5B;
-  const grandTotal = Math.max(0, total2B + total5B - comboDiscount);
+  // Combo discount: If ordering more than 1 distinct product type, give ₦10,000 discount per extra type!
+  const distinctTypesCount = (qty2B > 0 ? 1 : 0) + (qty5B > 0 ? 1 : 0) + (qtySink > 0 ? 1 : 0);
+  const comboDiscount = distinctTypesCount >= 2 ? (distinctTypesCount - 1) * 10000 : 0;
+
+  const totalUnits = qty2B + qty5B + qtySink;
+  const grandTotal = Math.max(0, total2B + total5B + totalSink - comboDiscount);
 
   return {
     price2B,
@@ -177,6 +236,9 @@ export function calculateMultiProductTotals(cart: Record<ProductId, number>): Mu
     price5B,
     qty5B,
     total5B,
+    priceSink,
+    qtySink,
+    totalSink,
     comboDiscount,
     totalUnits,
     grandTotal

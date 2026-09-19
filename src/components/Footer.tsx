@@ -1,5 +1,5 @@
 import React from 'react';
-import { Phone, ShieldCheck, ArrowUp } from 'lucide-react';
+import { Phone, ShieldCheck, ArrowUp, ExternalLink } from 'lucide-react';
 import { BRAND_NAME, PHONE_NUMBER, CALL_LINK } from '../data/productData';
 import { PolicyType } from '../types';
 
@@ -51,7 +51,12 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPolicy, onOrderClick }) =>
               </li>
               <li>
                 <a href="#alternative-product" className="hover:text-red-600 transition-colors">
-                  5-Burner Hybrid
+                  5-Burner Hybrid Cooktop
+                </a>
+              </li>
+              <li>
+                <a href="#alternative-product" className="hover:text-red-600 transition-colors">
+                  Smart Piano Sink Workstation
                 </a>
               </li>
               <li>

@@ -1,72 +1,201 @@
-import React from 'react';
-import { ArrowRight } from 'lucide-react';
+import React, { useRef, useState, useEffect } from 'react';
+import { ChevronLeft, ChevronRight, ArrowRight, Sparkles } from 'lucide-react';
+import { ALTERNATIVE_PRODUCTS, AlternativeProductData } from '../data/alternativeProductsData';
+import { formatNaira } from '../data/productData';
+import { ProductId } from '../types';
 
 interface TopAlternativeBannerProps {
-  onNavigateToAlternative: () => void;
+  onViewProduct: (product: AlternativeProductData) => void;
+  onSelectForOrder?: (productId: ProductId) => void;
 }
 
 export const TopAlternativeBanner: React.FC<TopAlternativeBannerProps> = ({
-  onNavigateToAlternative
+  onViewProduct,
+  onSelectForOrder
 }) => {
-  const renderButton = (key: string | number) => (
-    <button
-      key={key}
-      type="button"
-      onClick={onNavigateToAlternative}
-      className="cursor-pointer group flex items-center gap-2 sm:gap-2.5 pl-1.5 pr-3.5 py-1 rounded-full bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-extrabold text-xs shadow-md border border-red-500 transition-all hover:scale-105 active:scale-95 shrink-0 select-none"
-      title="Click to view the 5-Burner Gas & Electric Hybrid Cooktop"
-    >
-      {/* Tiny Image of the Alternative Product */}
-      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white p-0.5 border-2 border-amber-300 shrink-0 overflow-hidden flex items-center justify-center shadow-xs">
-        <img
-          src="/images/Hd84f5f7654644224945b4ea055aa07a1Y.png"
-          alt="5-Burner Hybrid Cooktop Alternative"
-          className="w-full h-full object-contain"
-          loading="eager"
-        />
-      </div>
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState<boolean>(false);
+  const [canScrollRight, setCanScrollRight] = useState<boolean>(true);
+  const [isHovered, setIsHovered] = useState<boolean>(false);
 
-      {/* Live Indicator Dot */}
-      <span className="flex h-2 w-2 relative shrink-0">
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-300 opacity-75" />
-        <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-300" />
-      </span>
+  const checkScroll = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setCanScrollLeft(scrollLeft > 5);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 5);
+    }
+  };
 
-      {/* Text Label */}
-      <span className="tracking-wide flex items-center gap-1">
-        <strong className="text-amber-200 uppercase font-black mr-0.5">Alternative Product:</strong>
-        <span className="text-white font-bold">5-Burner Gas & Electric Hybrid Cooktop</span>
-      </span>
+  useEffect(() => {
+    checkScroll();
+    window.addEventListener('resize', checkScroll);
+    return () => window.removeEventListener('resize', checkScroll);
+  }, []);
 
-      {/* Action Pill */}
-      <span className="bg-white text-red-600 text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1 shadow-xs group-hover:bg-amber-300 group-hover:text-neutral-950 transition-colors shrink-0">
-        <span>View Model</span>
-        <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
-      </span>
-    </button>
-  );
+  // Smooth auto-scroll across cards (every 4 seconds)
+  useEffect(() => {
+    if (isHovered) return;
+    const interval = setInterval(() => {
+      if (scrollRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+        if (scrollLeft >= scrollWidth - clientWidth - 5) {
+          scrollRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          scrollRef.current.scrollBy({ left: 220, behavior: 'smooth' });
+        }
+        checkScroll();
+      }
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [isHovered]);
+
+  const handleScroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const distance = direction === 'left' ? -220 : 220;
+      scrollRef.current.scrollBy({ left: distance, behavior: 'smooth' });
+      setTimeout(checkScroll, 300);
+    }
+  };
 
   return (
     <div
-      className="w-full bg-white border-b border-slate-200 relative overflow-hidden h-12 select-none shadow-xs z-30 flex items-center"
-      aria-label="Alternative Product Shortcut Banner"
+      id="alternative-products-top"
+      className="bg-white/95 border-b border-slate-200/80 py-1.5 px-3 sm:px-6 relative z-30 shadow-2xs"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Left & Right Soft White Edge Fades */}
-      <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-r from-white to-transparent z-10" />
-      <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-l from-white to-transparent z-10" />
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
+        {/* Left Indicator & Mobile Controls */}
+        <div className="flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-1.5">
+            <span className="flex h-2 w-2 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600" />
+            </span>
+            <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-[#0a192f] whitespace-nowrap">
+              Matching Kitchen Appliances:
+            </span>
+          </div>
 
-      {/* Continuously moving track in ONE direction */}
-      <div className="animate-one-direction flex items-center gap-12 sm:gap-20">
-        {/* Set A */}
-        <div className="flex items-center gap-12 sm:gap-20 shrink-0">
-          {renderButton('btn-1')}
-          {renderButton('btn-2')}
+          <div className="flex items-center gap-1 md:hidden">
+            <button
+              type="button"
+              onClick={() => handleScroll('left')}
+              disabled={!canScrollLeft}
+              className="p-1 rounded bg-slate-100 text-slate-600 disabled:opacity-30 transition-all cursor-pointer"
+              title="Scroll left"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => handleScroll('right')}
+              disabled={!canScrollRight}
+              className="p-1 rounded bg-slate-100 text-slate-600 disabled:opacity-30 transition-all cursor-pointer"
+              title="Scroll right"
+            >
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
 
-        {/* Set B (Exact duplicate for seamless infinite one-direction loop) */}
-        <div className="flex items-center gap-12 sm:gap-20 shrink-0">
-          {renderButton('btn-3')}
-          {renderButton('btn-4')}
+        {/* Scrollable Container with Desktop Nav Arrows */}
+        <div className="relative flex-1 min-w-0 flex items-center">
+          {/* Left Arrow Desktop */}
+          <button
+            type="button"
+            onClick={() => handleScroll('left')}
+            disabled={!canScrollLeft}
+            className="hidden md:flex p-1 rounded-full bg-white/90 border border-slate-200 hover:bg-slate-100 text-slate-700 disabled:opacity-0 transition-all shadow-xs cursor-pointer absolute -left-2.5 z-10"
+            title="Scroll left"
+          >
+            <ChevronLeft className="w-3.5 h-3.5" />
+          </button>
+
+          {/* Cards Track */}
+          <div
+            ref={scrollRef}
+            onScroll={checkScroll}
+            className="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-0.5 scroll-smooth w-full"
+          >
+            {ALTERNATIVE_PRODUCTS.map((prod) => {
+              const savings = prod.normalPrice - prod.price;
+              const is5Burner = prod.id === '5-burner';
+              const isSink = prod.id === 'piano-sink';
+
+              return (
+                <div
+                  key={prod.id}
+                  onClick={() => onViewProduct(prod)}
+                  className="group bg-slate-50/90 hover:bg-blue-50/50 border border-slate-200/90 hover:border-blue-400 rounded-lg p-1.5 transition-all duration-200 cursor-pointer flex items-center gap-2 shrink-0 w-[240px] sm:w-[255px]"
+                >
+                  {/* Thumbnail */}
+                  <div className="relative w-10 h-10 rounded-md overflow-hidden bg-slate-200 border border-slate-200 shrink-0">
+                    <img
+                      src={prod.images[0].url}
+                      alt={prod.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute top-0 left-0 bg-[#0a192f]/90 text-white px-0.5 rounded-br text-[7px] font-bold">
+                      {isSink ? 'SINK' : is5Burner ? '5-BURN' : '2-BURN'}
+                    </div>
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-[11px] font-bold text-[#0a192f] group-hover:text-blue-700 transition-colors truncate">
+                        {prod.shortName || prod.name}
+                      </span>
+                      <span className="text-[8px] font-bold text-emerald-700 bg-emerald-50 px-1 rounded border border-emerald-200 shrink-0">
+                        -{formatNaira(savings)}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between mt-0.5">
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-xs font-black text-[#0a192f] font-mono">
+                          {formatNaira(prod.price)}
+                        </span>
+                        <span className="text-[9px] text-slate-400 line-through">
+                          {formatNaira(prod.normalPrice)}
+                        </span>
+                      </div>
+                      <span className="text-[9px] font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-0.5">
+                        View →
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Internal Catalog Link Button */}
+            <button
+              type="button"
+              onClick={() => {
+                const target = document.getElementById('alternative-products-section') || document.getElementById('alternative-product');
+                if (target) {
+                  target.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+              className="bg-blue-50/70 hover:bg-blue-100/70 border border-blue-200/80 rounded-lg p-1.5 transition-all flex items-center gap-1.5 text-xs text-blue-700 font-bold shrink-0 px-2.5 cursor-pointer"
+            >
+              <span>Explore Matching Appliances</span>
+              <ArrowRight className="w-3 h-3" />
+            </button>
+          </div>
+
+          {/* Right Arrow Desktop */}
+          <button
+            type="button"
+            onClick={() => handleScroll('right')}
+            disabled={!canScrollRight}
+            className="hidden md:flex p-1 rounded-full bg-white/90 border border-slate-200 hover:bg-slate-100 text-slate-700 disabled:opacity-0 transition-all shadow-xs cursor-pointer absolute -right-2.5 z-10"
+            title="Scroll right"
+          >
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
     </div>

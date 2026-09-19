@@ -9,6 +9,7 @@ import {
   ArrowRight,
   Flame,
   Zap,
+  Droplets,
   Sparkles,
   Clock,
   CheckCircle,
@@ -41,9 +42,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const totals = calculateMultiProductTotals(cart);
   const p2 = PRODUCT_OPTIONS['2-burner'];
   const p5 = PRODUCT_OPTIONS['5-burner'];
+  const pSink = PRODUCT_OPTIONS['piano-sink'];
 
   const qty2B = cart['2-burner'] || 0;
   const qty5B = cart['5-burner'] || 0;
+  const qtySink = cart['piano-sink'] || 0;
   const hasItems = totals.totalUnits > 0;
 
   // Track item count changes to auto-expand when user adds another product while minimized
@@ -278,6 +281,17 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     <span>+ Add 5-Burner Hybrid Cooktop</span>
                     <span className="text-red-600">₦280,000</span>
                   </button>
+
+                  <button
+                    onClick={() => onUpdateQuantity('piano-sink', 1)}
+                    className="w-full py-2 px-3 rounded-xl border border-emerald-300 hover:border-emerald-500 bg-emerald-50/50 text-slate-900 text-xs font-bold flex items-center justify-between transition-all cursor-pointer"
+                  >
+                    <span className="flex items-center gap-1">
+                      <Droplets className="w-3.5 h-3.5 text-emerald-600" />
+                      + Add Smart Piano Sink Workstation
+                    </span>
+                    <span className="text-emerald-700">₦140,000</span>
+                  </button>
                 </div>
               </div>
             ) : (
@@ -402,8 +416,89 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   </div>
                 )}
 
-                {/* Combo Upsell Banner if only 1 product added */}
-                {qty2B > 0 && qty5B === 0 && (
+                {/* Smart Kitchen Piano Sink Line Item */}
+                {qtySink > 0 && (
+                  <div className="p-3 sm:p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/30 shadow-2xs space-y-2.5">
+                    <div className="flex gap-2.5 items-center">
+                      <img
+                        src={pSink.mainImage}
+                        alt={pSink.shortName}
+                        className="w-14 h-14 object-cover rounded-lg bg-slate-900 border border-emerald-300 p-0.5 flex-shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-700">
+                          <Droplets className="w-3 h-3 text-emerald-600" />
+                          <span>Smart Kitchen Piano Sink</span>
+                        </div>
+                        <h4 className="text-xs font-bold text-neutral-900 truncate">
+                          {pSink.shortName}
+                        </h4>
+                        <div className="text-[11px] text-neutral-500">
+                          {formatNaira(totals.priceSink)} each
+                        </div>
+                        <div className="text-xs font-extrabold text-neutral-900 mt-0.5">
+                          Subtotal: {formatNaira(totals.totalSink)}
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => onUpdateQuantity('piano-sink', 0)}
+                        className="p-1.5 text-neutral-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors cursor-pointer self-start"
+                        title="Remove product"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {/* Quantity controls */}
+                    <div className="flex items-center justify-between pt-2 border-t border-emerald-100">
+                      <span className="text-[11px] text-neutral-500 font-medium">Quantity:</span>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => onUpdateQuantity('piano-sink', qtySink - 1)}
+                          className="w-6 h-6 rounded-lg border border-neutral-300 bg-white hover:bg-neutral-100 flex items-center justify-center text-neutral-800 cursor-pointer"
+                          aria-label="Decrease piano sink quantity"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </button>
+                        <span className="w-6 text-center font-bold text-xs text-neutral-900">
+                          {qtySink}
+                        </span>
+                        <button
+                          onClick={() => onUpdateQuantity('piano-sink', qtySink + 1)}
+                          className="w-6 h-6 rounded-lg border border-neutral-300 bg-white hover:bg-neutral-100 flex items-center justify-center text-neutral-800 cursor-pointer"
+                          aria-label="Increase piano sink quantity"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Upsell for Piano Sink if not yet in cart */}
+                {qtySink === 0 && (qty2B > 0 || qty5B > 0) && (
+                  <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-950 text-xs flex items-center justify-between gap-2.5">
+                    <div className="space-y-0.5 min-w-0">
+                      <div className="font-bold flex items-center gap-1 text-[11px] text-emerald-800">
+                        <Droplets className="w-3 h-3 text-emerald-600 flex-shrink-0" />
+                        <span>Add Smart Piano Sink Workstation</span>
+                      </div>
+                      <p className="text-[10px] text-emerald-700 leading-tight">
+                        Complete your kitchen upgrade & get extra combo savings!
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => onUpdateQuantity('piano-sink', 1)}
+                      className="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] whitespace-nowrap shadow-xs cursor-pointer"
+                    >
+                      + Add Sink (₦140k)
+                    </button>
+                  </div>
+                )}
+
+                {/* Combo Upsell Banner if only 1 cooktop added */}
+                {qty2B > 0 && qty5B === 0 && qtySink === 0 && (
                   <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center justify-between gap-2.5">
                     <div className="space-y-0.5 min-w-0">
                       <div className="font-bold flex items-center gap-1 text-[11px] text-amber-900">
@@ -411,7 +506,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         <span>Combine with 5-Burner Cooktop</span>
                       </div>
                       <p className="text-[10px] text-amber-800 leading-tight">
-                        Save ₦10,000 extra bonus discount when adding both!
+                        Save ₦10,000 extra bonus discount when adding multiple items!
                       </p>
                     </div>
                     <button
@@ -423,31 +518,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   </div>
                 )}
 
-                {qty5B > 0 && qty2B === 0 && (
-                  <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center justify-between gap-2.5">
-                    <div className="space-y-0.5 min-w-0">
-                      <div className="font-bold flex items-center gap-1 text-[11px] text-amber-900">
-                        <Sparkles className="w-3 h-3 text-amber-600 flex-shrink-0" />
-                        <span>Combine with 2-Burner Cooker</span>
-                      </div>
-                      <p className="text-[10px] text-amber-800 leading-tight">
-                        Save ₦10,000 extra bonus discount when adding both!
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => onUpdateQuantity('2-burner', 1)}
-                      className="px-2.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold text-[11px] whitespace-nowrap shadow-xs cursor-pointer"
-                    >
-                      + Add 2-Burner
-                    </button>
-                  </div>
-                )}
-
-                {qty2B > 0 && qty5B > 0 && (
+                {totals.comboDiscount > 0 && (
                   <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                     <span className="text-[11px]">
-                      <strong>₦10,000 Combo Bonus Discount</strong> applied to your order!
+                      <strong>{formatNaira(totals.comboDiscount)} Combo Bonus Discount</strong> applied to your order!
                     </span>
                   </div>
                 )}

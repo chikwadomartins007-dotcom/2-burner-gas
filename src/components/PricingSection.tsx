@@ -2,11 +2,12 @@ import React from 'react';
 import {
   PRICING_TIERS_2B,
   PRICING_TIERS_5B,
+  PRICING_TIERS_SINK,
   PRODUCT_OPTIONS,
   formatNaira
 } from '../data/productData';
 import { ProductId } from '../types';
-import { Check, ShieldCheck, ArrowRight, Tag, Flame, Zap, ShoppingBag } from 'lucide-react';
+import { Check, ShieldCheck, ArrowRight, Tag, Flame, Zap, ShoppingBag, Droplets } from 'lucide-react';
 
 interface PricingSectionProps {
   selectedProduct: ProductId;
@@ -25,7 +26,12 @@ export const PricingSection: React.FC<PricingSectionProps> = ({
   onAddToCart,
   onOrderClick
 }) => {
-  const activeTiers = selectedProduct === '5-burner' ? PRICING_TIERS_5B : PRICING_TIERS_2B;
+  const activeTiers =
+    selectedProduct === 'piano-sink'
+      ? PRICING_TIERS_SINK
+      : selectedProduct === '5-burner'
+      ? PRICING_TIERS_5B
+      : PRICING_TIERS_2B;
   const currentProduct = PRODUCT_OPTIONS[selectedProduct] || PRODUCT_OPTIONS['2-burner'];
 
   return (
@@ -45,11 +51,11 @@ export const PricingSection: React.FC<PricingSectionProps> = ({
 
           {/* Model Switcher Pill */}
           <div className="pt-4 flex items-center justify-center">
-            <div className="inline-flex p-1 rounded-2xl bg-neutral-100 border border-neutral-200">
+            <div className="inline-flex p-1 rounded-2xl bg-neutral-100 border border-neutral-200 flex-wrap justify-center gap-1">
               <button
                 type="button"
                 onClick={() => onSelectProduct('2-burner')}
-                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
                   selectedProduct === '2-burner'
                     ? 'bg-white text-red-600 shadow-sm border border-neutral-200'
                     : 'text-neutral-600 hover:text-neutral-900'
@@ -62,7 +68,7 @@ export const PricingSection: React.FC<PricingSectionProps> = ({
               <button
                 type="button"
                 onClick={() => onSelectProduct('5-burner')}
-                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
                   selectedProduct === '5-burner'
                     ? 'bg-white text-red-600 shadow-sm border border-neutral-200'
                     : 'text-neutral-600 hover:text-neutral-900'
@@ -70,6 +76,19 @@ export const PricingSection: React.FC<PricingSectionProps> = ({
               >
                 <Zap className="w-3.5 h-3.5 text-amber-500" />
                 <span>5-Burner Hybrid (from ₦280k)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => onSelectProduct('piano-sink')}
+                className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                  selectedProduct === 'piano-sink'
+                    ? 'bg-slate-900 text-emerald-400 shadow-sm border border-emerald-500'
+                    : 'text-neutral-600 hover:text-neutral-900'
+                }`}
+              >
+                <Droplets className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Piano Sink (from ₦140k)</span>
               </button>
             </div>
           </div>

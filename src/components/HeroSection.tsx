@@ -19,7 +19,7 @@ interface HeroSectionProps {
   onImageClick: (url: string, title: string) => void;
 }
 
-// Hand-picked authentic product showcase slides matching moonlightluxuryhometech.shop
+// Hand-picked authentic product showcase slides
 const HERO_SLIDES = [
   {
     id: 'hero-persp',

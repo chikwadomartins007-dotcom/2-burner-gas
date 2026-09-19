@@ -71,9 +71,9 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => scrollToSection('alternative-product')}
             className="hover:text-red-700 transition-colors cursor-pointer flex items-center gap-1.5 text-red-600 font-bold"
           >
-            <span>5-BURNER HYBRID</span>
+            <span>ALTERNATIVES</span>
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-100 border border-red-200 text-red-700 font-bold">
-              New
+              2 Models
             </span>
           </button>
           <button
@@ -197,9 +197,9 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => scrollToSection('alternative-product')}
               className="text-left py-2 text-red-600 font-bold border-b border-neutral-100 flex items-center justify-between"
             >
-              <span>5-BURNER HYBRID COOKTOP</span>
+              <span>ALTERNATIVE PRODUCTS</span>
               <span className="text-[10px] px-2 py-0.5 rounded bg-red-100 text-red-700 border border-red-200">
-                From ₦280k
+                5-Burner & Piano Sink
               </span>
             </button>
             <button

@@ -18,7 +18,7 @@ export interface PricingTier {
   isPopular?: boolean;
 }
 
-export type ProductId = '2-burner' | '5-burner';
+export type ProductId = '2-burner' | '5-burner' | 'piano-sink';
 
 export interface ProductOption {
   id: ProductId;

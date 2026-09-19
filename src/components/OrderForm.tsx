@@ -12,6 +12,7 @@ import {
   Package,
   Flame,
   Zap,
+  Droplets,
   Sparkles,
   Truck,
   ArrowRight,
@@ -35,25 +36,36 @@ interface OrderFormProps {
   resetSignal?: number;
 }
 
-export type SelectionModel = '2-burner' | '5-burner' | 'combo';
+export type SelectionModel = '2-burner' | '5-burner' | 'piano-sink' | 'combo';
 
 function calculateOrderDetails(
   model: SelectionModel,
   qty2B: number,
-  qty5B: number
+  qty5B: number,
+  qtySink: number = 0
 ) {
   let T = Math.max(0, qty2B);
   let j = Math.max(0, qty5B);
+  let S = Math.max(0, qtySink);
 
   if (model === '2-burner') {
     T = Math.max(1, T);
     j = 0;
+    S = 0;
   } else if (model === '5-burner') {
     T = 0;
     j = Math.max(1, j);
+    S = 0;
+  } else if (model === 'piano-sink') {
+    T = 0;
+    j = 0;
+    S = Math.max(1, S);
   } else if (model === 'combo') {
-    T = Math.max(1, T);
-    j = Math.max(1, j);
+    // If none are selected, default to 1x 2-burner and 1x 5-burner
+    if (T === 0 && j === 0 && S === 0) {
+      T = 1;
+      j = 1;
+    }
   }
 
   // 2-Burner tiers (Normal: 170k, 2 pcs: 165k, 3+ pcs: 150k)
@@ -69,12 +81,21 @@ function calculateOrderDetails(
   else if (j === 3) D = 270000;
   else if (j >= 4) D = 250000;
 
+  // Piano Sink tiers (Normal: 140k promo, 2 pcs: 135k, 3+ pcs: 130k)
+  let K = 140000;
+  if (S === 1) K = 140000;
+  else if (S === 2) K = 135000;
+  else if (S >= 3) K = 130000;
+
   const C = T * U;
   const Y = j * D;
-  const isCombo = T > 0 && j > 0;
-  const comboDiscount = isCombo ? 20000 : 0;
-  const total = Math.max(0, C + Y - comboDiscount);
-  const regularTotal = T * (170000 + 30000) + j * 350000;
+  const W = S * K;
+
+  const distinctTypesCount = (T > 0 ? 1 : 0) + (j > 0 ? 1 : 0) + (S > 0 ? 1 : 0);
+  const isCombo = distinctTypesCount >= 2;
+  const comboDiscount = isCombo ? (distinctTypesCount - 1) * 10000 : 0;
+  const total = Math.max(0, C + Y + W - comboDiscount);
+  const regularTotal = T * 200000 + j * 350000 + S * 160000;
   const savings = Math.max(0, regularTotal - total);
 
   let productName = '2-Flip-Up Double Burner';
@@ -82,9 +103,17 @@ function calculateOrderDetails(
   let itemsSummary = '';
 
   if (isCombo) {
-    shortName = 'Combo (2-Burner + 5-Burner)';
-    productName = `COMBO: ${T}x 2-Flip-Up (75×45cm) + ${j}x 5-Burner Hybrid (90×51cm)`;
-    itemsSummary = `${T}x 2-Flip-Up Double Burner (75 × 45cm) + ${j}x 5-Burner Hybrid Cooktop (90 × 51cm)`;
+    shortName = 'Multi-Product Kitchen Bundle';
+    const parts: string[] = [];
+    if (T > 0) parts.push(`${T}x 2-Burner (75×45cm)`);
+    if (j > 0) parts.push(`${j}x 5-Burner Hybrid (90×51cm)`);
+    if (S > 0) parts.push(`${S}x Smart Piano Sink (75×45cm)`);
+    productName = `COMBO BUNDLE: ${parts.join(' + ')}`;
+    itemsSummary = parts.join(' + ');
+  } else if (S > 0) {
+    shortName = 'Smart Kitchen Piano Sink';
+    productName = `Smart Kitchen Piano Sink Workstation (75 × 45 cm)`;
+    itemsSummary = `${S}x Smart Kitchen Piano Sink Workstation (75 × 45 cm)`;
   } else if (j > 0) {
     shortName = '5-Burner Hybrid Cooktop';
     productName = `5-Burner Built-In Gas + Electric Cooktop (90 × 51 cm)`;
@@ -95,16 +124,27 @@ function calculateOrderDetails(
     itemsSummary = `${T}x 2-Flip-Up Double Gas Burner (75 × 45 cm)`;
   }
 
+  const determinedMode: SelectionModel = isCombo
+    ? 'combo'
+    : S > 0
+    ? 'piano-sink'
+    : j > 0
+    ? '5-burner'
+    : '2-burner';
+
   return {
-    mode: (isCombo ? 'combo' : j > 0 ? '5-burner' : '2-burner') as SelectionModel,
+    mode: determinedMode,
     isCombo,
     qty2Burner: T,
     qty5Burner: j,
-    totalQuantity: T + j,
+    qtyPianoSink: S,
+    totalQuantity: T + j + S,
     unitPrice2Burner: U,
     unitPrice5Burner: D,
+    unitPricePianoSink: K,
     subtotal2Burner: C,
     subtotal5Burner: Y,
+    subtotalPianoSink: W,
     comboDiscount,
     total,
     regularTotal,
@@ -138,11 +178,14 @@ export const OrderForm: React.FC<OrderFormProps> = ({
 }) => {
   // Determine initial state based on props or cart
   const [selectedModel, setSelectedModel] = useState<SelectionModel>(() => {
-    if (cart && cart['2-burner'] && cart['5-burner'] && cart['2-burner'] > 0 && cart['5-burner'] > 0) {
-      return 'combo';
-    }
-    if (cart && cart['5-burner'] && cart['5-burner'] > 0) {
-      return '5-burner';
+    if (cart) {
+      const q2 = cart['2-burner'] || 0;
+      const q5 = cart['5-burner'] || 0;
+      const qs = cart['piano-sink'] || 0;
+      const types = (q2 > 0 ? 1 : 0) + (q5 > 0 ? 1 : 0) + (qs > 0 ? 1 : 0);
+      if (types >= 2) return 'combo';
+      if (qs > 0) return 'piano-sink';
+      if (q5 > 0) return '5-burner';
     }
     return (initialModel as SelectionModel) || '2-burner';
   });
@@ -150,9 +193,9 @@ export const OrderForm: React.FC<OrderFormProps> = ({
   const [qty2Burner, setQty2Burner] = useState<number>(() => {
     if (cart && typeof cart['2-burner'] === 'number') {
       if (cart['2-burner'] > 0) return cart['2-burner'];
-      if (cart['5-burner'] && cart['5-burner'] > 0) return 0;
+      if ((cart['5-burner'] && cart['5-burner'] > 0) || (cart['piano-sink'] && cart['piano-sink'] > 0)) return 0;
     }
-    return initialModel === '5-burner' ? 0 : Math.max(1, initialQuantity);
+    return initialModel === '5-burner' || initialModel === 'piano-sink' ? 0 : Math.max(1, initialQuantity);
   });
 
   const [qty5Burner, setQty5Burner] = useState<number>(() => {
@@ -160,6 +203,13 @@ export const OrderForm: React.FC<OrderFormProps> = ({
       return cart['5-burner'];
     }
     return initialModel === '5-burner' ? Math.max(1, initialQuantity) : initialModel === 'combo' ? 1 : 0;
+  });
+
+  const [qtyPianoSink, setQtyPianoSink] = useState<number>(() => {
+    if (cart && typeof cart['piano-sink'] === 'number') {
+      return cart['piano-sink'];
+    }
+    return initialModel === 'piano-sink' ? Math.max(1, initialQuantity) : 0;
   });
 
   // Customer delivery details
@@ -204,12 +254,19 @@ export const OrderForm: React.FC<OrderFormProps> = ({
       if (initialModel === 'combo') {
         setQty2Burner(1);
         setQty5Burner(1);
+        setQtyPianoSink(0);
       } else if (initialModel === '5-burner') {
         setQty2Burner(0);
         setQty5Burner(initialQuantity >= 1 ? initialQuantity : 1);
+        setQtyPianoSink(0);
+      } else if (initialModel === 'piano-sink') {
+        setQty2Burner(0);
+        setQty5Burner(0);
+        setQtyPianoSink(initialQuantity >= 1 ? initialQuantity : 1);
       } else {
         setQty2Burner(initialQuantity >= 1 ? initialQuantity : 1);
         setQty5Burner(0);
+        setQtyPianoSink(0);
       }
     }
   }, [initialModel, initialQuantity]);
@@ -219,18 +276,21 @@ export const OrderForm: React.FC<OrderFormProps> = ({
     if (cart) {
       const q2 = cart['2-burner'] || 0;
       const q5 = cart['5-burner'] || 0;
-      if (q2 > 0 && q5 > 0) {
+      const qs = cart['piano-sink'] || 0;
+      const types = (q2 > 0 ? 1 : 0) + (q5 > 0 ? 1 : 0) + (qs > 0 ? 1 : 0);
+
+      setQty2Burner(q2);
+      setQty5Burner(q5);
+      setQtyPianoSink(qs);
+
+      if (types >= 2) {
         setSelectedModel('combo');
-        setQty2Burner(q2);
-        setQty5Burner(q5);
-      } else if (q5 > 0 && q2 === 0) {
+      } else if (qs > 0 && q2 === 0 && q5 === 0) {
+        setSelectedModel('piano-sink');
+      } else if (q5 > 0 && q2 === 0 && qs === 0) {
         setSelectedModel('5-burner');
-        setQty2Burner(0);
-        setQty5Burner(q5);
-      } else if (q2 > 0 && q5 === 0) {
+      } else if (q2 > 0 && q5 === 0 && qs === 0) {
         setSelectedModel('2-burner');
-        setQty2Burner(q2);
-        setQty5Burner(0);
       }
     }
   }, [cart]);
@@ -241,26 +301,36 @@ export const OrderForm: React.FC<OrderFormProps> = ({
     if (model === 'combo') {
       const next2 = qty2Burner > 0 ? qty2Burner : 1;
       const next5 = qty5Burner > 0 ? qty5Burner : 1;
+      const nextSink = qtyPianoSink;
       setQty2Burner(next2);
       setQty5Burner(next5);
-      if (onUpdateCart) onUpdateCart({ '2-burner': next2, '5-burner': next5 });
+      setQtyPianoSink(nextSink);
+      if (onUpdateCart) onUpdateCart({ '2-burner': next2, '5-burner': next5, 'piano-sink': nextSink });
+    } else if (model === 'piano-sink') {
+      const nextSink = qtyPianoSink > 0 ? qtyPianoSink : 1;
+      setQty2Burner(0);
+      setQty5Burner(0);
+      setQtyPianoSink(nextSink);
+      if (onUpdateCart) onUpdateCart({ '2-burner': 0, '5-burner': 0, 'piano-sink': nextSink });
     } else if (model === '5-burner') {
       const next5 = qty5Burner > 0 ? qty5Burner : 1;
       setQty2Burner(0);
       setQty5Burner(next5);
-      if (onUpdateCart) onUpdateCart({ '2-burner': 0, '5-burner': next5 });
+      setQtyPianoSink(0);
+      if (onUpdateCart) onUpdateCart({ '2-burner': 0, '5-burner': next5, 'piano-sink': 0 });
     } else {
       const next2 = qty2Burner > 0 ? qty2Burner : 1;
       setQty2Burner(next2);
       setQty5Burner(0);
-      if (onUpdateCart) onUpdateCart({ '2-burner': next2, '5-burner': 0 });
+      setQtyPianoSink(0);
+      if (onUpdateCart) onUpdateCart({ '2-burner': next2, '5-burner': 0, 'piano-sink': 0 });
     }
   };
 
   // Live order calculations
   const orderCalc = useMemo(() => {
-    return calculateOrderDetails(selectedModel, qty2Burner, qty5Burner);
-  }, [selectedModel, qty2Burner, qty5Burner]);
+    return calculateOrderDetails(selectedModel, qty2Burner, qty5Burner, qtyPianoSink);
+  }, [selectedModel, qty2Burner, qty5Burner, qtyPianoSink]);
 
   // Input change
   const handleInputChange = (
@@ -303,14 +373,19 @@ export const OrderForm: React.FC<OrderFormProps> = ({
   // WhatsApp confirmation message builder
   const getWhatsAppConfirmationUrl = () => {
     const targetPhone = formatPhoneForWhatsApp(PHONE_NUMBER);
-    let itemsText = '';
-    if (orderCalc.qty2Burner > 0 && orderCalc.qty5Burner > 0) {
-      itemsText = `BOTH COOKERS (COMBO PACK):\n• ${orderCalc.qty2Burner}x 2-Flip-Up Double Burner (75 × 45 cm)\n• ${orderCalc.qty5Burner}x 5-Burner Built-In Gas + Electric (90 × 51 cm)`;
-    } else if (orderCalc.qty5Burner > 0) {
-      itemsText = `${orderCalc.qty5Burner} unit(s) of 5-Burner Built-In Gas + Electric Cooktop (90 × 51 cm)`;
-    } else {
-      itemsText = `${orderCalc.qty2Burner} unit(s) of 2-Flip-Up Double Gas Burner (75 × 45 cm)`;
+    const itemLines: string[] = [];
+    if (orderCalc.qty2Burner > 0) {
+      itemLines.push(`• ${orderCalc.qty2Burner}x 2-Flip-Up Double Burner (75 × 45 cm)`);
     }
+    if (orderCalc.qty5Burner > 0) {
+      itemLines.push(`• ${orderCalc.qty5Burner}x 5-Burner Built-In Gas + Electric (90 × 51 cm)`);
+    }
+    if (orderCalc.qtyPianoSink > 0) {
+      itemLines.push(`• ${orderCalc.qtyPianoSink}x Smart Kitchen Piano Sink Workstation (75 × 45 cm)`);
+    }
+    const itemsText = itemLines.length > 1
+      ? `COMBO BUNDLE:\n${itemLines.join('\n')}`
+      : itemLines[0] || `${orderCalc.totalQuantity} unit(s)`;
 
     const orderId = submittedOrderId || 'ORD-' + Date.now().toString().slice(-6);
     const msg = `Hello! I just placed an order on your website.
@@ -617,6 +692,15 @@ Please confirm my delivery dispatch.`;
                       <span>{orderCalc.qty5Burner} Unit(s)</span>
                     </div>
                   )}
+                  {orderCalc.qtyPianoSink > 0 && (
+                    <div className="flex items-center justify-between font-bold text-slate-900">
+                      <span className="flex items-center gap-1.5 text-emerald-800">
+                        <Droplets className="w-3.5 h-3.5 text-emerald-600" />
+                        Smart Piano Sink (75 × 45 cm)
+                      </span>
+                      <span>{orderCalc.qtyPianoSink} Unit(s)</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -701,13 +785,13 @@ Please confirm my delivery dispatch.`;
                   </span>
                 </label>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
                   {/* Option 1: 2-Burner */}
                   <button
                     type="button"
                     onClick={() => handleSelectModel('2-burner')}
                     className={`p-4 rounded-2xl border-2 text-left transition-all cursor-pointer relative flex flex-col justify-between ${
-                      selectedModel === '2-burner' && qty2Burner > 0 && qty5Burner === 0
+                      selectedModel === '2-burner' && qty2Burner > 0 && qty5Burner === 0 && qtyPianoSink === 0
                         ? 'border-blue-600 bg-blue-50/90 shadow-md ring-2 ring-blue-500/20'
                         : 'border-slate-200 bg-white hover:border-slate-300 text-slate-700'
                     }`}
@@ -720,12 +804,12 @@ Please confirm my delivery dispatch.`;
                         </span>
                         <span
                           className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
-                            selectedModel === '2-burner' && qty2Burner > 0 && qty5Burner === 0
+                            selectedModel === '2-burner' && qty2Burner > 0 && qty5Burner === 0 && qtyPianoSink === 0
                               ? 'border-blue-600 bg-blue-600'
                               : 'border-slate-300'
                           }`}
                         >
-                          {selectedModel === '2-burner' && qty2Burner > 0 && qty5Burner === 0 && (
+                          {selectedModel === '2-burner' && qty2Burner > 0 && qty5Burner === 0 && qtyPianoSink === 0 && (
                             <span className="w-1.5 h-1.5 rounded-full bg-white" />
                           )}
                         </span>
@@ -755,7 +839,7 @@ Please confirm my delivery dispatch.`;
                     type="button"
                     onClick={() => handleSelectModel('5-burner')}
                     className={`p-4 rounded-2xl border-2 text-left transition-all cursor-pointer relative flex flex-col justify-between ${
-                      selectedModel === '5-burner' && qty5Burner > 0 && qty2Burner === 0
+                      selectedModel === '5-burner' && qty5Burner > 0 && qty2Burner === 0 && qtyPianoSink === 0
                         ? 'border-amber-500 bg-amber-50/90 shadow-md ring-2 ring-amber-500/20'
                         : 'border-slate-200 bg-white hover:border-slate-300 text-slate-700'
                     }`}
@@ -768,12 +852,12 @@ Please confirm my delivery dispatch.`;
                         </span>
                         <span
                           className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
-                            selectedModel === '5-burner' && qty5Burner > 0 && qty2Burner === 0
+                            selectedModel === '5-burner' && qty5Burner > 0 && qty2Burner === 0 && qtyPianoSink === 0
                               ? 'border-amber-600 bg-amber-600'
                               : 'border-slate-300'
                           }`}
                         >
-                          {selectedModel === '5-burner' && qty5Burner > 0 && qty2Burner === 0 && (
+                          {selectedModel === '5-burner' && qty5Burner > 0 && qty2Burner === 0 && qtyPianoSink === 0 && (
                             <span className="w-1.5 h-1.5 rounded-full bg-white" />
                           )}
                         </span>
@@ -798,50 +882,98 @@ Please confirm my delivery dispatch.`;
                     </div>
                   </button>
 
-                  {/* Option 3: COMBO PACK */}
+                  {/* Option 3: Smart Kitchen Piano Sink */}
                   <button
                     type="button"
-                    onClick={() => handleSelectModel('combo')}
+                    onClick={() => handleSelectModel('piano-sink')}
                     className={`p-4 rounded-2xl border-2 text-left transition-all cursor-pointer relative flex flex-col justify-between ${
-                      selectedModel === 'combo' || (qty2Burner > 0 && qty5Burner > 0)
+                      selectedModel === 'piano-sink' && qtyPianoSink > 0 && qty2Burner === 0 && qty5Burner === 0
                         ? 'border-emerald-600 bg-emerald-50/90 shadow-md ring-2 ring-emerald-500/20'
-                        : 'border-slate-200 bg-white hover:border-emerald-300 text-slate-700'
+                        : 'border-slate-200 bg-white hover:border-slate-300 text-slate-700'
                     }`}
                   >
                     <div>
                       <div className="flex items-start justify-between gap-2 mb-2">
-                        <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
-                          <Sparkles className="w-3 h-3 text-emerald-600 fill-current" />
-                          Order Both (Save ₦20,000)
+                        <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-100 text-emerald-900">
+                          <Droplets className="w-3 h-3 text-emerald-600 fill-current" />
+                          75 × 45 cm Sink
                         </span>
                         <span
                           className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
-                            selectedModel === 'combo' || (qty2Burner > 0 && qty5Burner > 0)
+                            selectedModel === 'piano-sink' && qtyPianoSink > 0 && qty2Burner === 0 && qty5Burner === 0
                               ? 'border-emerald-600 bg-emerald-600'
                               : 'border-slate-300'
                           }`}
                         >
-                          {(selectedModel === 'combo' || (qty2Burner > 0 && qty5Burner > 0)) && (
+                          {selectedModel === 'piano-sink' && qtyPianoSink > 0 && qty2Burner === 0 && qty5Burner === 0 && (
                             <span className="w-1.5 h-1.5 rounded-full bg-white" />
                           )}
                         </span>
                       </div>
 
                       <h4 className="text-sm font-extrabold text-slate-900 leading-snug">
-                        BOTH COOKERS (COMBO)
+                        Smart Piano Sink Workstation
                       </h4>
-                      <div className="mt-1 text-[11px] text-emerald-700 font-bold">
-                        1x 2-Burner (75×45cm) + 1x 5-Burner (90×51cm)
+                      <div className="mt-1 text-[11px] text-emerald-700 font-semibold">
+                        Digital Temp & Waterfall Faucet
                       </div>
                       <p className="text-[11px] text-slate-500 mt-1 leading-normal">
-                        Equip your kitchen with both models or share with family! Delivered in one shipment.
+                        Nano SUS304 steel, piano keys, cup washer & pull-out spray. Exclusive Max Luxury bundle offer.
                       </p>
                     </div>
 
                     <div className="mt-3 pt-2 border-t border-slate-200 flex items-baseline justify-between">
-                      <span className="text-[10px] text-slate-500 font-medium">Bundle Price</span>
+                      <span className="text-[10px] text-slate-500 font-medium">Promo</span>
                       <strong className="text-sm font-black text-emerald-700">
-                        {formatNaira(170000 + 280000 - 20000)}
+                        {formatNaira(140000)}
+                      </strong>
+                    </div>
+                  </button>
+
+                  {/* Option 4: COMBO PACK */}
+                  <button
+                    type="button"
+                    onClick={() => handleSelectModel('combo')}
+                    className={`p-4 rounded-2xl border-2 text-left transition-all cursor-pointer relative flex flex-col justify-between ${
+                      selectedModel === 'combo' || orderCalc.isCombo
+                        ? 'border-purple-600 bg-purple-50/90 shadow-md ring-2 ring-purple-500/20'
+                        : 'border-slate-200 bg-white hover:border-purple-300 text-slate-700'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-purple-100 text-purple-800">
+                          <Sparkles className="w-3 h-3 text-purple-600 fill-current" />
+                          Combo Bundle
+                        </span>
+                        <span
+                          className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
+                            selectedModel === 'combo' || orderCalc.isCombo
+                              ? 'border-purple-600 bg-purple-600'
+                              : 'border-slate-300'
+                          }`}
+                        >
+                          {(selectedModel === 'combo' || orderCalc.isCombo) && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                          )}
+                        </span>
+                      </div>
+
+                      <h4 className="text-sm font-extrabold text-slate-900 leading-snug">
+                        Kitchen Bundle Deal
+                      </h4>
+                      <div className="mt-1 text-[11px] text-purple-700 font-bold">
+                        Mix Cooktops & Smart Sink
+                      </div>
+                      <p className="text-[11px] text-slate-500 mt-1 leading-normal">
+                        Order 2 or more products together and automatically save up to ₦20,000 extra!
+                      </p>
+                    </div>
+
+                    <div className="mt-3 pt-2 border-t border-slate-200 flex items-baseline justify-between">
+                      <span className="text-[10px] text-slate-500 font-medium">Extra Off</span>
+                      <strong className="text-sm font-black text-purple-700">
+                        - ₦20,000 Combo
                       </strong>
                     </div>
                   </button>
@@ -852,119 +984,224 @@ Please confirm my delivery dispatch.`;
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2.5 flex items-center justify-between">
                   <span>Step 2: Set Quantity for Your Order</span>
-                  {orderCalc.isCombo || (qty2Burner > 0 && qty5Burner > 0) ? (
+                  {orderCalc.isCombo ? (
                     <span className="text-emerald-700 text-xs font-bold flex items-center gap-1">
-                      <Sparkles className="w-3.5 h-3.5" /> ₦20,000 Combo Discount Active!
+                      <Sparkles className="w-3.5 h-3.5" /> {formatNaira(orderCalc.comboDiscount)} Combo Bonus Discount Active!
                     </span>
                   ) : (
                     <span className="text-slate-500 text-xs">Adjust quantities below</span>
                   )}
                 </label>
 
-                {selectedModel === 'combo' || (qty2Burner > 0 && qty5Burner > 0) ? (
-                  /* COMBO VIEW: Dual steppers + incentive banner */
+                {selectedModel === 'combo' || orderCalc.isCombo ? (
+                  /* COMBO VIEW: Multi-product steppers + incentive banner */
                   <div className="space-y-3">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       {/* 2-Burner in Combo */}
-                      <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-200">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-1.5">
-                            <Flame className="w-4 h-4 text-blue-600" />
-                            <span className="text-xs font-bold text-slate-900">2-Burner Flip-Up</span>
-                          </div>
-                          <span className="text-[10px] font-mono font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
-                            75 × 45 cm
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-slate-600 mb-3">
-                          Rate: {formatNaira(orderCalc.unitPrice2Burner)} each
-                        </p>
-                        <div className="flex items-center justify-between bg-white border border-blue-200 rounded-xl p-2.5">
-                          <span className="text-xs text-slate-600 font-medium">Quantity:</span>
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const next = Math.max(1, qty2Burner - 1);
-                                setQty2Burner(next);
-                                if (onUpdateCart) onUpdateCart({ '2-burner': next, '5-burner': qty5Burner });
-                              }}
-                              className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 flex items-center justify-center font-bold cursor-pointer transition-colors"
-                              aria-label="Decrease 2-burner quantity"
-                            >
-                              <Minus className="w-3.5 h-3.5" />
-                            </button>
-                            <span className="w-7 text-center font-bold text-slate-900 font-mono text-sm">
-                              {qty2Burner}
+                      <div className="p-3.5 rounded-2xl bg-blue-50/70 border border-blue-200 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <div className="flex items-center gap-1.5">
+                              <Flame className="w-4 h-4 text-blue-600" />
+                              <span className="text-xs font-bold text-slate-900">2-Burner Flip-Up</span>
+                            </div>
+                            <span className="text-[10px] font-mono font-bold bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded">
+                              75 × 45 cm
                             </span>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const next = qty2Burner + 1;
-                                setQty2Burner(next);
-                                if (onUpdateCart) onUpdateCart({ '2-burner': next, '5-burner': qty5Burner });
-                              }}
-                              className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 flex items-center justify-center font-bold cursor-pointer transition-colors"
-                              aria-label="Increase 2-burner quantity"
-                            >
-                              <Plus className="w-3.5 h-3.5" />
-                            </button>
                           </div>
+                          <p className="text-[11px] text-slate-600 mb-2.5">
+                            Rate: {formatNaira(orderCalc.unitPrice2Burner)}
+                          </p>
                         </div>
-                        <div className="mt-2 text-right text-xs font-bold text-blue-900">
-                          Subtotal: {formatNaira(orderCalc.subtotal2Burner)}
-                        </div>
+
+                        {qty2Burner > 0 ? (
+                          <div>
+                            <div className="flex items-center justify-between bg-white border border-blue-200 rounded-xl p-2">
+                              <span className="text-[11px] text-slate-600 font-medium">Qty:</span>
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const next = Math.max(0, qty2Burner - 1);
+                                    setQty2Burner(next);
+                                    if (onUpdateCart) onUpdateCart({ '2-burner': next, '5-burner': qty5Burner, 'piano-sink': qtyPianoSink });
+                                  }}
+                                  className="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 flex items-center justify-center font-bold cursor-pointer transition-colors"
+                                  aria-label="Decrease 2-burner quantity"
+                                >
+                                  <Minus className="w-3 h-3" />
+                                </button>
+                                <span className="w-6 text-center font-bold text-slate-900 font-mono text-xs">
+                                  {qty2Burner}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const next = qty2Burner + 1;
+                                    setQty2Burner(next);
+                                    if (onUpdateCart) onUpdateCart({ '2-burner': next, '5-burner': qty5Burner, 'piano-sink': qtyPianoSink });
+                                  }}
+                                  className="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 flex items-center justify-center font-bold cursor-pointer transition-colors"
+                                  aria-label="Increase 2-burner quantity"
+                                >
+                                  <Plus className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
+                            <div className="mt-1.5 text-right text-[11px] font-bold text-blue-900">
+                              Subtotal: {formatNaira(orderCalc.subtotal2Burner)}
+                            </div>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setQty2Burner(1);
+                              if (onUpdateCart) onUpdateCart({ '2-burner': 1, '5-burner': qty5Burner, 'piano-sink': qtyPianoSink });
+                            }}
+                            className="w-full py-2 bg-white hover:bg-blue-100 border border-blue-300 text-blue-700 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                          >
+                            + Add to Bundle
+                          </button>
+                        )}
                       </div>
 
                       {/* 5-Burner in Combo */}
-                      <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-1.5">
-                            <Zap className="w-4 h-4 text-amber-600" />
-                            <span className="text-xs font-bold text-slate-900">5-Burner Hybrid</span>
-                          </div>
-                          <span className="text-[10px] font-mono font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded">
-                            90 × 51 cm
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-slate-600 mb-3">
-                          Rate: {formatNaira(orderCalc.unitPrice5Burner)} each
-                        </p>
-                        <div className="flex items-center justify-between bg-white border border-amber-200 rounded-xl p-2.5">
-                          <span className="text-xs text-slate-600 font-medium">Quantity:</span>
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const next = Math.max(1, qty5Burner - 1);
-                                setQty5Burner(next);
-                                if (onUpdateCart) onUpdateCart({ '2-burner': qty2Burner, '5-burner': next });
-                              }}
-                              className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 flex items-center justify-center font-bold cursor-pointer transition-colors"
-                              aria-label="Decrease 5-burner quantity"
-                            >
-                              <Minus className="w-3.5 h-3.5" />
-                            </button>
-                            <span className="w-7 text-center font-bold text-slate-900 font-mono text-sm">
-                              {qty5Burner}
+                      <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <div className="flex items-center gap-1.5">
+                              <Zap className="w-4 h-4 text-amber-600" />
+                              <span className="text-xs font-bold text-slate-900">5-Burner Hybrid</span>
+                            </div>
+                            <span className="text-[10px] font-mono font-bold bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded">
+                              90 × 51 cm
                             </span>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const next = qty5Burner + 1;
-                                setQty5Burner(next);
-                                if (onUpdateCart) onUpdateCart({ '2-burner': qty2Burner, '5-burner': next });
-                              }}
-                              className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 flex items-center justify-center font-bold cursor-pointer transition-colors"
-                              aria-label="Increase 5-burner quantity"
-                            >
-                              <Plus className="w-3.5 h-3.5" />
-                            </button>
                           </div>
+                          <p className="text-[11px] text-slate-600 mb-2.5">
+                            Rate: {formatNaira(orderCalc.unitPrice5Burner)}
+                          </p>
                         </div>
-                        <div className="mt-2 text-right text-xs font-bold text-amber-950">
-                          Subtotal: {formatNaira(orderCalc.subtotal5Burner)}
+
+                        {qty5Burner > 0 ? (
+                          <div>
+                            <div className="flex items-center justify-between bg-white border border-amber-200 rounded-xl p-2">
+                              <span className="text-[11px] text-slate-600 font-medium">Qty:</span>
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const next = Math.max(0, qty5Burner - 1);
+                                    setQty5Burner(next);
+                                    if (onUpdateCart) onUpdateCart({ '2-burner': qty2Burner, '5-burner': next, 'piano-sink': qtyPianoSink });
+                                  }}
+                                  className="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 flex items-center justify-center font-bold cursor-pointer transition-colors"
+                                  aria-label="Decrease 5-burner quantity"
+                                >
+                                  <Minus className="w-3 h-3" />
+                                </button>
+                                <span className="w-6 text-center font-bold text-slate-900 font-mono text-xs">
+                                  {qty5Burner}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const next = qty5Burner + 1;
+                                    setQty5Burner(next);
+                                    if (onUpdateCart) onUpdateCart({ '2-burner': qty2Burner, '5-burner': next, 'piano-sink': qtyPianoSink });
+                                  }}
+                                  className="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 flex items-center justify-center font-bold cursor-pointer transition-colors"
+                                  aria-label="Increase 5-burner quantity"
+                                >
+                                  <Plus className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
+                            <div className="mt-1.5 text-right text-[11px] font-bold text-amber-950">
+                              Subtotal: {formatNaira(orderCalc.subtotal5Burner)}
+                            </div>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setQty5Burner(1);
+                              if (onUpdateCart) onUpdateCart({ '2-burner': qty2Burner, '5-burner': 1, 'piano-sink': qtyPianoSink });
+                            }}
+                            className="w-full py-2 bg-white hover:bg-amber-100 border border-amber-300 text-amber-800 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                          >
+                            + Add to Bundle
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Smart Piano Sink in Combo */}
+                      <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <div className="flex items-center gap-1.5">
+                              <Droplets className="w-4 h-4 text-emerald-600" />
+                              <span className="text-xs font-bold text-slate-900">Piano Sink</span>
+                            </div>
+                            <span className="text-[10px] font-mono font-bold bg-emerald-100 text-emerald-900 px-1.5 py-0.5 rounded">
+                              75 × 45 cm
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-600 mb-2.5">
+                            Rate: {formatNaira(orderCalc.unitPricePianoSink)}
+                          </p>
                         </div>
+
+                        {qtyPianoSink > 0 ? (
+                          <div>
+                            <div className="flex items-center justify-between bg-white border border-emerald-200 rounded-xl p-2">
+                              <span className="text-[11px] text-slate-600 font-medium">Qty:</span>
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const next = Math.max(0, qtyPianoSink - 1);
+                                    setQtyPianoSink(next);
+                                    if (onUpdateCart) onUpdateCart({ '2-burner': qty2Burner, '5-burner': qty5Burner, 'piano-sink': next });
+                                  }}
+                                  className="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 flex items-center justify-center font-bold cursor-pointer transition-colors"
+                                  aria-label="Decrease sink quantity"
+                                >
+                                  <Minus className="w-3 h-3" />
+                                </button>
+                                <span className="w-6 text-center font-bold text-slate-900 font-mono text-xs">
+                                  {qtyPianoSink}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const next = qtyPianoSink + 1;
+                                    setQtyPianoSink(next);
+                                    if (onUpdateCart) onUpdateCart({ '2-burner': qty2Burner, '5-burner': qty5Burner, 'piano-sink': next });
+                                  }}
+                                  className="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 flex items-center justify-center font-bold cursor-pointer transition-colors"
+                                  aria-label="Increase sink quantity"
+                                >
+                                  <Plus className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
+                            <div className="mt-1.5 text-right text-[11px] font-bold text-emerald-900">
+                              Subtotal: {formatNaira(orderCalc.subtotalPianoSink)}
+                            </div>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setQtyPianoSink(1);
+                              if (onUpdateCart) onUpdateCart({ '2-burner': qty2Burner, '5-burner': qty5Burner, 'piano-sink': 1 });
+                            }}
+                            className="w-full py-2 bg-white hover:bg-emerald-100 border border-emerald-300 text-emerald-800 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                          >
+                            + Add to Bundle
+                          </button>
+                        )}
                       </div>
                     </div>
 
@@ -972,9 +1209,110 @@ Please confirm my delivery dispatch.`;
                     <div className="bg-emerald-50 border border-emerald-300 rounded-xl p-3 flex items-center justify-between text-xs text-emerald-900">
                       <span className="flex items-center gap-1.5 font-bold">
                         <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
-                        Combo Bundle Incentive: Extra ₦20,000 off applied automatically!
+                        Combo Bundle Incentive: Extra {formatNaira(orderCalc.comboDiscount)} off applied automatically!
                       </span>
-                      <span className="font-black text-emerald-700">- ₦20,000</span>
+                      <span className="font-black text-emerald-700">- {formatNaira(orderCalc.comboDiscount)}</span>
+                    </div>
+                  </div>
+                ) : selectedModel === 'piano-sink' ? (
+                  /* PIANO SINK SINGLE VIEW: 5 quick select boxes + Stepper + Upsell */
+                  <div>
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 mb-3">
+                      {[1, 2, 3, 4, 5].map((v) => {
+                        const isSelected = qtyPianoSink === v || (v === 5 && qtyPianoSink >= 5);
+                        let tierPrice = 140000;
+                        if (v === 2) tierPrice = 135000;
+                        if (v >= 3) tierPrice = 130000;
+
+                        return (
+                          <button
+                            key={v}
+                            type="button"
+                            onClick={() => {
+                              setQtyPianoSink(v);
+                              if (onUpdateCart) onUpdateCart({ '2-burner': 0, '5-burner': 0, 'piano-sink': v });
+                            }}
+                            className={`p-3 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center ${
+                              isSelected
+                                ? 'bg-emerald-600 text-white border-emerald-600 font-black shadow-md scale-102'
+                                : 'bg-slate-50 border-slate-200 text-slate-700 hover:border-emerald-300'
+                            }`}
+                          >
+                            <span className="text-base sm:text-lg font-bold">
+                              {v === 5 ? '5+ PCS' : `${v} PC`}
+                            </span>
+                            <span
+                              className={`text-[10px] mt-0.5 ${
+                                isSelected ? 'text-emerald-100 font-bold' : 'text-emerald-700 font-medium'
+                              }`}
+                            >
+                              {formatNaira(tierPrice)} ea
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl p-3">
+                      <div className="text-xs text-slate-600">
+                        Units of Piano Sink Workstation (75×45cm):{' '}
+                        <strong className="text-slate-900 text-sm ml-1">{qtyPianoSink}</strong>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const next = Math.max(1, qtyPianoSink - 1);
+                            setQtyPianoSink(next);
+                            if (onUpdateCart) onUpdateCart({ '2-burner': 0, '5-burner': 0, 'piano-sink': next });
+                          }}
+                          className="w-8 h-8 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 flex items-center justify-center cursor-pointer transition-colors"
+                          aria-label="Decrease sink quantity"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="w-8 text-center font-bold text-slate-900 font-mono">
+                          {qtyPianoSink}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const next = qtyPianoSink + 1;
+                            setQtyPianoSink(next);
+                            if (onUpdateCart) onUpdateCart({ '2-burner': 0, '5-burner': 0, 'piano-sink': next });
+                          }}
+                          className="w-8 h-8 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 flex items-center justify-center cursor-pointer transition-colors"
+                          aria-label="Increase sink quantity"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Combo upsell */}
+                    <div className="mt-3 p-3.5 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5">
+                        <Flame className="w-5 h-5 text-blue-600 shrink-0" />
+                        <div>
+                          <p className="text-xs font-bold text-slate-900">
+                            Pair with the 2-Burner Flip-Up Gas Cooktop?
+                          </p>
+                          <p className="text-[11px] text-slate-600">
+                            Upgrade your kitchen with matching cooktop and instantly save ₦20,000 combo discount!
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedModel('combo');
+                          setQty2Burner(1);
+                          if (onUpdateCart) onUpdateCart({ '2-burner': 1, '5-burner': 0, 'piano-sink': qtyPianoSink });
+                        }}
+                        className="shrink-0 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs py-2 px-3.5 rounded-lg shadow transition-all cursor-pointer"
+                      >
+                        + Add 2-Burner
+                      </button>
                     </div>
                   </div>
                 ) : selectedModel === '5-burner' ? (
@@ -994,7 +1332,7 @@ Please confirm my delivery dispatch.`;
                             type="button"
                             onClick={() => {
                               setQty5Burner(v);
-                              if (onUpdateCart) onUpdateCart({ '2-burner': 0, '5-burner': v });
+                              if (onUpdateCart) onUpdateCart({ '2-burner': 0, '5-burner': v, 'piano-sink': 0 });
                             }}
                             className={`p-3 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center ${
                               isSelected
@@ -1028,7 +1366,7 @@ Please confirm my delivery dispatch.`;
                           onClick={() => {
                             const next = Math.max(1, qty5Burner - 1);
                             setQty5Burner(next);
-                            if (onUpdateCart) onUpdateCart({ '2-burner': 0, '5-burner': next });
+                            if (onUpdateCart) onUpdateCart({ '2-burner': 0, '5-burner': next, 'piano-sink': 0 });
                           }}
                           className="w-8 h-8 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 flex items-center justify-center cursor-pointer transition-colors"
                           aria-label="Decrease 5-burner quantity"
@@ -1043,7 +1381,7 @@ Please confirm my delivery dispatch.`;
                           onClick={() => {
                             const next = qty5Burner + 1;
                             setQty5Burner(next);
-                            if (onUpdateCart) onUpdateCart({ '2-burner': 0, '5-burner': next });
+                            if (onUpdateCart) onUpdateCart({ '2-burner': 0, '5-burner': next, 'piano-sink': 0 });
                           }}
                           className="w-8 h-8 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 flex items-center justify-center cursor-pointer transition-colors"
                           aria-label="Increase 5-burner quantity"
@@ -1053,34 +1391,53 @@ Please confirm my delivery dispatch.`;
                       </div>
                     </div>
 
-                    {/* Combo upsell */}
-                    <div className="mt-3 p-3.5 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2.5">
-                        <Flame className="w-5 h-5 text-blue-600 shrink-0" />
-                        <div>
-                          <p className="text-xs font-bold text-slate-900">
-                            Also need the 2-Burner Cooker (75 × 45 cm)?
-                          </p>
-                          <p className="text-[11px] text-slate-600">
-                            Order both together and instantly unlock an extra ₦20,000 combo discount!
-                          </p>
+                    {/* Combo upsells */}
+                    <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      <div className="p-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <Flame className="w-4 h-4 text-blue-600 shrink-0" />
+                          <div>
+                            <p className="text-xs font-bold text-slate-900">Add 2-Burner (75×45cm)?</p>
+                            <p className="text-[10px] text-slate-600">Save ₦20,000 combo discount!</p>
+                          </div>
                         </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedModel('combo');
+                            setQty2Burner(1);
+                            if (onUpdateCart) onUpdateCart({ '2-burner': 1, '5-burner': qty5Burner, 'piano-sink': qtyPianoSink });
+                          }}
+                          className="shrink-0 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs py-1.5 px-3 rounded-lg shadow transition-all cursor-pointer"
+                        >
+                          + Add
+                        </button>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedModel('combo');
-                          setQty2Burner(1);
-                          if (onUpdateCart) onUpdateCart({ '2-burner': 1, '5-burner': qty5Burner });
-                        }}
-                        className="shrink-0 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs py-2 px-3.5 rounded-lg shadow transition-all cursor-pointer"
-                      >
-                        + Add 2-Burner
-                      </button>
+
+                      <div className="p-3 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <Droplets className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <div>
+                            <p className="text-xs font-bold text-slate-900">Add Smart Piano Sink?</p>
+                            <p className="text-[10px] text-slate-600">Complete kitchen workstation!</p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedModel('combo');
+                            setQtyPianoSink(1);
+                            if (onUpdateCart) onUpdateCart({ '2-burner': qty2Burner, '5-burner': qty5Burner, 'piano-sink': 1 });
+                          }}
+                          className="shrink-0 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-1.5 px-3 rounded-lg shadow transition-all cursor-pointer"
+                        >
+                          + Add
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ) : (
-                  /* 2-BURNER SINGLE VIEW: 5 quick select boxes + Stepper + Upsell */
+                  /* 2-BURNER SINGLE VIEW: 5 quick select boxes + Stepper + Upsells */
                   <div>
                     <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 mb-3">
                       {[1, 2, 3, 4, 5].map((v) => {
@@ -1095,7 +1452,7 @@ Please confirm my delivery dispatch.`;
                             type="button"
                             onClick={() => {
                               setQty2Burner(v);
-                              if (onUpdateCart) onUpdateCart({ '2-burner': v, '5-burner': 0 });
+                              if (onUpdateCart) onUpdateCart({ '2-burner': v, '5-burner': 0, 'piano-sink': 0 });
                             }}
                             className={`p-3 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center ${
                               isSelected
@@ -1129,7 +1486,7 @@ Please confirm my delivery dispatch.`;
                           onClick={() => {
                             const next = Math.max(1, qty2Burner - 1);
                             setQty2Burner(next);
-                            if (onUpdateCart) onUpdateCart({ '2-burner': next, '5-burner': 0 });
+                            if (onUpdateCart) onUpdateCart({ '2-burner': next, '5-burner': 0, 'piano-sink': 0 });
                           }}
                           className="w-8 h-8 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 flex items-center justify-center cursor-pointer transition-colors"
                           aria-label="Decrease 2-burner quantity"
@@ -1144,7 +1501,7 @@ Please confirm my delivery dispatch.`;
                           onClick={() => {
                             const next = qty2Burner + 1;
                             setQty2Burner(next);
-                            if (onUpdateCart) onUpdateCart({ '2-burner': next, '5-burner': 0 });
+                            if (onUpdateCart) onUpdateCart({ '2-burner': next, '5-burner': 0, 'piano-sink': 0 });
                           }}
                           className="w-8 h-8 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 flex items-center justify-center cursor-pointer transition-colors"
                           aria-label="Increase 2-burner quantity"
@@ -1154,30 +1511,49 @@ Please confirm my delivery dispatch.`;
                       </div>
                     </div>
 
-                    {/* Combo upsell */}
-                    <div className="mt-3 p-3.5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-300 rounded-xl flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2.5">
-                        <Zap className="w-5 h-5 text-amber-600 shrink-0" />
-                        <div>
-                          <p className="text-xs font-bold text-slate-900">
-                            Want the 5-Burner Hybrid Cooktop (90 × 51 cm) too?
-                          </p>
-                          <p className="text-[11px] text-slate-600">
-                            Order both together and get an automatic ₦20,000 combo discount!
-                          </p>
+                    {/* Combo upsells */}
+                    <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      <div className="p-3 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-300 rounded-xl flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <Zap className="w-4 h-4 text-amber-600 shrink-0" />
+                          <div>
+                            <p className="text-xs font-bold text-slate-900">Add 5-Burner (90×51cm)?</p>
+                            <p className="text-[10px] text-slate-600">Save ₦20,000 combo discount!</p>
+                          </div>
                         </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedModel('combo');
+                            setQty5Burner(1);
+                            if (onUpdateCart) onUpdateCart({ '2-burner': qty2Burner, '5-burner': 1, 'piano-sink': qtyPianoSink });
+                          }}
+                          className="shrink-0 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs py-1.5 px-3 rounded-lg shadow transition-all cursor-pointer"
+                        >
+                          + Add
+                        </button>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedModel('combo');
-                          setQty5Burner(1);
-                          if (onUpdateCart) onUpdateCart({ '2-burner': qty2Burner, '5-burner': 1 });
-                        }}
-                        className="shrink-0 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs py-2 px-3.5 rounded-lg shadow transition-all cursor-pointer"
-                      >
-                        + Add 5-Burner
-                      </button>
+
+                      <div className="p-3 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <Droplets className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <div>
+                            <p className="text-xs font-bold text-slate-900">Add Smart Piano Sink?</p>
+                            <p className="text-[10px] text-slate-600">Waterfall faucet + LED display</p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedModel('combo');
+                            setQtyPianoSink(1);
+                            if (onUpdateCart) onUpdateCart({ '2-burner': qty2Burner, '5-burner': qty5Burner, 'piano-sink': 1 });
+                          }}
+                          className="shrink-0 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-1.5 px-3 rounded-lg shadow transition-all cursor-pointer"
+                        >
+                          + Add
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -1186,7 +1562,9 @@ Please confirm my delivery dispatch.`;
               {/* Order Summary & Total Calculation Box */}
               <div
                 className={`border-2 rounded-2xl p-4 sm:p-5 shadow-sm ${
-                  orderCalc.isCombo || (qty2Burner > 0 && qty5Burner > 0)
+                  orderCalc.isCombo
+                    ? 'bg-purple-50/80 border-purple-300'
+                    : selectedModel === 'piano-sink'
                     ? 'bg-emerald-50/80 border-emerald-300'
                     : selectedModel === '5-burner'
                     ? 'bg-amber-50/80 border-amber-300'
@@ -1214,6 +1592,15 @@ Please confirm my delivery dispatch.`;
                           {formatNaira(orderCalc.unitPrice5Burner)} ={' '}
                           <strong className="text-slate-900">
                             {formatNaira(orderCalc.subtotal5Burner)}
+                          </strong>
+                        </div>
+                      )}
+                      {orderCalc.qtyPianoSink > 0 && (
+                        <div>
+                          • Smart Kitchen Piano Sink (75 × 45 cm): {orderCalc.qtyPianoSink} ×{' '}
+                          {formatNaira(orderCalc.unitPricePianoSink)} ={' '}
+                          <strong className="text-slate-900">
+                            {formatNaira(orderCalc.subtotalPianoSink)}
                           </strong>
                         </div>
                       )}

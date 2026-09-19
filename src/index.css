@@ -283,7 +283,7 @@ html {
 .animate-one-direction {
   display: flex;
   width: max-content;
-  animation: moveOneDirection 20s linear infinite;
+  animation: moveOneDirection 30s linear infinite;
   will-change: transform;
 }
 
