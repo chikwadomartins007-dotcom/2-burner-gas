@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Menu, X, Phone, ShoppingBag, ShieldCheck } from 'lucide-react';
+import { Menu, X, Phone, ShoppingBag, ShieldCheck, Target } from 'lucide-react';
 import { BRAND_NAME, PHONE_NUMBER, CALL_LINK, formatNaira } from '../data/productData';
 
 interface HeaderProps {
   onOrderClick: () => void;
   onOpenCart?: () => void;
+  onOpenAdLinks?: () => void;
   cartCount?: number;
   cartTotal?: number;
 }
@@ -12,6 +13,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   onOrderClick,
   onOpenCart,
+  onOpenAdLinks,
   cartCount = 0,
   cartTotal = 0
 }) => {
@@ -104,6 +106,21 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Right CTA Actions */}
         <div className="hidden lg:flex items-center space-x-3">
+          {/* Ad Deep Links Hub Trigger */}
+          {onOpenAdLinks && (
+            <button
+              onClick={onOpenAdLinks}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-red-600 bg-slate-100 hover:bg-red-50 border border-slate-200 hover:border-red-300 px-3 py-2 rounded-xl transition-all cursor-pointer shadow-2xs"
+              title="Open Ad Campaign Deep Links Hub for Facebook, TikTok & IG Ads"
+            >
+              <Target className="w-3.5 h-3.5 text-red-600" />
+              <span>Ad Links</span>
+              <span className="bg-red-600 text-white text-[9px] font-extrabold px-1.5 py-0.2 rounded-full">
+                Ads
+              </span>
+            </button>
+          )}
+
           <a
             href={CALL_LINK}
             className="flex items-center gap-2 text-xs font-bold text-neutral-800 hover:text-red-600 px-3 py-2.5 rounded-xl border border-red-200 bg-red-50/50 hover:bg-red-100 transition-all"
@@ -232,6 +249,23 @@ export const Header: React.FC<HeaderProps> = ({
             >
               FREQUENTLY ASKED QUESTIONS
             </button>
+            {onOpenAdLinks && (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenAdLinks();
+                }}
+                className="text-left py-2 text-red-600 font-bold flex items-center justify-between border-b border-neutral-100"
+              >
+                <div className="flex items-center gap-2">
+                  <Target className="w-4 h-4 text-red-600" />
+                  <span>AD CAMPAIGN DEEP LINKS</span>
+                </div>
+                <span className="text-[10px] bg-red-100 text-red-700 font-extrabold px-2 py-0.5 rounded-full">
+                  Tools
+                </span>
+              </button>
+            )}
           </div>
 
           <div className="pt-4 flex flex-col gap-3">

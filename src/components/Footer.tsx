@@ -1,14 +1,15 @@
 import React from 'react';
-import { Phone, ShieldCheck, ArrowUp, ExternalLink } from 'lucide-react';
+import { Phone, ShieldCheck, ArrowUp, ExternalLink, Target } from 'lucide-react';
 import { BRAND_NAME, PHONE_NUMBER, CALL_LINK } from '../data/productData';
 import { PolicyType } from '../types';
 
 interface FooterProps {
   onOpenPolicy: (type: PolicyType) => void;
   onOrderClick: () => void;
+  onOpenAdLinks?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onOpenPolicy, onOrderClick }) => {
+export const Footer: React.FC<FooterProps> = ({ onOpenPolicy, onOrderClick, onOpenAdLinks }) => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -79,6 +80,17 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPolicy, onOrderClick }) =>
                   FAQ
                 </a>
               </li>
+              {onOpenAdLinks && (
+                <li>
+                  <button
+                    onClick={onOpenAdLinks}
+                    className="hover:text-red-600 font-bold text-red-600 transition-colors inline-flex items-center gap-1.5 cursor-pointer text-left"
+                  >
+                    <Target className="w-3.5 h-3.5 text-red-600" />
+                    <span>Ad Campaign Deep Links Hub</span>
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
 

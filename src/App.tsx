@@ -28,8 +28,10 @@ import { GeminiChatBot } from './components/GeminiChatBot';
 import { ImageLightboxModal } from './components/ImageLightboxModal';
 import { PolicyModals } from './components/PolicyModals';
 import { AlternativeProductModal } from './components/AlternativeProductModal';
-import { AlternativeProductData } from './data/alternativeProductsData';
+import { AdDeepLinksModal } from './components/AdDeepLinksModal';
+import { ALTERNATIVE_PRODUCTS, AlternativeProductData } from './data/alternativeProductsData';
 import { PolicyType, ProductId, CartState } from './types';
+import { Sparkles, X, Target } from 'lucide-react';
 import {
   trackPixelEvent,
   PRODUCT_NAME,
@@ -60,6 +62,10 @@ export default function App() {
   const [modalAlternativeProduct, setModalAlternativeProduct] = useState<AlternativeProductData | null>(null);
   const [isAlternativeModalOpen, setIsAlternativeModalOpen] = useState<boolean>(false);
 
+  // Ad Campaign Deep Links Generator Modal & Notification Banner
+  const [isAdLinksModalOpen, setIsAdLinksModalOpen] = useState<boolean>(false);
+  const [adLandingNotice, setAdLandingNotice] = useState<string | null>(null);
+
   const handleOpenAlternativeModal = (product: AlternativeProductData) => {
     setModalAlternativeProduct(product);
     setIsAlternativeModalOpen(true);
@@ -77,7 +83,7 @@ export default function App() {
     setOrderWhatsappUrl('');
   };
 
-  // Initialize PageView and ViewContent tracking on mount
+  // Initialize PageView and ViewContent tracking on mount & handle Ad Deep Links
   useEffect(() => {
     trackPixelEvent('PageView');
     trackPixelEvent('ViewContent', {
@@ -86,9 +92,11 @@ export default function App() {
       currency: 'NGN'
     });
 
-    // If advertiser/tester visits with ?test_purchase=1 or ?trigger_purchase=1 in URL
-    if (typeof window !== 'undefined' && window.location.search) {
+    if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
+      const hash = window.location.hash;
+
+      // 1. If advertiser/tester visits with ?test_purchase=1 or ?trigger_purchase=1 in URL
       if (params.get('test_purchase') === '1' || params.get('trigger_purchase') === '1' || params.get('test_event') === 'purchase') {
         const testOrderId = `ORD-TEST-${Date.now().toString().slice(-4)}`;
         trackPixelEvent(
@@ -116,24 +124,135 @@ export default function App() {
         );
         console.log(`[Pixel Verification] Fired test Purchase event (#${testOrderId}) from URL parameter.`);
       }
+
+      // 2. Open Ad Deep Links Generator Tool from URL
+      if (
+        params.get('ad_links') === '1' ||
+        params.get('tools') === 'ad-links' ||
+        params.get('tools') === 'ad_links' ||
+        params.get('deep_links') === '1'
+      ) {
+        setIsAdLinksModalOpen(true);
+      }
+
+      // 3. Ad UTM Tracking Preservation
+      const utmSource = params.get('utm_source');
+      const utmCampaign = params.get('utm_campaign');
+      const utmMedium = params.get('utm_medium');
+      if (utmSource) {
+        try {
+          sessionStorage.setItem('ad_utm_source', utmSource);
+          if (utmCampaign) sessionStorage.setItem('ad_utm_campaign', utmCampaign);
+          if (utmMedium) sessionStorage.setItem('ad_utm_medium', utmMedium);
+        } catch (e) {
+          // ignore storage error
+        }
+      }
+
+      // 4. Ad Campaign Product Deep Link Handling
+      const rawProduct = (params.get('product') || params.get('p') || params.get('model') || '').toLowerCase();
+      const rawAction = (params.get('action') || '').toLowerCase();
+      const rawQty = parseInt(params.get('qty') || params.get('quantity') || '1', 10);
+      const validQty = isNaN(rawQty) || rawQty < 1 ? 1 : rawQty;
+
+      if (rawProduct === 'piano-sink' || rawProduct === 'sink' || rawProduct === 'pianosink') {
+        setSelectedProduct('piano-sink');
+        setCart((prev) => ({ ...prev, 'piano-sink': validQty }));
+        setAdLandingNotice('🎯 Ad Offer Applied: Smart Kitchen Piano Sink Workstation (₦140,000) selected with Nationwide Pay-on-Delivery!');
+
+        trackPixelEvent('ViewContent', {
+          content_name: 'Smart Kitchen Piano Sink Workstation',
+          content_ids: ['piano-sink'],
+          value: 140000,
+          currency: 'NGN'
+        });
+
+        if (rawAction === 'specs' || params.get('modal') === '1' || params.get('view') === 'specs') {
+          handleOpenAlternativeModal(ALTERNATIVE_PRODUCTS[0]);
+        } else if (rawAction === 'order' || hash === '#order-form' || hash === '#order') {
+          setTimeout(() => scrollToOrderForm('piano-sink'), 350);
+        } else if (rawAction === 'showcase' || hash === '#alternative-product' || hash === '#showcase') {
+          setTimeout(() => {
+            const el = document.getElementById('alternative-products-section') || document.getElementById('alternative-product');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }, 350);
+        }
+      } else if (rawProduct === '5-burner' || rawProduct === '5burner' || rawProduct === 'hybrid') {
+        setSelectedProduct('5-burner');
+        setCart((prev) => ({ ...prev, '5-burner': validQty }));
+        setAdLandingNotice('🎯 Ad Offer Applied: Executive 5-Burner Gas + Electric Hybrid Cooktop (₦280,000) selected!');
+
+        trackPixelEvent('ViewContent', {
+          content_name: PRODUCT_NAME_5B,
+          content_ids: ['5-burner'],
+          value: 280000,
+          currency: 'NGN'
+        });
+
+        if (rawAction === 'specs' || params.get('modal') === '1' || params.get('view') === 'specs') {
+          handleOpenAlternativeModal(ALTERNATIVE_PRODUCTS[1]);
+        } else if (rawAction === 'order' || hash === '#order-form' || hash === '#order') {
+          setTimeout(() => scrollToOrderForm('5-burner'), 350);
+        } else if (rawAction === 'compare' || hash === '#comparison') {
+          setTimeout(() => {
+            document.getElementById('comparison')?.scrollIntoView({ behavior: 'smooth' });
+          }, 350);
+        }
+      } else if (rawProduct === '2-burner' || rawProduct === '2burner') {
+        setSelectedProduct('2-burner');
+        setCart((prev) => ({ ...prev, '2-burner': validQty }));
+        setAdLandingNotice('🎯 Ad Offer Applied: 2-Flip-Up Double Burner Cooktop (₦170,000) selected with Nationwide Pay-on-Delivery!');
+
+        if (rawAction === 'order' || hash === '#order-form' || hash === '#order') {
+          setTimeout(() => scrollToOrderForm('2-burner'), 350);
+        }
+      } else if (rawProduct === 'combo' || rawProduct === 'bundle') {
+        setSelectedProduct('2-burner');
+        setCart((prev) => ({ ...prev, '2-burner': 1, 'piano-sink': 1 }));
+        setAdLandingNotice('🔥 Kitchen Duo Combo Offer: 2-Burner Cooker + Smart Piano Sink selected with ₦10,000 Combo Discount!');
+        setTimeout(() => scrollToOrderForm(), 350);
+      } else {
+        // No specific product in query, but action or hash navigation
+        if (rawAction === 'order' || hash === '#order-form' || hash === '#order') {
+          setTimeout(() => scrollToOrderForm(), 350);
+        } else if (rawAction === 'showcase' || hash === '#alternative-product') {
+          setTimeout(() => {
+            const el = document.getElementById('alternative-products-section') || document.getElementById('alternative-product');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }, 350);
+        } else if (rawAction === 'compare' || hash === '#comparison') {
+          setTimeout(() => {
+            document.getElementById('comparison')?.scrollIntoView({ behavior: 'smooth' });
+          }, 350);
+        } else if (rawAction === 'gallery' || hash === '#gallery') {
+          setTimeout(() => {
+            document.getElementById('gallery')?.scrollIntoView({ behavior: 'smooth' });
+          }, 350);
+        }
+      }
     }
   }, []);
 
   const scrollToOrderForm = (modelPreference?: unknown) => {
-    // Only update selectedProduct if modelPreference is an explicit string match ('2-burner' or '5-burner')
-    // and NOT a SyntheticEvent or MouseEvent passed by onClick handlers
-    const pref = (typeof modelPreference === 'string' && (modelPreference === '2-burner' || modelPreference === '5-burner'))
-      ? (modelPreference as ProductId)
-      : selectedProduct;
+    // Check if modelPreference matches any valid ProductId
+    const isValidProduct =
+      typeof modelPreference === 'string' &&
+      (modelPreference === '2-burner' || modelPreference === '5-burner' || modelPreference === 'piano-sink');
 
-    if (typeof modelPreference === 'string' && (modelPreference === '2-burner' || modelPreference === '5-burner')) {
+    const pref = isValidProduct ? (modelPreference as ProductId) : selectedProduct;
+
+    if (isValidProduct) {
       setSelectedProduct(modelPreference as ProductId);
     }
 
     // Fire InitiateCheckout conversion tracking for TikTok, Meta, and GTM
-    const checkoutItem = pref === '5-burner'
-      ? { name: PRODUCT_NAME_5B, price: 380000 }
-      : { name: PRODUCT_NAME_2B, price: 170000 };
+    const checkoutItem =
+      pref === '5-burner'
+        ? { name: PRODUCT_NAME_5B, price: 280000 }
+        : pref === 'piano-sink'
+        ? { name: 'Smart Kitchen Piano Sink Workstation', price: 140000 }
+        : { name: PRODUCT_NAME_2B, price: 170000 };
+
     trackPixelEvent('InitiateCheckout', {
       content_name: checkoutItem.name,
       content_ids: [pref],
@@ -231,10 +350,11 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-white text-neutral-900 flex flex-col selection:bg-red-600 selection:text-white">
-      {/* Navigation Header with Cart Trigger */}
+      {/* Navigation Header with Cart Trigger & Ad Deep Links */}
       <Header
         onOrderClick={scrollToOrderForm}
         onOpenCart={() => setIsCartOpen(true)}
+        onOpenAdLinks={() => setIsAdLinksModalOpen(true)}
         cartCount={totalCartCount}
         cartTotal={cartTotals.grandTotal}
       />
@@ -367,7 +487,43 @@ export default function App() {
       <Footer
         onOpenPolicy={(policy) => setActivePolicy(policy)}
         onOrderClick={scrollToOrderForm}
+        onOpenAdLinks={() => setIsAdLinksModalOpen(true)}
       />
+
+      {/* Ad Campaign Deep Link Welcome Toast / Floating Notice */}
+      {adLandingNotice && (
+        <div className="fixed bottom-20 sm:bottom-6 left-3 right-3 sm:left-auto sm:right-6 z-40 max-w-md bg-slate-950/95 text-white border border-amber-500/50 rounded-2xl p-4 shadow-2xl backdrop-blur-md animate-fade-in flex items-start justify-between gap-3">
+          <div className="flex items-start gap-2.5 min-w-0">
+            <Sparkles className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+            <div className="min-w-0">
+              <div className="text-[10px] font-black uppercase text-amber-400 tracking-wider">
+                Special Ad Promotion Activated
+              </div>
+              <p className="text-xs text-slate-200 mt-0.5 leading-snug">
+                {adLandingNotice}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={() => {
+                scrollToOrderForm();
+                setAdLandingNotice(null);
+              }}
+              className="px-2.5 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition-colors cursor-pointer shadow-xs"
+            >
+              Order Now
+            </button>
+            <button
+              onClick={() => setAdLandingNotice(null)}
+              className="p-1 text-slate-400 hover:text-white cursor-pointer"
+              aria-label="Dismiss notice"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Mobile Sticky Bottom CTA Bar with Cart Trigger (Shows WhatsApp only after order) */}
       {!isCartOpen && (
@@ -445,6 +601,12 @@ export default function App() {
           handleAddToCart(pid, 1);
           setIsCartOpen(true);
         }}
+      />
+
+      {/* Ad Campaign Deep Links Generator Hub Modal */}
+      <AdDeepLinksModal
+        isOpen={isAdLinksModalOpen}
+        onClose={() => setIsAdLinksModalOpen(false)}
       />
     </div>
   );

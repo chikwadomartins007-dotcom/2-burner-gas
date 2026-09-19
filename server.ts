@@ -201,6 +201,181 @@ async function startServer() {
     res.json({ status: "ok" });
   });
 
+  // Meta / Facebook Product Catalog XML Feed (RSS 2.0 / Google Merchant Format)
+  // Used by Meta Commerce Manager > Catalog > Data Sources > Data Feed (Scheduled Fetch)
+  // Allows Facebook to scrape and display website product images directly beneath ad creatives (Collection Ads / Advantage+ Catalog)
+  const handleCatalogXml = (req: express.Request, res: express.Response) => {
+    const host = req.headers.host || "www.maxluxurybathrooms.shop";
+    const protocol = req.headers["x-forwarded-proto"] || "https";
+    const baseUrl = `${protocol}://${host}`;
+    // Fallback to official domain if running on container host without custom domain
+    const liveDomain = host.includes("localhost") || host.includes("run.app")
+      ? `${protocol}://${host}`
+      : "https://www.maxluxurybathrooms.shop";
+
+    const products = [
+      {
+        id: "2-burner",
+        title: "Premium 2-Burner Flip-Up Glass Gas Cooker",
+        description: "Double-Burner Crystal Tempered Glass Cooktop with 90-degree flip-up hinged burners for zero-effort cleaning. Digital timer console, blue flame honeycomb burners, tabletop or built-in, nationwide payment on delivery across Nigeria.",
+        link: `${liveDomain}/?product=2-burner&action=order&utm_source=facebook&utm_medium=catalog&utm_campaign=collection_ad`,
+        image_link: `${liveDomain}/images/He848b3e8bcc24b1e9c9d64ea2c2c4a96q.jpg`,
+        additional_images: [
+          `${liveDomain}/images/Hb703478da96c4d06ac439666db478fb5s.jpg`,
+          `${liveDomain}/images/H137f07cc70424452ada679ac752fcf43l.jpg`
+        ],
+        price: "170000 NGN",
+        sale_price: "170000 NGN"
+      },
+      {
+        id: "piano-sink",
+        title: "Smart Kitchen Piano Sink Workstation (Nano SUS304)",
+        description: "Multifunctional SUS304 Nano Stainless Steel Workstation (75x45cm) with tactile mechanical piano push keys, hydroelectric LED digital temperature display (°C), flying rain horizontal waterfall, high-pressure glass cup washer, and sliding accessories. Pay on delivery nationwide.",
+        link: `${liveDomain}/?product=piano-sink&action=order&utm_source=facebook&utm_medium=catalog&utm_campaign=collection_ad`,
+        image_link: `${liveDomain}/images/smart_piano_sink_1789548024514.jpg`,
+        additional_images: [
+          `${liveDomain}/images/piano_console_details_1789548059707.jpg`,
+          `${liveDomain}/images/workstation_accessories_1789548079842.jpg`,
+          `${liveDomain}/images/smart_piano_sink_lifestyle.jpg`
+        ],
+        price: "140000 NGN",
+        sale_price: "140000 NGN"
+      },
+      {
+        id: "5-burner",
+        title: "Executive 5-Burner Gas & Electric Hybrid Cooktop (90cm)",
+        description: "Executive 90cm Built-In Luxury Cooktop with 4 flip-up gas burners + 1 central radiant ceramic electric hotplate (2000W). Digital touch timer with auto safety cutoff, cast iron pan supports, explosion-proof black tempered glass. Nationwide payment on delivery.",
+        link: `${liveDomain}/?product=5-burner&action=order&utm_source=facebook&utm_medium=catalog&utm_campaign=collection_ad`,
+        image_link: `${liveDomain}/images/cooktop-5b-lifestyle.jpeg`,
+        additional_images: [
+          `${liveDomain}/images/11bb45a3-5549-4fdd-9bc1-7023275b3a13.png`
+        ],
+        price: "280000 NGN",
+        sale_price: "280000 NGN"
+      },
+      {
+        id: "combo",
+        title: "Kitchen Duo Combo Deal: Cooker + Smart Piano Sink Workstation",
+        description: "Complete Modern Luxury Kitchen Upgrade: Premium 2-Burner Flip-Up Cooker + Smart Kitchen Piano Sink Workstation with instant ₦10,000 combo discount and free expedited delivery across Nigeria.",
+        link: `${liveDomain}/?product=combo&action=order&utm_source=facebook&utm_medium=catalog&utm_campaign=collection_ad`,
+        image_link: `${liveDomain}/images/luxury_kitchen_lifestyle_1789548098794.jpg`,
+        additional_images: [
+          `${liveDomain}/images/complete_package_kit_1789548119458.jpg`
+        ],
+        price: "440000 NGN",
+        sale_price: "440000 NGN"
+      }
+    ];
+
+    const xmlItems = products.map((p) => {
+      const additionalTags = p.additional_images
+        .map((img) => `      <g:additional_image_link>${img}</g:additional_image_link>`)
+        .join("\n");
+
+      return `    <item>
+      <g:id>${p.id}</g:id>
+      <g:title><![CDATA[${p.title}]]></g:title>
+      <g:description><![CDATA[${p.description}]]></g:description>
+      <g:link>${p.link}</g:link>
+      <g:image_link>${p.image_link}</g:image_link>
+${additionalTags}
+      <g:brand>MAX LUXURY BATHROOMS</g:brand>
+      <g:condition>new</g:condition>
+      <g:availability>in stock</g:availability>
+      <g:price>${p.price}</g:price>
+      <g:sale_price>${p.sale_price}</g:sale_price>
+      <g:google_product_category>Home &amp; Garden &gt; Kitchen &amp; Dining &gt; Kitchen Appliances</g:google_product_category>
+      <g:fb_product_category>home_and_garden &gt; kitchen_and_dining &gt; kitchen_appliances</g:fb_product_category>
+    </item>`;
+    }).join("\n");
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">
+  <channel>
+    <title>MAX LUXURY BATHROOMS Product Catalog</title>
+    <link>${liveDomain}</link>
+    <description>Facebook / Meta Product Catalog Feed for MAX LUXURY BATHROOMS Collection Ads and Catalog Ads</description>
+${xmlItems}
+  </channel>
+</rss>`;
+
+    res.set("Content-Type", "application/xml; charset=utf-8");
+    res.send(xml);
+  };
+
+  app.get("/api/catalog.xml", handleCatalogXml);
+  app.get("/catalog.xml", handleCatalogXml);
+
+  // Facebook Catalog CSV download endpoint
+  app.get("/api/facebook-catalog.csv", (req, res) => {
+    const host = req.headers.host || "www.maxluxurybathrooms.shop";
+    const protocol = req.headers["x-forwarded-proto"] || "https";
+    const liveDomain = host.includes("localhost") || host.includes("run.app")
+      ? `${protocol}://${host}`
+      : "https://www.maxluxurybathrooms.shop";
+
+    const csvRows = [
+      ["id", "title", "description", "availability", "condition", "price", "link", "image_link", "brand", "google_product_category", "fb_product_category"],
+      [
+        "2-burner",
+        '"Premium 2-Burner Flip-Up Glass Gas Cooker"',
+        '"Double-Burner Crystal Tempered Glass Cooktop with 90-degree flip-up hinged burners. Digital timer, payment on delivery."',
+        "in stock",
+        "new",
+        "170000 NGN",
+        `"${liveDomain}/?product=2-burner&action=order&utm_source=facebook&utm_medium=catalog"`,
+        `"${liveDomain}/images/He848b3e8bcc24b1e9c9d64ea2c2c4a96q.jpg"`,
+        '"MAX LUXURY BATHROOMS"',
+        '"Home & Garden > Kitchen & Dining > Kitchen Appliances"',
+        '"home_and_garden > kitchen_and_dining > kitchen_appliances"'
+      ],
+      [
+        "piano-sink",
+        '"Smart Kitchen Piano Sink Workstation (Nano SUS304)"',
+        '"Multifunctional SUS304 Nano Stainless Steel Workstation with mechanical piano keys, digital LED temperature display, waterfall, cup rinser."',
+        "in stock",
+        "new",
+        "140000 NGN",
+        `"${liveDomain}/?product=piano-sink&action=order&utm_source=facebook&utm_medium=catalog"`,
+        `"${liveDomain}/images/smart_piano_sink_1789548024514.jpg"`,
+        '"MAX LUXURY BATHROOMS"',
+        '"Home & Garden > Kitchen & Dining > Kitchen Fixtures > Kitchen Sinks"',
+        '"home_and_garden > kitchen_and_dining > kitchen_fixtures > kitchen_sinks"'
+      ],
+      [
+        "5-burner",
+        '"Executive 5-Burner Gas & Electric Hybrid Cooktop"',
+        '"Executive 90cm Built-In Luxury Cooktop with 4 gas burners plus 1 radiant ceramic electric zone (2000W) with timer and auto-off."',
+        "in stock",
+        "new",
+        "280000 NGN",
+        `"${liveDomain}/?product=5-burner&action=order&utm_source=facebook&utm_medium=catalog"`,
+        `"${liveDomain}/images/cooktop-5b-lifestyle.jpeg"`,
+        '"MAX LUXURY BATHROOMS"',
+        '"Home & Garden > Kitchen & Dining > Kitchen Appliances"',
+        '"home_and_garden > kitchen_and_dining > kitchen_appliances"'
+      ],
+      [
+        "combo",
+        '"Kitchen Duo Combo Deal: Cooker + Smart Piano Sink Workstation"',
+        '"Premium 2-Burner Flip-Up Cooker + Smart Kitchen Piano Sink Workstation with instant ₦10,000 combo package discount."',
+        "in stock",
+        "new",
+        "440000 NGN",
+        `"${liveDomain}/?product=combo&action=order&utm_source=facebook&utm_medium=catalog"`,
+        `"${liveDomain}/images/luxury_kitchen_lifestyle_1789548098794.jpg"`,
+        '"MAX LUXURY BATHROOMS"',
+        '"Home & Garden > Kitchen & Dining > Kitchen Appliances"',
+        '"home_and_garden > kitchen_and_dining > kitchen_appliances"'
+      ]
+    ];
+
+    const csvContent = csvRows.map((r) => r.join(",")).join("\n");
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", 'attachment; filename="facebook_catalog_feed.csv"');
+    res.send(csvContent);
+  });
+
   // Meta Conversions API (CAPI) Proxy Endpoint
   app.post("/api/meta-conversions", async (req, res) => {
     try {
