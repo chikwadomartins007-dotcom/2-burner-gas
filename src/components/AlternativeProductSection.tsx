@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Sparkles,
   Eye,
@@ -61,22 +61,32 @@ export const AlternativeProductSection: React.FC<AlternativeProductSectionProps>
   // Gallery filter in Piano Sink showcase
   const [activeGalleryTag, setActiveGalleryTag] = useState<string>('all');
   const [activeGalleryIdx, setActiveGalleryIdx] = useState<number>(0);
-
-  // FAQ accordion state
-  const [openFaqId, setOpenFaqId] = useState<string | null>('sink-faq-1');
+  const [isSinkGalleryHovered, setIsSinkGalleryHovered] = useState<boolean>(false);
 
   const sinkProduct = ALTERNATIVE_PRODUCTS.find((p) => p.id === 'piano-sink')!;
   const cookerProduct = ALTERNATIVE_PRODUCTS.find((p) => p.id === '5-burner')!;
-
-  const handleOpenModal = (prod: AlternativeProductData) => {
-    setModalProduct(prod);
-    setIsModalOpen(true);
-  };
 
   const filteredGalleryImages =
     activeGalleryTag === 'all'
       ? sinkProduct.images
       : sinkProduct.images.filter((img) => img.tag === activeGalleryTag);
+
+  // Auto-replay piano sink gallery images in continuous loop
+  useEffect(() => {
+    if (isSinkGalleryHovered || filteredGalleryImages.length <= 1) return;
+    const timer = setInterval(() => {
+      setActiveGalleryIdx((prev) => (prev + 1) % filteredGalleryImages.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [isSinkGalleryHovered, filteredGalleryImages.length]);
+
+  // FAQ accordion state
+  const [openFaqId, setOpenFaqId] = useState<string | null>('sink-faq-1');
+
+  const handleOpenModal = (prod: AlternativeProductData) => {
+    setModalProduct(prod);
+    setIsModalOpen(true);
+  };
 
   const galleryTags = [
     { id: 'all', label: 'All Photos' },
@@ -592,6 +602,8 @@ export const AlternativeProductSection: React.FC<AlternativeProductSectionProps>
                         filteredGalleryImages[activeGalleryIdx]?.title || sinkProduct.name
                       )
                     }
+                    onMouseEnter={() => setIsSinkGalleryHovered(true)}
+                    onMouseLeave={() => setIsSinkGalleryHovered(false)}
                     className="relative aspect-[16/9] max-h-[460px] bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 group cursor-pointer shadow-xl"
                   >
                     <img
