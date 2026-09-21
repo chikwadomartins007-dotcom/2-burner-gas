@@ -64,6 +64,7 @@ export const TopAlternativeBanner: React.FC<TopAlternativeBannerProps> = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      <div id="suggested-options-top" className="hidden" />
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
         {/* Left Indicator & Mobile Controls */}
         <div className="flex items-center justify-between shrink-0">
@@ -73,7 +74,7 @@ export const TopAlternativeBanner: React.FC<TopAlternativeBannerProps> = ({
               <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600" />
             </span>
             <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-[#0a192f] whitespace-nowrap">
-              Matching Kitchen Appliances:
+              Suggested Options:
             </span>
           </div>
 
@@ -174,14 +175,14 @@ export const TopAlternativeBanner: React.FC<TopAlternativeBannerProps> = ({
             <button
               type="button"
               onClick={() => {
-                const target = document.getElementById('alternative-products-section') || document.getElementById('alternative-product');
+                const target = document.getElementById('suggested-options-section') || document.getElementById('alternative-products-section') || document.getElementById('alternative-product');
                 if (target) {
                   target.scrollIntoView({ behavior: 'smooth' });
                 }
               }}
               className="bg-blue-50/70 hover:bg-blue-100/70 border border-blue-200/80 rounded-lg p-1.5 transition-all flex items-center gap-1.5 text-xs text-blue-700 font-bold shrink-0 px-2.5 cursor-pointer"
             >
-              <span>Explore Matching Appliances</span>
+              <span>Explore Suggested Options</span>
               <ArrowRight className="w-3 h-3" />
             </button>
           </div>

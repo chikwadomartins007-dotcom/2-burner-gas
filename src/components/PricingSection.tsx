@@ -16,6 +16,7 @@ interface PricingSectionProps {
   onSelectQuantity: (qty: number) => void;
   onAddToCart?: (productId: ProductId, qty: number) => void;
   onOrderClick: () => void;
+  showSuggestedOptions?: boolean;
 }
 
 export const PricingSection: React.FC<PricingSectionProps> = ({
@@ -24,12 +25,13 @@ export const PricingSection: React.FC<PricingSectionProps> = ({
   selectedQuantity,
   onSelectQuantity,
   onAddToCart,
-  onOrderClick
+  onOrderClick,
+  showSuggestedOptions = false
 }) => {
   const activeTiers =
-    selectedProduct === 'piano-sink'
+    showSuggestedOptions && selectedProduct === 'piano-sink'
       ? PRICING_TIERS_SINK
-      : selectedProduct === '5-burner'
+      : showSuggestedOptions && selectedProduct === '5-burner'
       ? PRICING_TIERS_5B
       : PRICING_TIERS_2B;
   const currentProduct = PRODUCT_OPTIONS[selectedProduct] || PRODUCT_OPTIONS['2-burner'];
@@ -49,57 +51,61 @@ export const PricingSection: React.FC<PricingSectionProps> = ({
             Enjoy generous bulk discounts when outfitting multiple properties, gifting loved ones, or stocking your business.
           </p>
 
-          {/* Model Switcher Pill */}
-          <div className="pt-4 flex items-center justify-center">
-            <div className="inline-flex p-1 rounded-2xl bg-neutral-100 border border-neutral-200 flex-wrap justify-center gap-1">
-              <button
-                type="button"
-                onClick={() => onSelectProduct('2-burner')}
-                className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                  selectedProduct === '2-burner'
-                    ? 'bg-white text-red-600 shadow-sm border border-neutral-200'
-                    : 'text-neutral-600 hover:text-neutral-900'
-                }`}
-              >
-                <Flame className="w-3.5 h-3.5 text-red-600" />
-                <span>2-Burner Gas (from ₦170k)</span>
-              </button>
+          {/* Model Switcher Pill - Only shown for suggested options */}
+          {showSuggestedOptions && (
+            <div className="pt-4 flex items-center justify-center">
+              <div className="inline-flex p-1 rounded-2xl bg-neutral-100 border border-neutral-200 flex-wrap justify-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => onSelectProduct('2-burner')}
+                  className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                    selectedProduct === '2-burner'
+                      ? 'bg-white text-red-600 shadow-sm border border-neutral-200'
+                      : 'text-neutral-600 hover:text-neutral-900'
+                  }`}
+                >
+                  <Flame className="w-3.5 h-3.5 text-red-600" />
+                  <span>2-Burner Gas (from ₦170k)</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => onSelectProduct('5-burner')}
-                className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                  selectedProduct === '5-burner'
-                    ? 'bg-white text-red-600 shadow-sm border border-neutral-200'
-                    : 'text-neutral-600 hover:text-neutral-900'
-                }`}
-              >
-                <Zap className="w-3.5 h-3.5 text-amber-500" />
-                <span>5-Burner Hybrid (from ₦280k)</span>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => onSelectProduct('5-burner')}
+                  className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                    selectedProduct === '5-burner'
+                      ? 'bg-white text-red-600 shadow-sm border border-neutral-200'
+                      : 'text-neutral-600 hover:text-neutral-900'
+                  }`}
+                >
+                  <Zap className="w-3.5 h-3.5 text-amber-500" />
+                  <span>5-Burner Hybrid (from ₦280k)</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => onSelectProduct('piano-sink')}
-                className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                  selectedProduct === 'piano-sink'
-                    ? 'bg-slate-900 text-emerald-400 shadow-sm border border-emerald-500'
-                    : 'text-neutral-600 hover:text-neutral-900'
-                }`}
-              >
-                <Droplets className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Piano Sink (from ₦140k)</span>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => onSelectProduct('piano-sink')}
+                  className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                    selectedProduct === 'piano-sink'
+                      ? 'bg-slate-900 text-emerald-400 shadow-sm border border-emerald-500'
+                      : 'text-neutral-600 hover:text-neutral-900'
+                  }`}
+                >
+                  <Droplets className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Piano Sink (from ₦140k)</span>
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Product context banner */}
-        <div className="max-w-md mx-auto text-center mb-8">
-          <span className="text-xs text-neutral-500">
-            Showing pricing for: <strong className="text-neutral-900">{currentProduct.name}</strong>
-          </span>
-        </div>
+        {showSuggestedOptions && (
+          <div className="max-w-md mx-auto text-center mb-8">
+            <span className="text-xs text-neutral-500">
+              Showing pricing for: <strong className="text-neutral-900">{currentProduct.name}</strong>
+            </span>
+          </div>
+        )}
 
         {/* Pricing Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

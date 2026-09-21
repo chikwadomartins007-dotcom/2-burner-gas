@@ -124,9 +124,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               <button
                 onClick={onScrollToAlternatives}
                 className="px-2.5 py-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 active:bg-neutral-600 text-neutral-200 text-xs font-semibold flex items-center gap-1 transition-colors whitespace-nowrap cursor-pointer"
-                title="Scroll down to choose another cooker model"
+                title="View suggested options"
               >
-                <span>+ Choose Other</span>
+                <span>+ Suggested Options</span>
               </button>
             )}
 
@@ -235,7 +235,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 }}
                 className="text-[11px] font-bold text-red-600 underline hover:text-red-700 ml-2 whitespace-nowrap cursor-pointer"
               >
-                Browse Other
+                Suggested Options
               </button>
             )}
           </div>
@@ -571,7 +571,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   className="w-full py-2 rounded-xl border border-neutral-300 hover:border-neutral-400 bg-white hover:bg-neutral-100 text-neutral-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-2xs cursor-pointer active:scale-98"
                 >
                   <ChevronDown className="w-3.5 h-3.5 text-neutral-500" />
-                  <span>Minimize & Choose Another Cooker</span>
+                  <span>Minimize & View Suggested Options</span>
                 </button>
               </div>
 

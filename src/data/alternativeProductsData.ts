@@ -30,6 +30,8 @@ export interface AlternativeProductData {
   whatsappMessage: string;
 }
 
+export type SuggestedOptionData = AlternativeProductData;
+
 export const ALTERNATIVE_PRODUCTS: AlternativeProductData[] = [
   {
     id: 'piano-sink',
@@ -313,3 +315,5 @@ export const PIANO_SINK_FAQS = [
     answer: 'We ship nationwide across all 36 states and Abuja. In Lagos, Abuja, and Port Harcourt, Payment on Delivery is available with doorstep delivery in 1–3 business days. For other states, delivery arrives in 3–5 business days.'
   }
 ];
+
+export const SUGGESTED_OPTIONS: SuggestedOptionData[] = ALTERNATIVE_PRODUCTS;

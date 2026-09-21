@@ -94,7 +94,7 @@ export const AdDeepLinksModal: React.FC<AdDeepLinksModalProps> = ({
       imageRelative: '/images/smart_piano_sink_1789548024514.jpg',
       imageUrl: `${effectiveDomain}/images/smart_piano_sink_1789548024514.jpg`,
       overrideLink: `${baseOrigin}?product=piano-sink&action=order&utm_source=facebook&utm_medium=catalog&utm_campaign=collection_ad#order-form`,
-      showcaseLink: `${baseOrigin}?product=piano-sink&action=showcase#alternative-product`,
+      showcaseLink: `${baseOrigin}?product=piano-sink&action=showcase#suggested-option`,
       category: 'Smart Sinks',
       tag: 'Viral Hit'
     },
@@ -212,7 +212,7 @@ export const AdDeepLinksModal: React.FC<AdDeepLinksModalProps> = ({
     // Add anchor hash if destination matches section
     let hash = '';
     if (selectedAction === 'order') hash = '#order-form';
-    else if (selectedAction === 'showcase' && selectedProduct === 'piano-sink') hash = '#alternative-product';
+    else if (selectedAction === 'showcase' && selectedProduct === 'piano-sink') hash = '#suggested-option';
     else if (selectedAction === 'compare') hash = '#comparison';
     else if (selectedAction === 'gallery') hash = '#gallery';
 

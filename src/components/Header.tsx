@@ -8,6 +8,7 @@ interface HeaderProps {
   onOpenAdLinks?: () => void;
   cartCount?: number;
   cartTotal?: number;
+  showSuggestedOptions?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -15,7 +16,8 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenCart,
   onOpenAdLinks,
   cartCount = 0,
-  cartTotal = 0
+  cartTotal = 0,
+  showSuggestedOptions = false
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -69,21 +71,25 @@ export const Header: React.FC<HeaderProps> = ({
           >
             FEATURES
           </button>
-          <button
-            onClick={() => scrollToSection('alternative-product')}
-            className="hover:text-red-700 transition-colors cursor-pointer flex items-center gap-1.5 text-red-600 font-bold"
-          >
-            <span>ALTERNATIVES</span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-100 border border-red-200 text-red-700 font-bold">
-              2 Models
-            </span>
-          </button>
-          <button
-            onClick={() => scrollToSection('comparison')}
-            className="hover:text-red-600 transition-colors cursor-pointer"
-          >
-            COMPARE MODELS
-          </button>
+          {showSuggestedOptions && (
+            <>
+              <button
+                onClick={() => scrollToSection('suggested-options-section')}
+                className="hover:text-red-700 transition-colors cursor-pointer flex items-center gap-1.5 text-red-600 font-bold"
+              >
+                <span>SUGGESTED OPTIONS</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-100 border border-red-200 text-red-700 font-bold">
+                  2 Models
+                </span>
+              </button>
+              <button
+                onClick={() => scrollToSection('comparison')}
+                className="hover:text-red-600 transition-colors cursor-pointer"
+              >
+                COMPARE MODELS
+              </button>
+            </>
+          )}
           <button
             onClick={() => scrollToSection('gallery')}
             className="hover:text-red-600 transition-colors cursor-pointer"
@@ -210,21 +216,25 @@ export const Header: React.FC<HeaderProps> = ({
             >
               FEATURES
             </button>
-            <button
-              onClick={() => scrollToSection('alternative-product')}
-              className="text-left py-2 text-red-600 font-bold border-b border-neutral-100 flex items-center justify-between"
-            >
-              <span>ALTERNATIVE PRODUCTS</span>
-              <span className="text-[10px] px-2 py-0.5 rounded bg-red-100 text-red-700 border border-red-200">
-                5-Burner & Piano Sink
-              </span>
-            </button>
-            <button
-              onClick={() => scrollToSection('comparison')}
-              className="text-left py-2 hover:text-red-600 border-b border-neutral-100"
-            >
-              COMPARE 2-BURNER VS 5-BURNER
-            </button>
+            {showSuggestedOptions && (
+              <>
+                <button
+                  onClick={() => scrollToSection('suggested-options-section')}
+                  className="text-left py-2 text-red-600 font-bold border-b border-neutral-100 flex items-center justify-between"
+                >
+                  <span>SUGGESTED OPTIONS</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded bg-red-100 text-red-700 border border-red-200">
+                    5-Burner & Piano Sink
+                  </span>
+                </button>
+                <button
+                  onClick={() => scrollToSection('comparison')}
+                  className="text-left py-2 hover:text-red-600 border-b border-neutral-100"
+                >
+                  COMPARE 2-BURNER VS 5-BURNER
+                </button>
+              </>
+            )}
             <button
               onClick={() => scrollToSection('diagram')}
               className="text-left py-2 hover:text-red-600 border-b border-neutral-100"

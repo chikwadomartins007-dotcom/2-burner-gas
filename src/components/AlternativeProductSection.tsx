@@ -91,8 +91,11 @@ export const AlternativeProductSection: React.FC<AlternativeProductSectionProps>
       id="alternative-product"
       className="py-14 sm:py-20 bg-[#0a0e14] text-slate-100 border-t border-b border-slate-800/80 relative scroll-mt-14"
     >
-      {/* Target anchor for alternative-products-section */}
+      {/* Target anchor for alternative-products-section and suggested options */}
       <div id="alternative-products-section" className="absolute -top-16 left-0" />
+      <div id="suggested-option" className="absolute -top-16 left-0" />
+      <div id="suggested-options" className="absolute -top-16 left-0" />
+      <div id="suggested-options-section" className="absolute -top-16 left-0" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Matching Appliances Grid */}
@@ -100,10 +103,10 @@ export const AlternativeProductSection: React.FC<AlternativeProductSectionProps>
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-6">
             <div>
               <div className="inline-flex items-center gap-1.5 bg-blue-100 text-blue-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider mb-1">
-                <span>Matching Kitchen Appliances</span>
+                <span>Suggested Options • Matching Kitchen Appliances</span>
               </div>
               <h3 className="text-xl sm:text-2xl font-black text-[#0a192f] tracking-tight">
-                Optional Cooktops & Sinks from Max Luxury Bathrooms
+                Suggested Options from Max Luxury Bathrooms
               </h3>
               <p className="text-xs sm:text-sm text-slate-600">
                 Easily pair your smart piano sink with a matching built-in luxury cooktop or vice-versa.
@@ -198,19 +201,19 @@ export const AlternativeProductSection: React.FC<AlternativeProductSectionProps>
         <div className="text-center max-w-3xl mx-auto mb-12">
           <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 px-3.5 py-1.5 rounded-full text-xs font-bold text-amber-400 uppercase tracking-widest mb-3 shadow-xs">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>ALTERNATIVE & MATCHING KITCHEN APPLIANCES</span>
+            <span>SUGGESTED OPTIONS • KITCHEN APPLIANCES</span>
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight">
             Complete Your Modern Kitchen Setup
           </h2>
           <p className="text-slate-300 text-xs sm:text-sm md:text-base mt-2.5 leading-relaxed">
-            Looking for luxury appliances designed to complement each other? Explore our official{' '}
+            Looking for suggested luxury options designed to complement each other? Explore our official{' '}
             <strong className="text-amber-400 font-semibold">Smart Kitchen Piano Sink Workstation</strong> and{' '}
             <strong className="text-amber-400 font-semibold">Executive 5-Burner Gas + Electric Hybrid Cooktop</strong> directly from Max Luxury Bathrooms.
           </p>
         </div>
 
-        {/* The Two Main Alternative Product Cards */}
+        {/* The Two Main Suggested Option Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           {/* Card 1: SMART KITCHEN PIANO SINK */}
           <div className="bg-slate-900/90 border border-slate-800 hover:border-emerald-500/50 rounded-3xl overflow-hidden shadow-2xl transition-all duration-300 flex flex-col group">

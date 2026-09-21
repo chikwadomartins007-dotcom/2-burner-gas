@@ -54,7 +54,10 @@ export default function App() {
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
   const [hasPlacedOrder, setHasPlacedOrder] = useState<boolean>(false);
+  const [directAdSuggested, setDirectAdSuggested] = useState<boolean>(false);
   const [orderWhatsappUrl, setOrderWhatsappUrl] = useState<string>('');
+
+  const showSuggestedOptions = hasPlacedOrder || directAdSuggested;
 
   const [resetOrderSignal, setResetOrderSignal] = useState<number>(0);
 
@@ -156,6 +159,7 @@ export default function App() {
       const validQty = isNaN(rawQty) || rawQty < 1 ? 1 : rawQty;
 
       if (rawProduct === 'piano-sink' || rawProduct === 'sink' || rawProduct === 'pianosink') {
+        setDirectAdSuggested(true);
         setSelectedProduct('piano-sink');
         setCart((prev) => ({ ...prev, 'piano-sink': validQty }));
         setAdLandingNotice('🎯 Ad Offer Applied: Smart Kitchen Piano Sink Workstation (₦140,000) selected with Nationwide Pay-on-Delivery!');
@@ -171,13 +175,14 @@ export default function App() {
           handleOpenAlternativeModal(ALTERNATIVE_PRODUCTS[0]);
         } else if (rawAction === 'order' || hash === '#order-form' || hash === '#order') {
           setTimeout(() => scrollToOrderForm('piano-sink'), 350);
-        } else if (rawAction === 'showcase' || hash === '#alternative-product' || hash === '#showcase') {
+        } else if (rawAction === 'showcase' || hash === '#alternative-product' || hash === '#showcase' || hash === '#suggested-option' || hash === '#suggested-options') {
           setTimeout(() => {
-            const el = document.getElementById('alternative-products-section') || document.getElementById('alternative-product');
+            const el = document.getElementById('suggested-options-section') || document.getElementById('alternative-products-section') || document.getElementById('alternative-product');
             if (el) el.scrollIntoView({ behavior: 'smooth' });
           }, 350);
         }
       } else if (rawProduct === '5-burner' || rawProduct === '5burner' || rawProduct === 'hybrid') {
+        setDirectAdSuggested(true);
         setSelectedProduct('5-burner');
         setCart((prev) => ({ ...prev, '5-burner': validQty }));
         setAdLandingNotice('🎯 Ad Offer Applied: Executive 5-Burner Gas + Electric Hybrid Cooktop (₦280,000) selected!');
@@ -207,6 +212,7 @@ export default function App() {
           setTimeout(() => scrollToOrderForm('2-burner'), 350);
         }
       } else if (rawProduct === 'combo' || rawProduct === 'bundle') {
+        setDirectAdSuggested(true);
         setSelectedProduct('2-burner');
         setCart((prev) => ({ ...prev, '2-burner': 1, 'piano-sink': 1 }));
         setAdLandingNotice('🔥 Kitchen Duo Combo Offer: 2-Burner Cooker + Smart Piano Sink selected with ₦10,000 Combo Discount!');
@@ -215,9 +221,9 @@ export default function App() {
         // No specific product in query, but action or hash navigation
         if (rawAction === 'order' || hash === '#order-form' || hash === '#order') {
           setTimeout(() => scrollToOrderForm(), 350);
-        } else if (rawAction === 'showcase' || hash === '#alternative-product') {
+        } else if (rawAction === 'showcase' || hash === '#alternative-product' || hash === '#suggested-option' || hash === '#suggested-options') {
           setTimeout(() => {
-            const el = document.getElementById('alternative-products-section') || document.getElementById('alternative-product');
+            const el = document.getElementById('suggested-options-section') || document.getElementById('alternative-products-section') || document.getElementById('alternative-product');
             if (el) el.scrollIntoView({ behavior: 'smooth' });
           }, 350);
         } else if (rawAction === 'compare' || hash === '#comparison') {
@@ -277,7 +283,10 @@ export default function App() {
   };
 
   const scrollToAlternatives = () => {
-    const element = document.getElementById('alternative-product') || document.getElementById('comparison');
+    const element =
+      document.getElementById('suggested-options-section') ||
+      document.getElementById('alternative-product') ||
+      document.getElementById('comparison');
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -357,17 +366,20 @@ export default function App() {
         onOpenAdLinks={() => setIsAdLinksModalOpen(true)}
         cartCount={totalCartCount}
         cartTotal={cartTotals.grandTotal}
+        showSuggestedOptions={showSuggestedOptions}
       />
 
       {/* Top Moving Button to Alternative Products (Matching Cooktops & Sinks) */}
-      <TopAlternativeBanner
-        onViewProduct={handleOpenAlternativeModal}
-        onSelectForOrder={(pid) => {
-          setSelectedProduct(pid);
-          handleAddToCart(pid, 1);
-          scrollToOrderForm();
-        }}
-      />
+      {showSuggestedOptions && (
+        <TopAlternativeBanner
+          onViewProduct={handleOpenAlternativeModal}
+          onSelectForOrder={(pid) => {
+            setSelectedProduct(pid);
+            handleAddToCart(pid, 1);
+            scrollToOrderForm();
+          }}
+        />
+      )}
 
       {/* Scarcity / Countdown / Stock Bar (Inspired by luxury home tech store) */}
       <UrgencyStockBar onOrderClick={scrollToOrderForm} />
@@ -396,27 +408,31 @@ export default function App() {
         />
 
         {/* Alternative Product Showcase: 5-Burner Gas & Electric Hybrid & Smart Piano Sink */}
-        <AlternativeProductSection
-          activeAlternativeTab={alternativeTab}
-          onTabChange={setAlternativeTab}
-          onSelectProduct={(pid) => {
-            setSelectedProduct(pid);
-            handleAddToCart(pid, 1);
-          }}
-          onAddToCart={(pid) => handleAddToCart(pid, 1)}
-          onImageClick={handleOpenLightbox}
-          onOrderClick={scrollToOrderForm}
-        />
+        {showSuggestedOptions && (
+          <AlternativeProductSection
+            activeAlternativeTab={alternativeTab}
+            onTabChange={setAlternativeTab}
+            onSelectProduct={(pid) => {
+              setSelectedProduct(pid);
+              handleAddToCart(pid, 1);
+            }}
+            onAddToCart={(pid) => handleAddToCart(pid, 1)}
+            onImageClick={handleOpenLightbox}
+            onOrderClick={scrollToOrderForm}
+          />
+        )}
 
         {/* Side-by-Side Model Comparison */}
-        <ProductComparisonSection
-          selectedProduct={selectedProduct}
-          onSelectProduct={(pid) => {
-            setSelectedProduct(pid);
-          }}
-          onAddToCart={(pid) => handleAddToCart(pid, 1)}
-          onOrderClick={scrollToOrderForm}
-        />
+        {showSuggestedOptions && (
+          <ProductComparisonSection
+            selectedProduct={selectedProduct}
+            onSelectProduct={(pid) => {
+              setSelectedProduct(pid);
+            }}
+            onAddToCart={(pid) => handleAddToCart(pid, 1)}
+            onOrderClick={scrollToOrderForm}
+          />
+        )}
 
         {/* Complete 14-Photo Authentic Product Gallery */}
         <ProductGallery
@@ -455,6 +471,7 @@ export default function App() {
             handleAddToCart(pid, qty);
           }}
           onOrderClick={scrollToOrderForm}
+          showSuggestedOptions={showSuggestedOptions}
         />
 
         {/* Payment on Delivery Trust & Assurance */}
@@ -480,6 +497,8 @@ export default function App() {
           onOrderSuccess={handleOrderSuccess}
           onResetOrder={handleResetOrder}
           resetSignal={resetOrderSignal}
+          showSuggestedOptions={showSuggestedOptions}
+          onViewSuggestedProduct={handleOpenAlternativeModal}
         />
       </main>
 

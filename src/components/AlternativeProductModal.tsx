@@ -88,7 +88,7 @@ export const AlternativeProductModal: React.FC<AlternativeProductModalProps> = (
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
             <span className="text-xs font-black tracking-widest text-amber-400 uppercase">
-              ALTERNATIVE LUXURY APPLIANCE • {product.shortName.toUpperCase()}
+              SUGGESTED OPTION • {product.shortName.toUpperCase()}
             </span>
           </div>
 
