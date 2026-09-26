@@ -50,15 +50,10 @@ function parseBotMessage(
   // Check for explicit action tags sent by AI
   const actionTagMatch = text.match(/\[ACTION:ORDER_NOW(?::(2-burner|5-burner))?\]/i);
   if (actionTagMatch) {
-    const pref = actionTagMatch[1] ? (actionTagMatch[1].toLowerCase() as ProductId) : undefined;
     action = {
       type: 'order_now',
-      modelPreference: pref,
-      label: pref === '5-burner'
-        ? 'ORDER 5-BURNER NOW — FILL DELIVERY FORM'
-        : pref === '2-burner'
-        ? 'ORDER 2-BURNER NOW — FILL DELIVERY FORM'
-        : 'ORDER NOW — CHOOSE MODEL & FILL FORM'
+      modelPreference: '2-burner',
+      label: 'ORDER NOW — PAY ON DELIVERY'
     };
     text = text.replace(/\[ACTION:ORDER_NOW(?::(2-burner|5-burner))?\]/gi, '').trim();
   } else {
@@ -71,24 +66,10 @@ function parseBotMessage(
       );
 
     if (hasOrderIntent) {
-      const mentions5B = /\b(5-burner|five-burner|hybrid)\b/i.test(userPromptText) || /\b(5-burner|five-burner)\b/i.test(rawText);
-      const mentions2B = /\b(2-burner|two-burner|glass\s+cooker)\b/i.test(userPromptText) || /\b(2-burner|two-burner)\b/i.test(rawText);
-
-      let pref: ProductId | undefined = undefined;
-      if (mentions5B && !mentions2B) {
-        pref = '5-burner';
-      } else if (mentions2B && !mentions5B) {
-        pref = '2-burner';
-      }
-
       action = {
         type: 'order_now',
-        modelPreference: pref,
-        label: pref === '5-burner'
-          ? 'ORDER 5-BURNER NOW — FILL DELIVERY FORM'
-          : pref === '2-burner'
-          ? 'ORDER 2-BURNER NOW — FILL DELIVERY FORM'
-          : 'ORDER NOW — CHOOSE MODEL & FILL FORM'
+        modelPreference: '2-burner',
+        label: 'ORDER NOW — PAY ON DELIVERY'
       };
     }
   }
@@ -100,10 +81,10 @@ const INITIAL_WELCOME_MESSAGE: ChatMessage = {
   id: 'welcome-1',
   role: 'assistant',
   content:
-    "Hello! Welcome to Max Luxury Bathrooms. 👋\n\nI'm your official 24/7 AI Customer Support Agent. I'm here to help you with:\n• Cooker features, specifications & dimensions\n• Verified pricing & multi-unit discounts\n• 100% Payment on Delivery terms & nationwide dispatch\n• Step-by-step help completing your order\n\nHow may I assist you today?",
+    "Hello! Welcome to Max Luxury Bathrooms. 👋\n\nI'm your official 24/7 AI Customer Support Agent. I'm here to help you with:\n• 2-Flip-Up Cooker features, specifications & dimensions\n• Verified pricing & multi-unit discounts\n• 100% Payment on Delivery terms & nationwide dispatch\n• Step-by-step help completing your order\n\nHow may I assist you today?",
   action: {
     type: 'order_now',
-    label: 'ORDER NOW — CHOOSE MODEL & FILL FORM'
+    label: 'ORDER NOW — PAY ON DELIVERY'
   },
   timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 };
@@ -210,7 +191,7 @@ export const GeminiChatBot: React.FC<GeminiChatBotProps> = ({ onOrderClick, onOp
         content: fallbackText,
         action: {
           type: 'order_now',
-          label: 'ORDER NOW — CHOOSE MODEL & FILL FORM'
+          label: 'ORDER NOW — PAY ON DELIVERY'
         },
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };

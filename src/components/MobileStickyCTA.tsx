@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, MessageSquare, Phone } from 'lucide-react';
+import { ShoppingBag, MessageSquare, Phone, Zap } from 'lucide-react';
 import { WHATSAPP_LINK, CALL_LINK, PHONE_NUMBER } from '../data/productData';
 
 interface MobileStickyCTAProps {
   onOrderClick: () => void;
   onOpenCart?: () => void;
+  onOpenExpressCheckout?: () => void;
   cartCount?: number;
   hasPlacedOrder?: boolean;
   whatsappUrl?: string;
@@ -14,6 +15,7 @@ interface MobileStickyCTAProps {
 export const MobileStickyCTA: React.FC<MobileStickyCTAProps> = ({
   onOrderClick,
   onOpenCart,
+  onOpenExpressCheckout,
   cartCount = 0,
   hasPlacedOrder = false,
   whatsappUrl,
@@ -109,6 +111,17 @@ export const MobileStickyCTA: React.FC<MobileStickyCTAProps> = ({
         >
           <Phone className="w-4 h-4 text-red-600" />
         </a>
+
+        {onOpenExpressCheckout && (
+          <button
+            onClick={onOpenExpressCheckout}
+            className="flex-shrink-0 px-2.5 h-10 rounded-xl bg-neutral-950 text-amber-300 border border-amber-400/50 font-black text-[10px] sm:text-xs flex items-center gap-1 active:scale-95 cursor-pointer shadow-md"
+            title="Express 60-Second Pop-up Form"
+          >
+            <Zap className="w-3.5 h-3.5 fill-amber-300" />
+            <span>EXPRESS</span>
+          </button>
+        )}
 
         <button
           onClick={onOrderClick}

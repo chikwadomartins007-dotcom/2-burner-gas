@@ -15,7 +15,7 @@ const RECENT_SALES: RecentSale[] = [
     id: 's1',
     customer: 'Dr. Stella O.',
     location: 'Lekki Phase 1, Lagos',
-    product: '2-Burner + 5-Burner Combo (Both Cookers)',
+    product: '2-Flip-Up Double Burner (2 Units Deal)',
     timeAgo: '3 minutes ago',
     image: '/images/He848b3e8bcc24b1e9c9d64ea2c2c4a96q.jpg'
   },
@@ -23,9 +23,9 @@ const RECENT_SALES: RecentSale[] = [
     id: 's2',
     customer: 'Alhaji Haruna M.',
     location: 'Wuse 2, Abuja',
-    product: '5-Burner Gas & Electric Hybrid Cooktop',
+    product: 'Premium 2-Flip-Up Double Burner Cooker',
     timeAgo: '7 minutes ago',
-    image: '/images/Hd84f5f7654644224945b4ea055aa07a1Y.png'
+    image: '/images/He848b3e8bcc24b1e9c9d64ea2c2c4a96q.jpg'
   },
   {
     id: 's3',
@@ -39,15 +39,15 @@ const RECENT_SALES: RecentSale[] = [
     id: 's4',
     customer: 'Engr. Babatunde K.',
     location: 'Ikeja GRA, Lagos',
-    product: '5-Burner Hybrid Cooktop with Timer',
+    product: '2-Flip-Up Double Burner (Family 3-Pack)',
     timeAgo: '16 minutes ago',
-    image: '/images/Hd84f5f7654644224945b4ea055aa07a1Y.png'
+    image: '/images/He848b3e8bcc24b1e9c9d64ea2c2c4a96q.jpg'
   },
   {
     id: 's5',
     customer: 'Mrs. Cynthia A.',
     location: 'Asaba, Delta State',
-    product: '2-Burner + 5-Burner Combo Pack',
+    product: 'Premium 2-Flip-Up Double Burner Cooker',
     timeAgo: '21 minutes ago',
     image: '/images/He848b3e8bcc24b1e9c9d64ea2c2c4a96q.jpg'
   }

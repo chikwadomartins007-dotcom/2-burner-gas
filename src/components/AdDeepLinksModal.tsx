@@ -23,7 +23,6 @@ import {
   HelpCircle,
   Play
 } from 'lucide-react';
-import { ALTERNATIVE_PRODUCTS } from '../data/alternativeProductsData';
 import { formatNaira } from '../data/productData';
 import { ProductId } from '../types';
 
@@ -42,10 +41,10 @@ export const AdDeepLinksModal: React.FC<AdDeepLinksModalProps> = ({
   const [activeTab, setActiveTab] = useState<'presets' | 'facebook-catalog' | 'builder'>('presets');
 
   // Custom Builder State
-  const [selectedProduct, setSelectedProduct] = useState<string>('piano-sink');
+  const [selectedProduct, setSelectedProduct] = useState<string>('2-burner');
   const [selectedAction, setSelectedAction] = useState<string>('order');
   const [selectedPlatform, setSelectedPlatform] = useState<string>('meta_ad');
-  const [campaignName, setCampaignName] = useState<string>('collection_ad');
+  const [campaignName, setCampaignName] = useState<string>('cooker_campaign');
   const [customDiscount, setCustomDiscount] = useState<string>('');
 
   // Get current site base origin
@@ -74,136 +73,92 @@ export const AdDeepLinksModal: React.FC<AdDeepLinksModalProps> = ({
   const catalogProducts = [
     {
       id: '2-burner',
-      title: 'Premium 2-Burner Flip-Up Glass Cooker',
+      title: 'Premium 2-Burner Flip-Up Glass Cooker (Single Unit)',
       subtitle: '90° Hinged Easy-Clean Burners + Timer',
       price: 170000,
       priceFormatted: '₦170,000',
       imageRelative: '/images/He848b3e8bcc24b1e9c9d64ea2c2c4a96q.jpg',
       imageUrl: `${effectiveDomain}/images/He848b3e8bcc24b1e9c9d64ea2c2c4a96q.jpg`,
-      overrideLink: `${baseOrigin}?product=2-burner&action=order&utm_source=facebook&utm_medium=catalog&utm_campaign=collection_ad#order-form`,
-      showcaseLink: `${baseOrigin}?product=2-burner&action=order#order-form`,
+      overrideLink: `${baseOrigin}?product=2-burner&action=order&utm_source=facebook&utm_medium=catalog&utm_campaign=single_unit#order-form`,
+      showcaseLink: `${baseOrigin}?action=order#order-form`,
       category: 'Kitchen Cooktops',
       tag: 'Best Seller'
     },
     {
-      id: 'piano-sink',
-      title: 'Smart Kitchen Piano Sink Workstation',
-      subtitle: 'Nano SUS304 Steel + Waterfall + Rinser',
-      price: 140000,
-      priceFormatted: '₦140,000',
-      imageRelative: '/images/smart_piano_sink_1789548024514.jpg',
-      imageUrl: `${effectiveDomain}/images/smart_piano_sink_1789548024514.jpg`,
-      overrideLink: `${baseOrigin}?product=piano-sink&action=order&utm_source=facebook&utm_medium=catalog&utm_campaign=collection_ad#order-form`,
-      showcaseLink: `${baseOrigin}?product=piano-sink&action=showcase#suggested-option`,
-      category: 'Smart Sinks',
-      tag: 'Viral Hit'
-    },
-    {
-      id: '5-burner',
-      title: 'Executive 5-Burner Hybrid Gas & Electric',
-      subtitle: '90cm Built-In Luxury (4 Gas + 1 Electric 2000W)',
-      price: 280000,
-      priceFormatted: '₦280,000',
-      imageRelative: '/images/cooktop-5b-lifestyle.jpeg',
-      imageUrl: `${effectiveDomain}/images/cooktop-5b-lifestyle.jpeg`,
-      overrideLink: `${baseOrigin}?product=5-burner&action=order&utm_source=facebook&utm_medium=catalog&utm_campaign=collection_ad#order-form`,
-      showcaseLink: `${baseOrigin}?product=5-burner&action=compare#comparison`,
-      category: 'Hybrid Cooktops',
-      tag: 'Luxury Chef'
-    },
-    {
-      id: 'combo',
-      title: 'Kitchen Duo Combo: Cooker + Smart Sink',
-      subtitle: 'Complete Upgrade with ₦10,000 Package Discount',
-      price: 440000,
-      priceFormatted: '₦440,000',
-      imageRelative: '/images/luxury_kitchen_lifestyle_1789548098794.jpg',
-      imageUrl: `${effectiveDomain}/images/luxury_kitchen_lifestyle_1789548098794.jpg`,
-      overrideLink: `${baseOrigin}?product=combo&action=order&utm_source=facebook&utm_medium=catalog&utm_campaign=collection_ad#order-form`,
-      showcaseLink: `${baseOrigin}?product=combo&action=order#order-form`,
-      category: 'Bundle Deal',
+      id: '2-burner-double',
+      title: '2-Burner Flip-Up Cooker (Double Pack — 2 Units)',
+      subtitle: 'Buy 2 Units and Save ₦10,000 Volume Discount',
+      price: 330000,
+      priceFormatted: '₦330,000',
+      imageRelative: '/images/fbfd6389-c43d-4c31-b684-ce444db8f36c.png',
+      imageUrl: `${effectiveDomain}/images/fbfd6389-c43d-4c31-b684-ce444db8f36c.png`,
+      overrideLink: `${baseOrigin}?qty=2&action=order&utm_source=facebook&utm_medium=catalog&utm_campaign=double_pack#order-form`,
+      showcaseLink: `${baseOrigin}?qty=2&action=order#order-form`,
+      category: 'Kitchen Cooktops',
       tag: 'Save ₦10,000'
+    },
+    {
+      id: '2-burner-family',
+      title: '2-Burner Flip-Up Cooker (Family Pack — 3 Units)',
+      subtitle: 'Buy 3 Units at ₦150,000 each (Save ₦60,000)',
+      price: 450000,
+      priceFormatted: '₦450,000',
+      imageRelative: '/images/He848b3e8bcc24b1e9c9d64ea2c2c4a96q.jpg',
+      imageUrl: `${effectiveDomain}/images/He848b3e8bcc24b1e9c9d64ea2c2c4a96q.jpg`,
+      overrideLink: `${baseOrigin}?qty=3&action=order&utm_source=facebook&utm_medium=catalog&utm_campaign=family_pack#order-form`,
+      showcaseLink: `${baseOrigin}?qty=3&action=order#order-form`,
+      category: 'Kitchen Cooktops',
+      tag: 'Save ₦60,000'
     }
   ];
 
   // Pre-configured instant high-converting ad deep links
   const presetLinks = [
     {
-      id: 'sink-order',
-      title: 'Smart Piano Sink — Instant Order Form',
-      description: 'Pre-selects Smart Piano Sink (₦140k) & scrolls directly to Pay-on-Delivery checkout.',
+      id: 'cooker-order',
+      title: '2-Flip-Up Cooker — Direct Pay-on-Delivery Order Form',
+      description: 'Pre-selects 2-Burner Cooktop (₦170,000) and scrolls directly to checkout form.',
       badge: 'Best for Direct Sales Ads',
-      badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-      icon: Droplets,
-      iconColor: 'text-cyan-600 bg-cyan-50 border-cyan-200',
-      url: `${baseOrigin}?product=piano-sink&action=order&utm_source=meta_ad&utm_campaign=piano_sink_direct`
-    },
-    {
-      id: 'sink-showcase',
-      title: 'Smart Piano Sink — Deep-Dive Showcase & Specs',
-      description: 'Takes user straight to the full workstation photos, LED temperature demo & features.',
-      badge: 'Best for Video / Engagement Ads',
-      badgeColor: 'bg-cyan-100 text-cyan-800 border-cyan-300',
-      icon: Eye,
-      iconColor: 'text-emerald-600 bg-emerald-50 border-emerald-200',
-      url: `${baseOrigin}?product=piano-sink&action=showcase&utm_source=tiktok_ad&utm_campaign=sink_lifestyle`
-    },
-    {
-      id: 'sink-modal',
-      title: 'Smart Piano Sink — Interactive Photo Modal',
-      description: 'Auto-opens the full-screen photo carousel & specification modal immediately on page load.',
-      badge: 'Instant Visual Impact',
-      badgeColor: 'bg-purple-100 text-purple-800 border-purple-300',
-      icon: Sparkles,
-      iconColor: 'text-purple-600 bg-purple-50 border-purple-200',
-      url: `${baseOrigin}?product=piano-sink&action=specs&utm_source=instagram_ad&utm_campaign=sink_carousel`
-    },
-    {
-      id: 'cooker-5b-order',
-      title: '5-Burner Hybrid Cooktop — Instant Order Form',
-      description: 'Pre-selects 5-Burner Hybrid (₦280k) with dual fuel (gas + 2000W electric) & auto-checkout.',
-      badge: 'High AOV / Luxury Buyers',
-      badgeColor: 'bg-amber-100 text-amber-800 border-amber-300',
-      icon: Flame,
-      iconColor: 'text-amber-600 bg-amber-50 border-amber-200',
-      url: `${baseOrigin}?product=5-burner&action=order&utm_source=facebook_ad&utm_campaign=5burner_hybrid`
-    },
-    {
-      id: 'cooker-5b-showcase',
-      title: '5-Burner Hybrid — Specs & Comparison',
-      description: 'Scrolls to 90x51cm dimensions, wok trivet details, and side-by-side comparison table.',
-      badge: 'Research Phase Buyers',
-      badgeColor: 'bg-blue-100 text-blue-800 border-blue-300',
-      icon: Layers,
-      iconColor: 'text-blue-600 bg-blue-50 border-blue-200',
-      url: `${baseOrigin}?product=5-burner&action=compare&utm_source=google_ad&utm_campaign=5burner_specs`
-    },
-    {
-      id: 'cooker-2b-order',
-      title: '2-Flip-Up Double Burner — Instant Order Form',
-      description: 'Pre-selects 2-Burner Hinged Cooktop (₦170k) with 90° flip-up mechanism & timer.',
-      badge: 'Fastest Selling Core Model',
       badgeColor: 'bg-red-100 text-red-800 border-red-300',
       icon: Flame,
       iconColor: 'text-red-600 bg-red-50 border-red-200',
-      url: `${baseOrigin}?product=2-burner&action=order&utm_source=meta_ad&utm_campaign=2burner_easyclean`
+      url: `${baseOrigin}?action=order&utm_source=meta_ad&utm_campaign=2burner_direct`
     },
     {
-      id: 'combo-bundle',
-      title: 'Kitchen Duo Combo Deal — Cooker + Smart Sink',
-      description: 'Pre-selects 2-Burner + Smart Piano Sink combo with automatic ₦10,000 package discount.',
-      badge: 'Highest Profit Combo',
-      badgeColor: 'bg-orange-100 text-orange-800 border-orange-300',
+      id: 'cooker-express',
+      title: '60-Second Express Pop-Up Checkout Link',
+      description: 'Automatically triggers the quick pop-up checkout on page load without scrolling.',
+      badge: 'Highest Mobile Conversion',
+      badgeColor: 'bg-amber-100 text-amber-800 border-amber-300',
+      icon: Sparkles,
+      iconColor: 'text-amber-600 bg-amber-50 border-amber-200',
+      url: `${baseOrigin}?express=1&utm_source=meta_ad&utm_campaign=express_popup`
+    },
+    {
+      id: 'cooker-qty2',
+      title: 'Volume Savings Deal (2 Units — Save ₦10,000)',
+      description: 'Pre-selects 2 units in the cart (₦330,000) with volume discount applied.',
+      badge: 'Higher Average Order Value',
+      badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
       icon: ShoppingBag,
-      iconColor: 'text-orange-600 bg-orange-50 border-orange-200',
-      url: `${baseOrigin}?product=combo&action=order&utm_source=meta_ad&utm_campaign=cooker_sink_bundle`
+      iconColor: 'text-emerald-600 bg-emerald-50 border-emerald-200',
+      url: `${baseOrigin}?qty=2&action=order&utm_source=meta_ad&utm_campaign=bulk_2pack`
+    },
+    {
+      id: 'cooker-gallery',
+      title: 'Authentic 14-Photo Gallery Link',
+      description: 'Scrolls directly to the real product photo gallery with Nigerian kitchen showcases.',
+      badge: 'High Trust & Proof',
+      badgeColor: 'bg-blue-100 text-blue-800 border-blue-300',
+      icon: Eye,
+      iconColor: 'text-blue-600 bg-blue-50 border-blue-200',
+      url: `${baseOrigin}?action=gallery&utm_source=tiktok_ad&utm_campaign=gallery_proof`
     }
   ];
 
   // Build custom URL
   const buildCustomUrl = () => {
     const params = new URLSearchParams();
-    if (selectedProduct) params.set('product', selectedProduct);
     if (selectedAction) params.set('action', selectedAction);
     if (selectedPlatform) params.set('utm_source', selectedPlatform);
     if (campaignName) params.set('utm_campaign', campaignName.trim().replace(/\s+/g, '_'));
@@ -212,8 +167,6 @@ export const AdDeepLinksModal: React.FC<AdDeepLinksModalProps> = ({
     // Add anchor hash if destination matches section
     let hash = '';
     if (selectedAction === 'order') hash = '#order-form';
-    else if (selectedAction === 'showcase' && selectedProduct === 'piano-sink') hash = '#suggested-option';
-    else if (selectedAction === 'compare') hash = '#comparison';
     else if (selectedAction === 'gallery') hash = '#gallery';
 
     return `${baseOrigin}?${params.toString()}${hash}`;
@@ -698,7 +651,7 @@ export const AdDeepLinksModal: React.FC<AdDeepLinksModalProps> = ({
                     <strong>In Ads Manager at the Ad Level</strong>, set Ad Setup to <strong>Collection</strong> or select <strong>Advantage+ Creative &gt; Add catalog items</strong>.
                   </li>
                   <li>
-                    Under <strong>"Destination Override" / "Product URL"</strong>, paste the <strong>Override Link</strong> for each product (e.g. for Piano Sink, paste the piano-sink override link).
+                    Under <strong>"Destination Override" / "Product URL"</strong>, paste the <strong>Override Link</strong> for each package (e.g. paste the 2-Burner Cooker override link).
                   </li>
                   <li>
                     Facebook will automatically scrape the photos and display the interactive carousel below your main ad creative. When shoppers tap a photo, they land directly on that item's checkout form!
@@ -712,27 +665,24 @@ export const AdDeepLinksModal: React.FC<AdDeepLinksModalProps> = ({
           {activeTab === 'builder' && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {/* 1. Select Product */}
+                {/* 1. Select Product Package */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
-                    1. Target Product to Advertise
+                    1. Target Cooktop Package to Advertise
                   </label>
                   <select
                     value={selectedProduct}
                     onChange={(e) => setSelectedProduct(e.target.value)}
                     className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-medium focus:ring-2 focus:ring-red-500 focus:border-red-500"
                   >
-                    <option value="piano-sink">
-                      Smart Kitchen Piano Sink Workstation (₦140,000)
-                    </option>
-                    <option value="5-burner">
-                      Executive 5-Burner Gas + Electric Hybrid Cooktop (₦280,000)
-                    </option>
                     <option value="2-burner">
-                      2-Flip-Up Double Gas Burner with Timer (₦170,000)
+                      2-Flip-Up Double Gas Cooker — 1 Unit (₦170,000)
                     </option>
-                    <option value="combo">
-                      Kitchen Duo Combo: Cooker + Smart Piano Sink (₦10k off)
+                    <option value="2-burner-double">
+                      2-Flip-Up Double Gas Cooker — 2 Units Couple Deal (₦330,000)
+                    </option>
+                    <option value="2-burner-family">
+                      2-Flip-Up Double Gas Cooker — 3 Units Family Deal (₦450,000)
                     </option>
                   </select>
                 </div>
@@ -750,17 +700,11 @@ export const AdDeepLinksModal: React.FC<AdDeepLinksModalProps> = ({
                     <option value="order">
                       Direct to Order Form (Pre-selected product & Pay-on-Delivery)
                     </option>
-                    <option value="showcase">
-                      Direct to Full Product Showcase & Technical Photos
-                    </option>
-                    <option value="specs">
-                      Auto-Open Fullscreen Photo & Specs Modal
-                    </option>
-                    <option value="compare">
-                      Direct to 2-Burner vs 5-Burner Comparison Table
+                    <option value="express">
+                      Auto-Launch 60-Second Express Pop-Up Form
                     </option>
                     <option value="gallery">
-                      Direct to Customer Photo Gallery & Video Proof
+                      Direct to 14-Photo Authentic Nigerian Kitchen Gallery
                     </option>
                   </select>
                 </div>

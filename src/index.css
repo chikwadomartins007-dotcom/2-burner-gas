@@ -270,25 +270,31 @@ html {
   animation: fadeIn 0.2s ease-out forwards;
 }
 
-/* Continuous one-direction linear movement animation for top alternative product button */
-@keyframes moveOneDirection {
+@keyframes bounceShort {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-bounce-short {
+  animation: bounceShort 1.8s ease-in-out infinite;
+}
+
+@keyframes celebrationScaleIn {
   0% {
-    transform: translateX(0%);
+    opacity: 0;
+    transform: scale(0.92) translateY(16px);
   }
   100% {
-    transform: translateX(-50%);
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }
 
-.animate-one-direction {
-  display: flex;
-  width: max-content;
-  animation: moveOneDirection 30s linear infinite;
-  will-change: transform;
-}
-
-.animate-one-direction:hover,
-.animate-one-direction:active {
-  animation-play-state: paused;
+.animate-celebration-in {
+  animation: celebrationScaleIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 

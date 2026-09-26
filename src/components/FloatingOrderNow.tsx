@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, Truck, ChevronRight } from 'lucide-react';
+import { ShoppingBag, Truck, ChevronRight, Zap } from 'lucide-react';
 
 interface FloatingOrderNowProps {
   onOrderClick: () => void;
+  onOpenExpressCheckout?: () => void;
   hasPlacedOrder?: boolean;
   isCartOpen?: boolean;
 }
 
 export const FloatingOrderNow: React.FC<FloatingOrderNowProps> = ({
   onOrderClick,
+  onOpenExpressCheckout,
   hasPlacedOrder = false,
   isCartOpen = false
 }) => {
@@ -47,8 +49,19 @@ export const FloatingOrderNow: React.FC<FloatingOrderNowProps> = ({
     <aside
       id="floating-order-cta-container"
       aria-label="Floating Order CTA"
-      className="hidden md:flex fixed z-40 transition-all duration-300 bottom-6 right-64 animate-fade-in"
+      className="hidden md:flex items-center gap-2 fixed z-40 transition-all duration-300 bottom-6 right-64 animate-fade-in"
     >
+      {onOpenExpressCheckout && (
+        <button
+          onClick={onOpenExpressCheckout}
+          className="group flex items-center gap-2 px-4 py-3 rounded-full bg-neutral-950 hover:bg-neutral-900 border-2 border-amber-400/80 text-amber-300 hover:text-white cursor-pointer select-none shadow-2xl active:scale-95 transition-all text-xs font-black"
+          title="Fast 60-Second Express Checkout Pop-up"
+        >
+          <Zap className="w-4 h-4 fill-amber-300 group-hover:scale-110 transition-transform" />
+          <span>⚡ EXPRESS ORDER</span>
+        </button>
+      )}
+
       <button
         onClick={onOrderClick}
         id="floating-order-now-btn"

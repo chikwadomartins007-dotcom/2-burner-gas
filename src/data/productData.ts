@@ -430,22 +430,22 @@ export const FAQ_ITEMS: FAQItem[] = [
   {
     id: 'faq-2',
     question: 'DO YOU OFFER PAYMENT ON DELIVERY?',
-    answer: 'Yes. Payment on delivery is available for all models nationwide across Nigeria. You do not need to make any upfront online payment to place your order.'
+    answer: 'Yes. Payment on delivery is available nationwide across Nigeria. You do not need to make any upfront online payment to place your order. Simply inspect upon arrival before completing payment.'
   },
   {
-    id: 'faq-alternative',
-    question: 'WHAT IS THE DIFFERENCE BETWEEN THE 2-BURNER AND 5-BURNER HYBRID MODELS?',
-    answer: 'The 2-Burner model (750×450mm, ₦170,000) features two high-efficiency gas burners and supports both tabletop rubber feet and built-in countertop cutout. The 5-Burner Executive model (900×510mm, ₦280,000) is a built-in hybrid cooktop featuring 4 flip-up hinged gas burners PLUS 1 central radiant ceramic electric hotplate, digital touch countdown timer (1-99 mins) with automatic shutoff, and a one-touch automatic off safety key.'
+    id: 'faq-installation',
+    question: 'CAN THE 2-BURNER COOKER BE USED ON A TABLETOP OR BUILT-IN?',
+    answer: 'Both! The cooker comes with pre-attached anti-slip rubber feet for instant countertop/tabletop use without any cutting. It can also be seamlessly built into a kitchen countertop cutout (standard cutout dimension: 650 × 350 mm).'
   },
   {
     id: 'faq-3',
     question: 'HOW DO I PLACE AN ORDER?',
-    answer: 'Select your preferred product model and quantity, enter your delivery details on the order form below and submit. Our team will contact you to confirm your order and delivery details.'
+    answer: 'Select your preferred quantity, enter your delivery details on the order form below and submit. Our logistics team will contact you immediately to dispatch your package.'
   },
   {
     id: 'faq-4',
-    question: 'CAN I ORDER MULTIPLE UNITS OR COMBINE MODELS?',
-    answer: 'Yes. The page automatically calculates the applicable bulk price when you select multiple units. You can also combine both 2-burner and 5-burner models in your shopping cart or select our Combo package on the order form below.'
+    question: 'CAN I ORDER MULTIPLE UNITS FOR A DISCOUNT?',
+    answer: 'Yes! When ordering 2 or more units for family, rental properties, or gifts, volume discounts are automatically applied (₦165,000 each for 2 units, and ₦150,000 each for 3+ units). Free nationwide delivery applies to all units.'
   },
   {
     id: 'faq-5',

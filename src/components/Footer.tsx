@@ -51,23 +51,8 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPolicy, onOrderClick, onOp
                 </a>
               </li>
               <li>
-                <a href="#suggested-options" className="hover:text-red-600 transition-colors">
-                  5-Burner Hybrid Cooktop (Suggested Option)
-                </a>
-              </li>
-              <li>
-                <a href="#suggested-options" className="hover:text-red-600 transition-colors">
-                  Smart Piano Sink Workstation (Suggested Option)
-                </a>
-              </li>
-              <li>
                 <a href="#features" className="hover:text-red-600 transition-colors">
                   Features & Burners
-                </a>
-              </li>
-              <li>
-                <a href="#comparison" className="hover:text-red-600 transition-colors">
-                  Compare Both Models
                 </a>
               </li>
               <li>

@@ -1,23 +1,23 @@
 import React, { useState } from 'react';
-import { Menu, X, Phone, ShoppingBag, ShieldCheck, Target } from 'lucide-react';
+import { Menu, X, Phone, ShoppingBag, ShieldCheck, Target, Zap } from 'lucide-react';
 import { BRAND_NAME, PHONE_NUMBER, CALL_LINK, formatNaira } from '../data/productData';
 
 interface HeaderProps {
   onOrderClick: () => void;
   onOpenCart?: () => void;
   onOpenAdLinks?: () => void;
+  onOpenExpressCheckout?: () => void;
   cartCount?: number;
   cartTotal?: number;
-  showSuggestedOptions?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   onOrderClick,
   onOpenCart,
   onOpenAdLinks,
+  onOpenExpressCheckout,
   cartCount = 0,
-  cartTotal = 0,
-  showSuggestedOptions = false
+  cartTotal = 0
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -71,25 +71,6 @@ export const Header: React.FC<HeaderProps> = ({
           >
             FEATURES
           </button>
-          {showSuggestedOptions && (
-            <>
-              <button
-                onClick={() => scrollToSection('suggested-options-section')}
-                className="hover:text-red-700 transition-colors cursor-pointer flex items-center gap-1.5 text-red-600 font-bold"
-              >
-                <span>SUGGESTED OPTIONS</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-100 border border-red-200 text-red-700 font-bold">
-                  2 Models
-                </span>
-              </button>
-              <button
-                onClick={() => scrollToSection('comparison')}
-                className="hover:text-red-600 transition-colors cursor-pointer"
-              >
-                COMPARE MODELS
-              </button>
-            </>
-          )}
           <button
             onClick={() => scrollToSection('gallery')}
             className="hover:text-red-600 transition-colors cursor-pointer"
@@ -157,6 +138,18 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           )}
 
+          {/* Express Checkout Trigger */}
+          {onOpenExpressCheckout && (
+            <button
+              onClick={onOpenExpressCheckout}
+              className="inline-flex items-center gap-1.5 bg-neutral-950 hover:bg-neutral-800 text-amber-300 hover:text-white px-3.5 py-2.5 rounded-xl text-xs font-black tracking-wide transition-all border border-amber-400/40 shadow-xs cursor-pointer active:scale-95 group"
+              title="60-Second Express Checkout Pop-up"
+            >
+              <Zap className="w-3.5 h-3.5 fill-amber-300 group-hover:scale-110 transition-transform" />
+              <span>EXPRESS ORDER</span>
+            </button>
+          )}
+
           {/* Looping Order Now Button */}
           <button
             onClick={onOrderClick}
@@ -168,7 +161,18 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Mobile menu trigger */}
-        <div className="flex md:hidden items-center gap-2">
+        <div className="flex md:hidden items-center gap-1.5">
+          {onOpenExpressCheckout && (
+            <button
+              onClick={onOpenExpressCheckout}
+              className="bg-neutral-900 text-amber-300 border border-amber-400/40 px-2 py-1.5 rounded-lg text-xs font-black shadow-xs active:scale-95 flex items-center gap-1 cursor-pointer"
+              title="Fast Express Checkout"
+            >
+              <Zap className="w-3 h-3 fill-amber-300" />
+              <span>EXPRESS</span>
+            </button>
+          )}
+
           {onOpenCart && (
             <button
               onClick={onOpenCart}
@@ -186,9 +190,9 @@ export const Header: React.FC<HeaderProps> = ({
 
           <button
             onClick={onOrderClick}
-            className="bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm active:scale-95 animate-order-loop"
+            className="bg-red-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold shadow-sm active:scale-95 animate-order-loop cursor-pointer"
           >
-            ORDER NOW
+            ORDER
           </button>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -216,25 +220,6 @@ export const Header: React.FC<HeaderProps> = ({
             >
               FEATURES
             </button>
-            {showSuggestedOptions && (
-              <>
-                <button
-                  onClick={() => scrollToSection('suggested-options-section')}
-                  className="text-left py-2 text-red-600 font-bold border-b border-neutral-100 flex items-center justify-between"
-                >
-                  <span>SUGGESTED OPTIONS</span>
-                  <span className="text-[10px] px-2 py-0.5 rounded bg-red-100 text-red-700 border border-red-200">
-                    5-Burner & Piano Sink
-                  </span>
-                </button>
-                <button
-                  onClick={() => scrollToSection('comparison')}
-                  className="text-left py-2 hover:text-red-600 border-b border-neutral-100"
-                >
-                  COMPARE 2-BURNER VS 5-BURNER
-                </button>
-              </>
-            )}
             <button
               onClick={() => scrollToSection('diagram')}
               className="text-left py-2 hover:text-red-600 border-b border-neutral-100"
@@ -278,7 +263,19 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </div>
 
-          <div className="pt-4 flex flex-col gap-3">
+          <div className="pt-4 flex flex-col gap-2.5">
+            {onOpenExpressCheckout && (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenExpressCheckout();
+                }}
+                className="w-full py-3.5 rounded-xl bg-neutral-950 text-amber-300 border border-amber-400/50 text-sm font-black flex items-center justify-center gap-2 shadow-md active:scale-95 cursor-pointer"
+              >
+                <Zap className="w-4 h-4 fill-amber-300" />
+                <span>EXPRESS CHECKOUT (60s POP-UP)</span>
+              </button>
+            )}
             <a
               href={CALL_LINK}
               className="flex items-center justify-center gap-2 py-3 rounded-xl border border-neutral-300 bg-neutral-50 text-sm font-bold text-neutral-800 hover:bg-red-50 hover:text-red-600"

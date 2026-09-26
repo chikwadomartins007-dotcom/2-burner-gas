@@ -66,4 +66,19 @@ export interface FAQItem {
   answer: string;
 }
 
+export interface OrderSuccessDetails {
+  fullName?: string;
+  phoneNumber?: string;
+  state?: string;
+  city?: string;
+  quantity?: number;
+  total?: number;
+  orderId?: string;
+  productModel?: string;
+  productName?: string;
+  qty2Burner?: number;
+  qty5Burner?: number;
+  whatsappUrl?: string;
+}
+
 export type PolicyType = 'delivery' | 'return' | 'terms' | 'privacy' | null;

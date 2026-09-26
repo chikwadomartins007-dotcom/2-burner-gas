@@ -34,8 +34,6 @@ interface OrderFormProps {
   onOrderSuccess?: (details: any) => void;
   onResetOrder?: () => void;
   resetSignal?: number;
-  showSuggestedOptions?: boolean;
-  onViewSuggestedProduct?: (productId: ProductId) => void;
 }
 
 export type SelectionModel = '2-burner' | '5-burner' | 'piano-sink' | 'combo';
@@ -176,9 +174,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({
   initialQuantity = 1,
   onOrderSuccess,
   onResetOrder,
-  resetSignal,
-  showSuggestedOptions = false,
-  onViewSuggestedProduct
+  resetSignal
 }) => {
   // Determine initial state based on props or cart
   const [selectedModel, setSelectedModel] = useState<SelectionModel>(() => {
@@ -400,25 +396,6 @@ Name: ${formData.fullName}
 Phone: ${formData.phoneNumber}
 Delivery Destination: ${formData.deliveryAddress}, ${formData.city}, ${formData.state}
 Please confirm my delivery dispatch.`;
-
-    return `https://wa.me/${targetPhone}?text=${encodeURIComponent(msg)}`;
-  };
-
-  // WhatsApp upsell message builder for Suggested Options after order
-  const getAddSuggestedProductWhatsAppUrl = (productName: string, price: number) => {
-    const targetPhone = formatPhoneForWhatsApp(PHONE_NUMBER);
-    const orderId = submittedOrderId || 'ORD-' + Date.now().toString().slice(-6);
-    const msg = `Hello MAX LUXURY BATHROOMS! I just placed an order on your website.
-Order ID: #${orderId}
-Customer Name: ${formData.fullName || 'Valued Customer'}
-Phone: ${formData.phoneNumber || ''}
-Delivery Address: ${formData.deliveryAddress || ''} (${formData.city || ''}, ${formData.state})
-
-🎁 I would like to ADD this SUGGESTED OPTION to my package before dispatch:
-Product: *${productName}*
-Price: *${formatNaira(price)}* (Pay on Delivery)
-
-Please combine this with my primary order so they are dispatched together with zero extra shipping fee. Thank you!`;
 
     return `https://wa.me/${targetPhone}?text=${encodeURIComponent(msg)}`;
   };
@@ -777,153 +754,7 @@ Please combine this with my primary order so they are dispatched together with z
               </a>
             </div>
 
-            {/* Post-Order Suggested Options Upsell Block (Shown ONLY after customer is done placing an order) */}
-            <div className="mt-8 pt-8 border-t border-slate-200 text-left">
-              <div className="text-center max-w-xl mx-auto mb-6">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-900 text-xs font-black uppercase tracking-wider mb-2">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                  Exclusive Post-Order Perk
-                </span>
-                <h4 className="text-xl sm:text-2xl font-extrabold text-slate-900">
-                  SUGGESTED OPTIONS FOR YOUR ORDER
-                </h4>
-                <p className="text-xs sm:text-sm text-slate-600 mt-1">
-                  Want to upgrade your kitchen even further? Add any of our suggested options to your delivery package before dispatch with <strong>₦0 extra shipping fee</strong>. Pay on Delivery.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto mb-6">
-                {/* Option 1: Smart Kitchen Piano Sink Workstation */}
-                <div className="border-2 border-emerald-500/80 bg-emerald-50/50 rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
-                  <div>
-                    <div className="relative aspect-16/10 rounded-xl overflow-hidden mb-3 bg-slate-100 border border-slate-200">
-                      <img
-                        src="/images/smart_piano_sink_1789548024514.jpg"
-                        alt="Smart Piano Sink Workstation"
-                        className="w-full h-full object-cover"
-                      />
-                      <span className="absolute top-2 left-2 bg-emerald-600 text-white text-[10px] font-black uppercase px-2 py-0.5 rounded shadow-xs">
-                        Suggested Option 1
-                      </span>
-                      <span className="absolute bottom-2 right-2 bg-slate-950/80 text-white text-[11px] font-bold px-2 py-0.5 rounded backdrop-blur-xs">
-                        75 × 45 cm
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <h5 className="font-extrabold text-slate-900 text-base flex items-center gap-1.5">
-                        <Droplets className="w-4 h-4 text-emerald-600" />
-                        Smart Piano Sink Workstation
-                      </h5>
-                    </div>
-                    <div className="text-xs text-emerald-800 font-semibold mb-2">
-                      Digital Temp Display • Waterfall & Pull-Out Spray
-                    </div>
-                    <p className="text-xs text-slate-600 mb-3 leading-relaxed">
-                      SUS304 honeycomb nano steel, piano key selectors, integrated glass cup washer, and solid wood cutting board.
-                    </p>
-
-                    <div className="bg-white border border-emerald-200 rounded-xl p-2.5 mb-3 flex items-baseline justify-between">
-                      <span className="text-xs text-slate-500 font-medium">Promo Add-on Rate:</span>
-                      <div className="text-right">
-                        <span className="text-xs text-slate-400 line-through mr-1.5">{formatNaira(180000)}</span>
-                        <strong className="text-lg font-black text-emerald-700">{formatNaira(140000)}</strong>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <a
-                      href={getAddSuggestedProductWhatsAppUrl('Smart Piano Sink Workstation (75×45cm)', 140000)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
-                    >
-                      <MessageSquare className="w-4 h-4 fill-current" />
-                      <span>Add Piano Sink via WhatsApp</span>
-                    </a>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const el = document.getElementById('suggested-options-section') || document.getElementById('alternative-product');
-                        if (el) el.scrollIntoView({ behavior: 'smooth' });
-                      }}
-                      className="w-full py-2 px-3 text-center text-xs text-slate-600 hover:text-slate-900 font-semibold cursor-pointer underline"
-                    >
-                      View Full Sink Specs & Gallery Below ↓
-                    </button>
-                  </div>
-                </div>
-
-                {/* Option 2: Executive 5-Burner Gas & Electric Hybrid Cooktop */}
-                <div className="border-2 border-amber-500/80 bg-amber-50/50 rounded-2xl p-4 sm:p-5 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
-                  <div>
-                    <div className="relative aspect-16/10 rounded-xl overflow-hidden mb-3 bg-slate-100 border border-slate-200">
-                      <img
-                        src="/images/IMG-20250917-WA0004.jpg"
-                        alt="Executive 5-Burner Gas & Electric Hybrid Cooktop"
-                        className="w-full h-full object-cover"
-                      />
-                      <span className="absolute top-2 left-2 bg-amber-600 text-white text-[10px] font-black uppercase px-2 py-0.5 rounded shadow-xs">
-                        Suggested Option 2
-                      </span>
-                      <span className="absolute bottom-2 right-2 bg-slate-950/80 text-white text-[11px] font-bold px-2 py-0.5 rounded backdrop-blur-xs">
-                        90 × 51 cm
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <h5 className="font-extrabold text-slate-900 text-base flex items-center gap-1.5">
-                        <Zap className="w-4 h-4 text-amber-600" />
-                        5-Burner Gas + Electric Cooktop
-                      </h5>
-                    </div>
-                    <div className="text-xs text-amber-800 font-semibold mb-2">
-                      4 Gas Burners + 2000W Ceramic Electric Zone
-                    </div>
-                    <p className="text-xs text-slate-600 mb-3 leading-relaxed">
-                      Digital 1–99 min touch timer, master safety power switch, articulated flip-up hinged burners & tempered glass.
-                    </p>
-
-                    <div className="bg-white border border-amber-200 rounded-xl p-2.5 mb-3 flex items-baseline justify-between">
-                      <span className="text-xs text-slate-500 font-medium">Add-on Rate:</span>
-                      <div className="text-right">
-                        <span className="text-xs text-slate-400 line-through mr-1.5">{formatNaira(320000)}</span>
-                        <strong className="text-lg font-black text-amber-700">{formatNaira(280000)}</strong>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <a
-                      href={getAddSuggestedProductWhatsAppUrl('Executive 5-Burner Gas & Electric Hybrid Cooktop (90×51cm)', 280000)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full py-3 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-amber-600/20 transition-all cursor-pointer"
-                    >
-                      <MessageSquare className="w-4 h-4 fill-current" />
-                      <span>Add 5-Burner via WhatsApp</span>
-                    </a>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const el = document.getElementById('suggested-options-section') || document.getElementById('alternative-product');
-                        if (el) el.scrollIntoView({ behavior: 'smooth' });
-                      }}
-                      className="w-full py-2 px-3 text-center text-xs text-slate-600 hover:text-slate-900 font-semibold cursor-pointer underline"
-                    >
-                      View Full 5-Burner Specs & Gallery Below ↓
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-slate-100 border border-slate-200 rounded-xl p-3 text-center max-w-2xl mx-auto mb-6 text-xs text-slate-700">
-                🚚 <strong>Combined Dispatch Guarantee:</strong> When you add a suggested option, our dispatch team packages it together with your order. You inspect everything physically and <strong>pay on delivery</strong> with <strong>₦0 extra shipping fee</strong>.
-              </div>
-            </div>
-
-            <div className="text-center">
+            <div className="mt-8 pt-6 border-t border-slate-200 text-center">
               <button
                 type="button"
                 onClick={handleReset}
@@ -948,15 +779,14 @@ Please combine this with my primary order so they are dispatched together with z
               {/* Step 1: Select What You Want to Order */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2.5 flex items-center justify-between">
-                  <span>Step 1: Select What You Want to Order</span>
-                  {showSuggestedOptions && (
-                    <span className="text-[11px] font-mono text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                      Combo Available
-                    </span>
-                  )}
+                  <span>Selected Product: Premium 2-Flip-Up Cooktop</span>
+                  <span className="text-[11px] font-mono text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                    Pay on Delivery
+                  </span>
                 </label>
 
-                {showSuggestedOptions ? (
+                {/* Only Main 2-Burner Product Displayed */}
+                {false ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
                   {/* Option 1: 2-Burner */}
                   <button
@@ -1711,51 +1541,6 @@ Please combine this with my primary order so they are dispatched together with z
                           aria-label="Increase 2-burner quantity"
                         >
                           <Plus className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Combo upsells */}
-                    <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                      <div className="p-3 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-300 rounded-xl flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <Zap className="w-4 h-4 text-amber-600 shrink-0" />
-                          <div>
-                            <p className="text-xs font-bold text-slate-900">Add 5-Burner (90×51cm)?</p>
-                            <p className="text-[10px] text-slate-600">Save ₦20,000 combo discount!</p>
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedModel('combo');
-                            setQty5Burner(1);
-                            if (onUpdateCart) onUpdateCart({ '2-burner': qty2Burner, '5-burner': 1, 'piano-sink': qtyPianoSink });
-                          }}
-                          className="shrink-0 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs py-1.5 px-3 rounded-lg shadow transition-all cursor-pointer"
-                        >
-                          + Add
-                        </button>
-                      </div>
-
-                      <div className="p-3 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <Droplets className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <div>
-                            <p className="text-xs font-bold text-slate-900">Add Smart Piano Sink?</p>
-                            <p className="text-[10px] text-slate-600">Waterfall faucet + LED display</p>
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedModel('combo');
-                            setQtyPianoSink(1);
-                            if (onUpdateCart) onUpdateCart({ '2-burner': qty2Burner, '5-burner': qty5Burner, 'piano-sink': 1 });
-                          }}
-                          className="shrink-0 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-1.5 px-3 rounded-lg shadow transition-all cursor-pointer"
-                        >
-                          + Add
                         </button>
                       </div>
                     </div>
