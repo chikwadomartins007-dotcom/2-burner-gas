@@ -17,7 +17,6 @@ import { FinalOfferSection } from './components/FinalOfferSection';
 import { OrderForm } from './components/OrderForm';
 import { Footer } from './components/Footer';
 import { MobileStickyCTA } from './components/MobileStickyCTA';
-import { FloatingOrderNow } from './components/FloatingOrderNow';
 import { CartDrawer } from './components/CartDrawer';
 import { RecentSalesPopup } from './components/RecentSalesPopup';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
@@ -454,14 +453,6 @@ export default function App() {
           isChatOpen={isChatOpen}
         />
       )}
-
-      {/* Floating Order Now Pay on Delivery Button with Black & Red Color Transition */}
-      <FloatingOrderNow
-        onOrderClick={scrollToOrderForm}
-        onOpenExpressCheckout={() => handleOpenExpressCheckout()}
-        hasPlacedOrder={hasPlacedOrder}
-        isCartOpen={isCartOpen}
-      />
 
       {/* Slide-out Shopping Cart Drawer with Mobile Reduced Size & Minimize Bar */}
       <CartDrawer

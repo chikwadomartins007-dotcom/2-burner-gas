@@ -11,7 +11,7 @@ export const PHONE_NUMBER = '08147778029';
 export const PHONE_NUMBER_INTL = '+2348147778029';
 export const CALL_LINK = 'tel:08147778029';
 export const WHATSAPP_LINK = 'https://wa.me/2348147778029?text=Hello%20MAX%20LUXURY%20BATHROOMS%2C%20I%20am%20interested%20in%20your%20cookers.';
-export const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xqpkvnkj';
+export const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mljjggkj';
 export const META_PIXEL_ID = '1730802201545460';
 export const META_PIXEL_ID_2 = '2580381385456107';
 export const META_PIXEL_IDS = ['1730802201545460', '2580381385456107'];
