@@ -68,11 +68,12 @@ function calculateOrderDetails(
     }
   }
 
-  // 2-Burner tiers (Normal: 170k, 2 pcs: 165k, 3+ pcs: 150k)
-  let U = 170000;
-  if (T === 1) U = 170000;
-  else if (T === 2) U = 165000;
-  else if (T >= 3) U = 150000;
+  // 2-Burner tiers (Promo: 160k, 2 pcs: 155k, 3 pcs: 150k, 4+ pcs: 145k)
+  let U = 160000;
+  if (T === 1) U = 160000;
+  else if (T === 2) U = 155000;
+  else if (T === 3) U = 150000;
+  else if (T >= 4) U = 145000;
 
   // 5-Burner tiers (Normal: 280k, 2 pcs: 275k, 3 pcs: 270k, 4+ pcs: 250k)
   let D = 280000;
@@ -459,7 +460,7 @@ Please confirm my delivery dispatch.`;
     setIsSubmitting(true);
     setErrorMessage('');
 
-    const formspreeUrl = FORMSPREE_ENDPOINT || 'https://formspree.io/f/mljjggkj';
+    const formspreeUrl = FORMSPREE_ENDPOINT || 'https://formspree.io/f/xppdpalk';
     const orderId = 'ORD-' + Date.now().toString().slice(-6);
     setSubmittedOrderId(orderId);
 
@@ -519,7 +520,9 @@ Please confirm my delivery dispatch.`;
         value: orderCalc.total,
         currency: 'NGN',
         content_name: orderCalc.productName,
+        content_type: 'product',
         content_ids: [orderCalc.mode],
+        num_items: orderCalc.totalQuantity,
         order_id: orderId
       },
       {
@@ -831,7 +834,7 @@ Please confirm my delivery dispatch.`;
                     <div className="mt-3 pt-2 border-t border-slate-200 flex items-baseline justify-between">
                       <span className="text-[10px] text-slate-500 font-medium">From</span>
                       <strong className="text-sm font-black text-blue-700">
-                        {formatNaira(150000)} - {formatNaira(170000)}
+                        {formatNaira(145000)} - {formatNaira(160000)}
                       </strong>
                     </div>
                   </button>
@@ -1005,8 +1008,8 @@ Please confirm my delivery dispatch.`;
                         </div>
                       </div>
                       <div className="text-right">
-                        <span className="text-[10px] text-slate-500 block font-medium">Single Unit Price</span>
-                        <strong className="text-base font-black text-blue-700">₦170,000</strong>
+                        <span className="text-[10px] text-slate-500 block font-medium">Promo Single Unit Price</span>
+                        <strong className="text-base font-black text-blue-700">₦160,000</strong>
                         <span className="text-[10px] text-emerald-600 font-bold block">Bulk discount on 2+ units</span>
                       </div>
                     </div>
@@ -1476,9 +1479,10 @@ Please confirm my delivery dispatch.`;
                     <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 mb-3">
                       {[1, 2, 3, 4, 5].map((v) => {
                         const isSelected = qty2Burner === v || (v === 5 && qty2Burner >= 5);
-                        let tierPrice = 170000;
-                        if (v === 2) tierPrice = 165000;
-                        if (v >= 3) tierPrice = 150000;
+                        let tierPrice = 160000;
+                        if (v === 2) tierPrice = 155000;
+                        if (v === 3) tierPrice = 150000;
+                        if (v >= 4) tierPrice = 145000;
 
                         return (
                           <button

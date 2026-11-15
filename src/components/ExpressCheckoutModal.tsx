@@ -49,16 +49,36 @@ export function ExpressCheckoutModal({
   onScrollToFullForm,
   initialProductId = '2-burner'
 }: ExpressCheckoutModalProps) {
-  // If cart is empty, set default item
+  // If cart is empty, set default item & fire InitiateCheckout when opened
   useEffect(() => {
     if (isOpen) {
       const totalUnits = (cart['2-burner'] || 0) + (cart['5-burner'] || 0) + (cart['piano-sink'] || 0);
+      const effectiveCart =
+        totalUnits === 0
+          ? {
+              ...cart,
+              [initialProductId]: 1
+            }
+          : cart;
+
       if (totalUnits === 0) {
-        onUpdateCart({
-          ...cart,
-          [initialProductId]: 1
-        });
+        onUpdateCart(effectiveCart);
       }
+
+      const openTotals = calculateMultiProductTotals(effectiveCart);
+      const openIds: string[] = [];
+      if (openTotals.qty2B > 0) openIds.push('2-burner');
+      if (openTotals.qty5B > 0) openIds.push('5-burner');
+      if (openTotals.qtySink > 0) openIds.push('piano-sink');
+
+      trackPixelEvent('InitiateCheckout', {
+        value: openTotals.grandTotal,
+        currency: 'NGN',
+        content_name: 'Express Checkout Order',
+        content_type: 'product',
+        content_ids: openIds.length > 0 ? openIds : ['2-burner'],
+        num_items: Math.max(1, openTotals.totalUnits)
+      });
     }
   }, [isOpen, initialProductId]);
 
@@ -206,6 +226,12 @@ Please confirm my express priority dispatch.`;
       country: 'ng'
     };
 
+    const activeProductIds: string[] = [];
+    if (totals.qty2B > 0) activeProductIds.push('2-burner');
+    if (totals.qty5B > 0) activeProductIds.push('5-burner');
+    if (totals.qtySink > 0) activeProductIds.push('piano-sink');
+    const finalContentIds = activeProductIds.length > 0 ? activeProductIds : ['2-burner'];
+
     // 1. Dispatch conversion tracking (Meta, TikTok, CAPI)
     trackPixelEvent(
       'Purchase',
@@ -214,7 +240,7 @@ Please confirm my express priority dispatch.`;
         currency: 'NGN',
         content_name: primaryProductName,
         content_type: 'product',
-        content_ids: ['2-burner', '5-burner', 'piano-sink'],
+        content_ids: finalContentIds,
         num_items: totals.totalUnits,
         order_id: orderId
       },
@@ -230,6 +256,9 @@ Please confirm my express priority dispatch.`;
         value: totals.grandTotal,
         currency: 'NGN',
         content_name: primaryProductName,
+        content_type: 'product',
+        content_ids: finalContentIds,
+        num_items: totals.totalUnits,
         order_id: orderId
       },
       {
@@ -411,7 +440,7 @@ Please confirm my express priority dispatch.`;
               <div className="p-3.5 rounded-2xl border-2 border-red-600 bg-red-50/40 shadow-xs flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
                   <img
-                    src="/images/fbfd6389-c43d-4c31-b684-ce444db8f36c.png"
+                    src="/images/He848b3e8bcc24b1e9c9d64ea2c2c4a96q.jpg"
                     alt="2-Burner Cooker"
                     className="w-14 h-14 rounded-xl object-cover bg-white border border-neutral-200 shrink-0"
                   />
@@ -425,7 +454,7 @@ Please confirm my express priority dispatch.`;
                       </span>
                     </div>
                     <div className="text-xs font-extrabold text-red-600 mt-0.5">
-                      ₦170,000{' '}
+                      ₦160,000{' '}
                       <span className="text-[10px] text-neutral-400 line-through font-normal">
                         ₦200,000
                       </span>
@@ -467,7 +496,7 @@ Please confirm my express priority dispatch.`;
                   }`}
                 >
                   <div className="text-xs">1 Cooker</div>
-                  <div className="text-[10px] opacity-90 font-mono">₦170,000</div>
+                  <div className="text-[10px] opacity-90 font-mono">₦160,000</div>
                 </button>
                 <button
                   type="button"
@@ -482,7 +511,7 @@ Please confirm my express priority dispatch.`;
                     Save ₦10k
                   </span>
                   <div className="text-xs">2 Cookers</div>
-                  <div className="text-[10px] opacity-90 font-mono">₦330,000</div>
+                  <div className="text-[10px] opacity-90 font-mono">₦310,000</div>
                 </button>
                 <button
                   type="button"
@@ -494,10 +523,10 @@ Please confirm my express priority dispatch.`;
                   }`}
                 >
                   <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[8px] font-black px-1 rounded-xs uppercase">
-                    Save ₦20k
+                    Save ₦30k
                   </span>
                   <div className="text-xs">3 Cookers</div>
-                  <div className="text-[10px] opacity-90 font-mono">₦490,000</div>
+                  <div className="text-[10px] opacity-90 font-mono">₦450,000</div>
                 </button>
               </div>
             </div>

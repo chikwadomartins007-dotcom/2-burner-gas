@@ -163,7 +163,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   onClick={() => onUpdateQuantity('2-burner', 1)}
                   className="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all shadow-md cursor-pointer"
                 >
-                  + Add 2-Burner Gas Cooker (₦170,000)
+                  + Add 2-Burner Gas Cooker (₦160,000)
                 </button>
               </div>
             ) : (

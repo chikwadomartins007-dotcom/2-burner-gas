@@ -316,7 +316,7 @@ export function OrderSuccessCelebration({
   const orderId = orderDetails?.orderId || `ORD-${Date.now().toString().slice(-6)}`;
   const customerName = orderDetails?.fullName || 'Valued Customer';
   const productName = orderDetails?.productName || 'Flip-Up Luxury Gas Cooktop';
-  const totalAmount = orderDetails?.total ? formatNaira(orderDetails.total) : '₦170,000';
+  const totalAmount = orderDetails?.total ? formatNaira(orderDetails.total) : '₦160,000';
   const deliveryLocation = orderDetails?.city && orderDetails?.state
     ? `${orderDetails.city}, ${orderDetails.state}`
     : orderDetails?.state || 'Nationwide Delivery';

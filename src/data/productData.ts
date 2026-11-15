@@ -11,40 +11,41 @@ export const PHONE_NUMBER = '08147778029';
 export const PHONE_NUMBER_INTL = '+2348147778029';
 export const CALL_LINK = 'tel:08147778029';
 export const WHATSAPP_LINK = 'https://wa.me/2348147778029?text=Hello%20MAX%20LUXURY%20BATHROOMS%2C%20I%20am%20interested%20in%20your%20cookers.';
-export const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mljjggkj';
-export const META_PIXEL_ID = '1730802201545460';
-export const META_PIXEL_ID_2 = '2580381385456107';
-export const META_PIXEL_IDS = ['1730802201545460', '2580381385456107'];
+export const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xppdpalk';
+export const META_PIXEL_ID = '1690563088540181';
+export const META_PIXEL_ID_2 = '1730802201545460';
+export const META_PIXEL_ID_3 = '2580381385456107';
+export const META_PIXEL_IDS = ['1690563088540181', '1730802201545460', '2580381385456107'];
 
 export const PRICING_TIERS_2B: PricingTier[] = [
   {
     quantity: 1,
-    unitPrice: 170000,
-    totalPrice: 170000,
+    unitPrice: 160000,
+    totalPrice: 160000,
     label: '1 PIECE',
-    savingsNote: 'Standard Single Unit'
+    savingsNote: 'Special Promo Price (Was ₦170,000)'
   },
   {
     quantity: 2,
-    unitPrice: 165000,
-    totalPrice: 330000,
+    unitPrice: 155000,
+    totalPrice: 310000,
     label: '2 PIECES',
-    savingsNote: 'Save ₦10,000 total (₦165,000 each)',
+    savingsNote: 'Save ₦10,000 total (₦155,000 each)',
     isPopular: true
   },
   {
     quantity: 3,
-    unitPrice: 160000,
-    totalPrice: 480000,
+    unitPrice: 150000,
+    totalPrice: 450000,
     label: '3 PIECES',
-    savingsNote: 'Save ₦30,000 total (₦160,000 each)'
+    savingsNote: 'Save ₦30,000 total (₦150,000 each)'
   },
   {
     quantity: 4,
-    unitPrice: 150000,
-    totalPrice: 600000,
+    unitPrice: 145000,
+    totalPrice: 580000,
     label: '4 PIECES & ABOVE',
-    savingsNote: 'Best Value: ₦150,000 each (Save ₦20,000/unit)'
+    savingsNote: 'Best Value: ₦145,000 each (Save ₦15,000/unit)'
   }
 ];
 
@@ -112,7 +113,7 @@ export const PRODUCT_OPTIONS: Record<ProductId, ProductOption> = {
     shortName: '2-Burner Glass Cooker',
     tagline: 'Compact, Elegant & Dual-Use (Desktop or Built-In)',
     description: 'Double gas burner with toughened black tempered glass, battery impulse ignition, and heavy-duty trivets. Perfect for standard family kitchens and space-efficient modern countertops.',
-    basePrice: 170000,
+    basePrice: 160000,
     mainImage: '/images/He848b3e8bcc24b1e9c9d64ea2c2c4a96q.jpg',
     dimensions: '750 × 450 mm',
     cutout: '630 × 350 mm',
@@ -183,10 +184,10 @@ export function getUnitPrice(quantity: number, productId: ProductId = '2-burner'
     if (quantity === 3) return 270000;
     return 265000;
   }
-  if (quantity === 1) return 170000;
-  if (quantity === 2) return 165000;
-  if (quantity === 3) return 160000;
-  return 150000;
+  if (quantity === 1) return 160000;
+  if (quantity === 2) return 155000;
+  if (quantity === 3) return 150000;
+  return 145000;
 }
 
 export function getTotalPrice(quantity: number, productId: ProductId = '2-burner'): number {
@@ -425,7 +426,7 @@ export const FAQ_ITEMS: FAQItem[] = [
   {
     id: 'faq-1',
     question: 'WHAT ARE THE PRICES FOR EACH MODEL?',
-    answer: 'For the 2-Burner Glass Cooker: 1 piece is ₦170,000; 2 pieces are ₦165,000 each (₦330,000); 3 pieces are ₦160,000 each (₦480,000); 4+ pieces are ₦150,000 each. For the Executive 5-Burner Gas + Electric Hybrid Cooktop: 1 piece is ₦280,000; 2 pieces are ₦275,000 each (₦550,000); 3 pieces are ₦270,000 each (₦810,000); 4+ pieces are ₦265,000 each.'
+    answer: 'For the 2-Burner Glass Cooker: 1 piece is ₦160,000 (Promo Price); 2 pieces are ₦155,000 each (₦310,000); 3 pieces are ₦150,000 each (₦450,000); 4+ pieces are ₦145,000 each. For the Executive 5-Burner Gas + Electric Hybrid Cooktop: 1 piece is ₦280,000; 2 pieces are ₦275,000 each (₦550,000); 3 pieces are ₦270,000 each (₦810,000); 4+ pieces are ₦265,000 each.'
   },
   {
     id: 'faq-2',
@@ -445,7 +446,7 @@ export const FAQ_ITEMS: FAQItem[] = [
   {
     id: 'faq-4',
     question: 'CAN I ORDER MULTIPLE UNITS FOR A DISCOUNT?',
-    answer: 'Yes! When ordering 2 or more units for family, rental properties, or gifts, volume discounts are automatically applied (₦165,000 each for 2 units, and ₦150,000 each for 3+ units). Free nationwide delivery applies to all units.'
+    answer: 'Yes! When ordering 2 or more units for family, rental properties, or gifts, volume discounts are automatically applied (₦155,000 each for 2 units, ₦150,000 each for 3 units, and ₦145,000 each for 4+ units). Free nationwide delivery applies to all units.'
   },
   {
     id: 'faq-5',
@@ -500,8 +501,12 @@ export function trackPixelEvent(
 
   const val = typeof data?.value === 'number' ? data.value : 0;
   const curr = (data?.currency as string) || 'NGN';
-  const cName = (data?.content_name as string) || 'Premium Gas Cooker';
-  const cId = ((data?.content_ids as string[])?.[0]) || (data?.order_id as string) || 'cooker';
+  const cName = (data?.content_name as string) || 'Premium 2-Burner Glass Gas Cooker';
+  const contentIds =
+    Array.isArray(data?.content_ids) && (data.content_ids as string[]).length > 0
+      ? (data.content_ids as string[])
+      : [(data?.order_id as string) || '2-burner'];
+  const cId = contentIds[0];
   const numItems = (data?.num_items as number) || 1;
   const unitPrice = val > 0 && numItems > 0 ? Math.round(val / numItems) : val;
 
@@ -553,29 +558,33 @@ export function trackPixelEvent(
     }
   }
 
-  // 2. Browser Meta Pixel Dispatch
+  const metaContents = contentIds.map((id) => ({
+    id,
+    quantity: Math.max(1, Math.round(numItems / contentIds.length)),
+    item_price: unitPrice
+  }));
+
+  // 2. Browser Meta Pixel Dispatch (fires across all initialized pixels: 1690563088540181, etc.)
   if (typeof window !== 'undefined' && (window as unknown as { fbq?: (...args: unknown[]) => void }).fbq) {
     try {
-      const metaContents = [
-        {
-          id: cId,
-          quantity: numItems,
-          item_price: unitPrice
-        }
-      ];
-      const pixelParams = {
-        ...data,
-        value: val,
-        currency: curr,
-        content_name: cName,
-        content_type: 'product',
-        content_ids: [cId],
-        contents: metaContents,
-        num_items: numItems
-      };
-      (window as unknown as { fbq: (...args: unknown[]) => void }).fbq('track', eventName, pixelParams, {
-        eventID: generatedEventId
-      });
+      const fbq = (window as unknown as { fbq: (...args: unknown[]) => void }).fbq;
+      if (eventName === 'PageView') {
+        fbq('track', 'PageView', {}, { eventID: generatedEventId });
+      } else {
+        const pixelParams = {
+          ...data,
+          value: val,
+          currency: curr,
+          content_name: cName,
+          content_type: 'product',
+          content_ids: contentIds,
+          contents: metaContents,
+          num_items: numItems
+        };
+        fbq('track', eventName, pixelParams, {
+          eventID: generatedEventId
+        });
+      }
     } catch {
       // Ignore tracking errors in sandboxed environments
     }
@@ -672,8 +681,31 @@ export function trackPixelEvent(
         }
       }
 
-      // Prepare custom data with contents array
-      const customDataWithContents = {
+      // Synthesize _fbc from ?fbclid= query param if cookie isn't set yet (maximizes Meta CAPI Event Match Quality)
+      if (!fbc && window.location.search) {
+        const fbclid = new URLSearchParams(window.location.search).get('fbclid');
+        if (fbclid) {
+          fbc = `fb.1.${Date.now()}.${fbclid}`;
+        }
+      }
+
+      // Meta Conversions API custom_data (uses Meta's { id, quantity, item_price } schema; omitted for PageView)
+      const metaCustomData =
+        eventName === 'PageView'
+          ? undefined
+          : {
+              ...data,
+              value: val,
+              currency: curr,
+              content_name: cName,
+              content_type: 'product',
+              content_ids: contentIds,
+              contents: metaContents,
+              num_items: numItems
+            };
+
+      // TikTok Events API custom_data (uses TikTok's { content_id, content_name, quantity, price } schema)
+      const tiktokServerCustomData = {
         ...data,
         value: val,
         currency: curr,
@@ -704,7 +736,7 @@ export function trackPixelEvent(
             fbp,
             fbc
           },
-          customData: customDataWithContents
+          customData: metaCustomData
         })
       }).catch(() => {});
 
@@ -723,7 +755,7 @@ export function trackPixelEvent(
             ttp,
             ttclid
           },
-          customData: customDataWithContents
+          customData: tiktokServerCustomData
         })
       }).catch(() => {});
     } catch {
@@ -737,7 +769,7 @@ export function trackPixelEvent(
 // Global browser test helper for advertisers to test & activate Purchase events
 if (typeof window !== 'undefined') {
   (window as unknown as { trackPixelEvent: typeof trackPixelEvent }).trackPixelEvent = trackPixelEvent;
-  (window as unknown as { triggerPurchaseEvent: (amount?: number) => string }).triggerPurchaseEvent = (amount: number = 170000) => {
+  (window as unknown as { triggerPurchaseEvent: (amount?: number) => string }).triggerPurchaseEvent = (amount: number = 160000) => {
     const testOrderId = `ORD-${Date.now().toString().slice(-6)}`;
     trackPixelEvent(
       'Purchase',

@@ -63,6 +63,22 @@ export function QuickOrderPopup({
   // Auto-replay countdown timer in seconds (30s)
   const [countdown, setCountdown] = useState<number>(REPLAY_INTERVAL_SECONDS);
   const [isAutoReplayEnabled, setIsAutoReplayEnabled] = useState<boolean>(true);
+  const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
+
+  const productImages = [
+    {
+      url: '/images/He848b3e8bcc24b1e9c9d64ea2c2c4a96q.jpg',
+      alt: '2-Flip-Up Double Burner Glass Gas Cooker Overview'
+    },
+    {
+      url: '/images/Hf3fea0e1fc4e46d4ac33b8a45f21785ex.jpg',
+      alt: 'Sleek Black Tempered Glass Top View'
+    },
+    {
+      url: '/images/Hc8520771f71b451d96ae3caee5e55e9a5.jpg',
+      alt: '90-Degree Hinged Flip-Up Burners Easy Cleaning'
+    }
+  ];
 
   // Main product quantity state (1, 2, or 3 units)
   const [quantity, setQuantity] = useState<number>(() => Math.max(1, cart['2-burner'] || 1));
@@ -87,6 +103,19 @@ export function QuickOrderPopup({
         '2-burner': currentQty,
         '5-burner': 0,
         'piano-sink': 0
+      });
+      const checkoutTotals = calculateMultiProductTotals({
+        '2-burner': currentQty,
+        '5-burner': 0,
+        'piano-sink': 0
+      });
+      trackPixelEvent('InitiateCheckout', {
+        value: checkoutTotals.grandTotal,
+        currency: 'NGN',
+        content_name: 'Premium 2-Flip-Up Double Burner Glass Gas Cooker',
+        content_type: 'product',
+        content_ids: ['2-burner'],
+        num_items: currentQty
       });
     }
   }, [isOpen]);
@@ -241,6 +270,9 @@ Please confirm my priority express dispatch.`;
         value: grandTotal,
         currency: 'NGN',
         content_name: productName,
+        content_type: 'product',
+        content_ids: ['2-burner'],
+        num_items: quantity,
         order_id: orderId
       },
       {
@@ -345,9 +377,11 @@ Please confirm my priority express dispatch.`;
               className="flex items-center gap-2 min-w-0 text-left cursor-pointer group"
               title="Click to open 2-Burner Quick Order Pop-Up now"
             >
-              <span className="w-7 h-7 rounded-xl bg-amber-400 text-neutral-950 flex items-center justify-center font-black shrink-0 group-hover:scale-110 transition-transform shadow-xs">
-                <Zap className="w-4 h-4 fill-neutral-950" />
-              </span>
+              <img
+                src="/images/He848b3e8bcc24b1e9c9d64ea2c2c4a96q.jpg"
+                alt="2-Burner Gas Cooker"
+                className="w-9 h-9 rounded-xl object-cover bg-white border border-amber-400 shrink-0 group-hover:scale-105 transition-transform shadow-xs"
+              />
               <div className="min-w-0">
                 <div className="text-xs font-black text-amber-300 uppercase tracking-tight flex items-center gap-1.5">
                   <span>Quick Order Pop-Up</span>
@@ -474,7 +508,7 @@ Please confirm my priority express dispatch.`;
               <div className="mt-2.5 pt-2 border-t border-white/15 flex items-center justify-between text-xs text-neutral-200">
                 <div className="flex items-center gap-1.5 text-amber-300 font-extrabold">
                   <Clock className="w-3.5 h-3.5" />
-                  <span>Promo Price Reserved: ₦170,000</span>
+                  <span>Promo Price Reserved: ₦160,000</span>
                 </div>
                 <div className="text-emerald-300 font-extrabold flex items-center gap-1">
                   <Truck className="w-3.5 h-3.5" />
@@ -492,22 +526,46 @@ Please confirm my priority express dispatch.`;
                 </div>
               )}
 
-              {/* EXCLUSIVE MAIN PRODUCT SHOWCASE BOX */}
-              <div className="bg-gradient-to-br from-amber-50/60 via-red-50/40 to-neutral-50 rounded-2xl p-3.5 sm:p-4 border-2 border-red-200 shadow-sm space-y-3">
-                <div className="flex items-start gap-3.5">
-                  <div className="relative shrink-0">
-                    <img
-                      src="/images/fbfd6389-c43d-4c31-b684-ce444db8f36c.png"
-                      alt="2-Flip-Up Double Burner Glass Gas Cooker"
-                      className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover bg-white border-2 border-neutral-200 shadow-sm p-1"
-                    />
-                    <span className="absolute -top-1.5 -left-1.5 bg-red-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-xs uppercase">
-                      Main Product
-                    </span>
+              {/* EXCLUSIVE MAIN PRODUCT SHOWCASE BOX WITH REAL PRODUCT IMAGE */}
+              <div className="bg-gradient-to-br from-amber-50/70 via-red-50/40 to-neutral-50 rounded-2xl p-3.5 sm:p-4 border-2 border-red-200 shadow-sm space-y-3">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+                  {/* Large Product Image + Quick Angle Switcher */}
+                  <div className="shrink-0 flex flex-col items-center gap-2">
+                    <div className="relative">
+                      <img
+                        src={productImages[activeImageIndex].url}
+                        alt={productImages[activeImageIndex].alt}
+                        className="w-44 h-36 sm:w-32 sm:h-32 rounded-2xl object-cover bg-white border-2 border-red-200 shadow-md"
+                      />
+                      <span className="absolute -top-2 -left-2 bg-red-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md shadow-xs uppercase">
+                        Main Product
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      {productImages.map((img, idx) => (
+                        <button
+                          key={img.url}
+                          type="button"
+                          onClick={() => setActiveImageIndex(idx)}
+                          aria-label={`View product image ${idx + 1}`}
+                          className={`w-9 h-9 rounded-lg overflow-hidden border-2 transition-all cursor-pointer bg-white ${
+                            activeImageIndex === idx
+                              ? 'border-red-600 ring-2 ring-red-200 scale-105'
+                              : 'border-neutral-200 opacity-75 hover:opacity-100'
+                          }`}
+                        >
+                          <img
+                            src={img.url}
+                            alt={img.alt}
+                            className="w-full h-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 flex-wrap">
+                  <div className="flex-1 min-w-0 text-center sm:text-left">
+                    <div className="flex items-center justify-center sm:justify-start gap-1.5 flex-wrap">
                       <span className="bg-neutral-900 text-amber-300 text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider">
                         75 × 45 cm Standard Cutout
                       </span>
@@ -516,24 +574,24 @@ Please confirm my priority express dispatch.`;
                       </span>
                     </div>
 
-                    <h3 className="font-black text-sm sm:text-base text-neutral-950 mt-1 leading-snug">
+                    <h3 className="font-black text-sm sm:text-base text-neutral-950 mt-1.5 leading-snug">
                       Premium 2-Flip-Up Double Burner Glass Gas Cooker
                     </h3>
 
-                    <div className="flex items-baseline gap-2 mt-1">
+                    <div className="flex items-baseline justify-center sm:justify-start gap-2 mt-1">
                       <span className="text-lg sm:text-xl font-black text-red-600 font-mono">
-                        ₦170,000
+                        ₦160,000
                       </span>
                       <span className="text-xs text-neutral-400 line-through font-medium">
-                        ₦200,000
+                        ₦220,000
                       </span>
-                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded-xs">
-                        SAVE ₦30,000
+                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded-xs">
+                        SAVE ₦60,000
                       </span>
                     </div>
 
-                    <p className="text-[11px] text-neutral-600 mt-0.5 font-medium">
-                      Tempered crystal glass, cast-iron burner stands & battery pulse auto-ignition.
+                    <p className="text-[11px] text-neutral-600 mt-1 font-medium">
+                      8mm toughened crystal glass, cast-iron pan stands, LED timer & battery pulse auto-ignition.
                     </p>
                   </div>
                 </div>
@@ -561,7 +619,7 @@ Please confirm my priority express dispatch.`;
                       }`}
                     >
                       <div className="text-xs">1 Cooker</div>
-                      <div className="text-[11px] mt-0.5 opacity-90 font-mono">₦170,000</div>
+                      <div className="text-[11px] mt-0.5 opacity-90 font-mono">₦160,000</div>
                     </button>
 
                     {/* Option 2: 2 Cookers (Couple / Gift Deal) */}
@@ -578,7 +636,7 @@ Please confirm my priority express dispatch.`;
                         Save ₦10k
                       </span>
                       <div className="text-xs">2 Cookers</div>
-                      <div className="text-[11px] mt-0.5 opacity-90 font-mono">₦330,000</div>
+                      <div className="text-[11px] mt-0.5 opacity-90 font-mono">₦310,000</div>
                     </button>
 
                     {/* Option 3: 3 Cookers (Family / Bulk Deal) */}
@@ -592,10 +650,10 @@ Please confirm my priority express dispatch.`;
                       }`}
                     >
                       <span className="absolute -top-2 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[8px] font-black px-1.5 py-0.2 rounded-xs uppercase shadow-xs">
-                        Save ₦20k
+                        Save ₦30k
                       </span>
                       <div className="text-xs">3 Cookers</div>
-                      <div className="text-[11px] mt-0.5 opacity-90 font-mono">₦490,000</div>
+                      <div className="text-[11px] mt-0.5 opacity-90 font-mono">₦450,000</div>
                     </button>
                   </div>
                 </div>
@@ -775,7 +833,7 @@ Please confirm my priority express dispatch.`;
                     }}
                     className="hover:text-red-600 font-bold underline cursor-pointer"
                   >
-                    View All Kitchen Models (5-Burner & Sink)
+                    Open Express Checkout Modal
                   </button>
 
                   <button
