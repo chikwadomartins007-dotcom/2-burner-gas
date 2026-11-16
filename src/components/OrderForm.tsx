@@ -460,7 +460,7 @@ Please confirm my delivery dispatch.`;
     setIsSubmitting(true);
     setErrorMessage('');
 
-    const formspreeUrl = FORMSPREE_ENDPOINT || 'https://formspree.io/f/xppdpalk';
+    const formspreeUrl = FORMSPREE_ENDPOINT || 'https://formspree.io/f/xoedeorw';
     const orderId = 'ORD-' + Date.now().toString().slice(-6);
     setSubmittedOrderId(orderId);
 
