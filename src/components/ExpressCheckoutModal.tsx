@@ -454,7 +454,7 @@ Please confirm my express priority dispatch.`;
                       </span>
                     </div>
                     <div className="text-xs font-extrabold text-red-600 mt-0.5">
-                      ₦160,000{' '}
+                      ₦150,000{' '}
                       <span className="text-[10px] text-neutral-400 line-through font-normal">
                         ₦200,000
                       </span>
@@ -496,7 +496,7 @@ Please confirm my express priority dispatch.`;
                   }`}
                 >
                   <div className="text-xs">1 Cooker</div>
-                  <div className="text-[10px] opacity-90 font-mono">₦160,000</div>
+                  <div className="text-[10px] opacity-90 font-mono">₦150,000</div>
                 </button>
                 <button
                   type="button"
@@ -511,7 +511,7 @@ Please confirm my express priority dispatch.`;
                     Save ₦10k
                   </span>
                   <div className="text-xs">2 Cookers</div>
-                  <div className="text-[10px] opacity-90 font-mono">₦310,000</div>
+                  <div className="text-[10px] opacity-90 font-mono">₦290,000</div>
                 </button>
                 <button
                   type="button"
@@ -526,7 +526,7 @@ Please confirm my express priority dispatch.`;
                     Save ₦30k
                   </span>
                   <div className="text-xs">3 Cookers</div>
-                  <div className="text-[10px] opacity-90 font-mono">₦450,000</div>
+                  <div className="text-[10px] opacity-90 font-mono">₦420,000</div>
                 </button>
               </div>
             </div>

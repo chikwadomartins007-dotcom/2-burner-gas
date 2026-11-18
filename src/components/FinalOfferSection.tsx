@@ -32,7 +32,7 @@ export const FinalOfferSection: React.FC<FinalOfferSectionProps> = ({ onOrderCli
               <span className="text-sm font-bold text-neutral-900 block">2-Burner Glass Gas Cooker</span>
               <span className="text-xs text-neutral-500">Dual-use: Desktop or Built-in</span>
             </div>
-            <span className="text-lg font-extrabold text-red-600">₦160,000</span>
+            <span className="text-lg font-extrabold text-red-600">₦150,000</span>
           </div>
 
           <div className="flex items-center justify-between pb-3 border-b border-neutral-200">

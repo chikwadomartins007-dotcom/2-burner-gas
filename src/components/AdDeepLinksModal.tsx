@@ -75,8 +75,8 @@ export const AdDeepLinksModal: React.FC<AdDeepLinksModalProps> = ({
       id: '2-burner',
       title: 'Premium 2-Burner Flip-Up Glass Cooker (Single Unit)',
       subtitle: '90° Hinged Easy-Clean Burners + Timer',
-      price: 160000,
-      priceFormatted: '₦160,000',
+      price: 150000,
+      priceFormatted: '₦150,000',
       imageRelative: '/images/He848b3e8bcc24b1e9c9d64ea2c2c4a96q.jpg',
       imageUrl: `${effectiveDomain}/images/He848b3e8bcc24b1e9c9d64ea2c2c4a96q.jpg`,
       overrideLink: `${baseOrigin}?product=2-burner&action=order&utm_source=facebook&utm_medium=catalog&utm_campaign=single_unit#order-form`,
@@ -88,8 +88,8 @@ export const AdDeepLinksModal: React.FC<AdDeepLinksModalProps> = ({
       id: '2-burner-double',
       title: '2-Burner Flip-Up Cooker (Double Pack — 2 Units)',
       subtitle: 'Buy 2 Units and Save ₦10,000 Volume Discount',
-      price: 310000,
-      priceFormatted: '₦310,000',
+      price: 290000,
+      priceFormatted: '₦290,000',
       imageRelative: '/images/Hf3fea0e1fc4e46d4ac33b8a45f21785ex.jpg',
       imageUrl: `${effectiveDomain}/images/Hf3fea0e1fc4e46d4ac33b8a45f21785ex.jpg`,
       overrideLink: `${baseOrigin}?qty=2&action=order&utm_source=facebook&utm_medium=catalog&utm_campaign=double_pack#order-form`,
@@ -100,9 +100,9 @@ export const AdDeepLinksModal: React.FC<AdDeepLinksModalProps> = ({
     {
       id: '2-burner-family',
       title: '2-Burner Flip-Up Cooker (Family Pack — 3 Units)',
-      subtitle: 'Buy 3 Units at ₦150,000 each (Save ₦30,000)',
-      price: 450000,
-      priceFormatted: '₦450,000',
+      subtitle: 'Buy 3 Units at ₦140,000 each (Save ₦30,000)',
+      price: 420000,
+      priceFormatted: '₦420,000',
       imageRelative: '/images/He848b3e8bcc24b1e9c9d64ea2c2c4a96q.jpg',
       imageUrl: `${effectiveDomain}/images/He848b3e8bcc24b1e9c9d64ea2c2c4a96q.jpg`,
       overrideLink: `${baseOrigin}?qty=3&action=order&utm_source=facebook&utm_medium=catalog&utm_campaign=family_pack#order-form`,
@@ -117,7 +117,7 @@ export const AdDeepLinksModal: React.FC<AdDeepLinksModalProps> = ({
     {
       id: 'cooker-order',
       title: '2-Flip-Up Cooker — Direct Pay-on-Delivery Order Form',
-      description: 'Pre-selects 2-Burner Cooktop (₦160,000 Promo) and scrolls directly to checkout form.',
+      description: 'Pre-selects 2-Burner Cooktop (₦150,000 Promo) and scrolls directly to checkout form.',
       badge: 'Best for Direct Sales Ads',
       badgeColor: 'bg-red-100 text-red-800 border-red-300',
       icon: Flame,
@@ -137,7 +137,7 @@ export const AdDeepLinksModal: React.FC<AdDeepLinksModalProps> = ({
     {
       id: 'cooker-qty2',
       title: 'Volume Savings Deal (2 Units — Save ₦10,000)',
-      description: 'Pre-selects 2 units in the cart (₦310,000) with volume discount applied.',
+      description: 'Pre-selects 2 units in the cart (₦290,000) with volume discount applied.',
       badge: 'Higher Average Order Value',
       badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
       icon: ShoppingBag,
@@ -676,13 +676,13 @@ export const AdDeepLinksModal: React.FC<AdDeepLinksModalProps> = ({
                     className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-medium focus:ring-2 focus:ring-red-500 focus:border-red-500"
                   >
                     <option value="2-burner">
-                      2-Flip-Up Double Gas Cooker — 1 Unit (₦160,000 Promo)
+                      2-Flip-Up Double Gas Cooker — 1 Unit (₦150,000 Promo)
                     </option>
                     <option value="2-burner-double">
-                      2-Flip-Up Double Gas Cooker — 2 Units Couple Deal (₦310,000)
+                      2-Flip-Up Double Gas Cooker — 2 Units Couple Deal (₦290,000)
                     </option>
                     <option value="2-burner-family">
-                      2-Flip-Up Double Gas Cooker — 3 Units Family Deal (₦450,000)
+                      2-Flip-Up Double Gas Cooker — 3 Units Family Deal (₦420,000)
                     </option>
                   </select>
                 </div>

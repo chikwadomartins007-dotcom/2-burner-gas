@@ -508,7 +508,7 @@ Please confirm my priority express dispatch.`;
               <div className="mt-2.5 pt-2 border-t border-white/15 flex items-center justify-between text-xs text-neutral-200">
                 <div className="flex items-center gap-1.5 text-amber-300 font-extrabold">
                   <Clock className="w-3.5 h-3.5" />
-                  <span>Promo Price Reserved: ₦160,000</span>
+                  <span>Promo Price Reserved: ₦150,000</span>
                 </div>
                 <div className="text-emerald-300 font-extrabold flex items-center gap-1">
                   <Truck className="w-3.5 h-3.5" />
@@ -580,13 +580,13 @@ Please confirm my priority express dispatch.`;
 
                     <div className="flex items-baseline justify-center sm:justify-start gap-2 mt-1">
                       <span className="text-lg sm:text-xl font-black text-red-600 font-mono">
-                        ₦160,000
+                        ₦150,000
                       </span>
                       <span className="text-xs text-neutral-400 line-through font-medium">
                         ₦220,000
                       </span>
                       <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded-xs">
-                        SAVE ₦60,000
+                        SAVE ₦70,000
                       </span>
                     </div>
 
@@ -619,7 +619,7 @@ Please confirm my priority express dispatch.`;
                       }`}
                     >
                       <div className="text-xs">1 Cooker</div>
-                      <div className="text-[11px] mt-0.5 opacity-90 font-mono">₦160,000</div>
+                      <div className="text-[11px] mt-0.5 opacity-90 font-mono">₦150,000</div>
                     </button>
 
                     {/* Option 2: 2 Cookers (Couple / Gift Deal) */}
@@ -636,7 +636,7 @@ Please confirm my priority express dispatch.`;
                         Save ₦10k
                       </span>
                       <div className="text-xs">2 Cookers</div>
-                      <div className="text-[11px] mt-0.5 opacity-90 font-mono">₦310,000</div>
+                      <div className="text-[11px] mt-0.5 opacity-90 font-mono">₦290,000</div>
                     </button>
 
                     {/* Option 3: 3 Cookers (Family / Bulk Deal) */}
@@ -653,7 +653,7 @@ Please confirm my priority express dispatch.`;
                         Save ₦30k
                       </span>
                       <div className="text-xs">3 Cookers</div>
-                      <div className="text-[11px] mt-0.5 opacity-90 font-mono">₦450,000</div>
+                      <div className="text-[11px] mt-0.5 opacity-90 font-mono">₦420,000</div>
                     </button>
                   </div>
                 </div>

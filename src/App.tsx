@@ -113,7 +113,7 @@ export default function App() {
       content_type: 'product',
       content_ids: ['2-burner'],
       num_items: 1,
-      value: 160000,
+      value: 150000,
       currency: 'NGN'
     });
 
@@ -127,7 +127,7 @@ export default function App() {
         trackPixelEvent(
           'Purchase',
           {
-            value: 160000,
+            value: 150000,
             currency: 'NGN',
             content_name: PRODUCT_NAME,
             content_type: 'product',
@@ -161,7 +161,7 @@ export default function App() {
           orderId: `ORD-${Date.now().toString().slice(-6)}`,
           fullName: 'Chikwado Martins',
           productName: '2-Flip-Up Double Burner (75 × 45 cm)',
-          total: 160000,
+          total: 150000,
           quantity: 1,
           state: 'Lagos',
           city: 'Ikeja',
@@ -215,7 +215,7 @@ export default function App() {
       setCart((prev) => ({ ...prev, '2-burner': validQty }));
 
       if (rawAction === 'order' || hash === '#order-form' || hash === '#order') {
-        setAdLandingNotice('🎯 Special Offer Applied: 2-Flip-Up Double Burner Cooktop (₦160,000 Promo Price) selected with Nationwide Pay-on-Delivery!');
+        setAdLandingNotice('🎯 Special Offer Applied: 2-Flip-Up Double Burner Cooktop (₦150,000 Promo Price) selected with Nationwide Pay-on-Delivery!');
         setTimeout(() => scrollToOrderForm(), 350);
       } else if (rawAction === 'gallery' || hash === '#gallery') {
         setTimeout(() => {
@@ -233,7 +233,7 @@ export default function App() {
       content_name: PRODUCT_NAME_2B,
       content_type: 'product',
       content_ids: ['2-burner'],
-      value: 160000,
+      value: 150000,
       currency: 'NGN',
       num_items: 1
     });
@@ -269,7 +269,7 @@ export default function App() {
       content_ids: ['2-burner'],
       num_items: qty,
       currency: 'NGN',
-      value: 160000 * qty
+      value: 150000 * qty
     });
 
     setIsCartOpen(true);

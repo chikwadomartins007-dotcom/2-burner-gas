@@ -29,10 +29,10 @@ Treat the website as your primary source of truth:
 
 ### Featured Product & Current Live Pricing:
 **Premium 2-Burner Hinged Glass Gas Cooker (75 × 45 cm)**:
-- Single Unit (1 PIECE): ₦160,000 (Special Promo Price, discounted from normal price of ₦220,000)
-- 2 PIECES: ₦310,000 (Save ₦10,000 total / ₦155,000 each - Most Popular Couple Deal)
-- 3 PIECES: ₦450,000 (Save ₦30,000 total / ₦150,000 each - Family Pack)
-- 4 PIECES & ABOVE: ₦145,000 each (Best Bulk Value)
+- Single Unit (1 PIECE): ₦150,000 (Special Promo Price, discounted from normal price of ₦220,000)
+- 2 PIECES: ₦290,000 (Save ₦10,000 total / ₦145,000 each - Most Popular Couple Deal)
+- 3 PIECES: ₦420,000 (Save ₦30,000 total / ₦140,000 each - Family Pack)
+- 4 PIECES & ABOVE: ₦135,000 each (Best Bulk Value)
 - Key Features:
   * 90° flip-up hinged double burners for zero-effort cleaning underneath without lifting whole heavy cooker
   * Thick 8mm toughened explosion-proof crystal black tempered glass
@@ -209,8 +209,8 @@ async function startServer() {
           `${liveDomain}/images/Hb703478da96c4d06ac439666db478fb5s.jpg`,
           `${liveDomain}/images/H137f07cc70424452ada679ac752fcf43l.jpg`
         ],
-        price: "160000 NGN",
-        sale_price: "160000 NGN"
+        price: "150000 NGN",
+        sale_price: "150000 NGN"
       },
       {
         id: "piano-sink",
@@ -307,7 +307,7 @@ ${xmlItems}
         '"Double-Burner Crystal Tempered Glass Cooktop with 90-degree flip-up hinged burners. Digital timer, payment on delivery."',
         "in stock",
         "new",
-        "160000 NGN",
+        "150000 NGN",
         `"${liveDomain}/?product=2-burner&action=order&utm_source=facebook&utm_medium=catalog"`,
         `"${liveDomain}/images/He848b3e8bcc24b1e9c9d64ea2c2c4a96q.jpg"`,
         '"MAX LUXURY BATHROOMS"',

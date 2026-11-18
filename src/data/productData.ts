@@ -20,32 +20,32 @@ export const META_PIXEL_IDS = ['1690563088540181', '1730802201545460', '25803813
 export const PRICING_TIERS_2B: PricingTier[] = [
   {
     quantity: 1,
-    unitPrice: 160000,
-    totalPrice: 160000,
+    unitPrice: 150000,
+    totalPrice: 150000,
     label: '1 PIECE',
-    savingsNote: 'Special Promo Price (Was ₦170,000)'
+    savingsNote: 'Special Promo Price (Was ₦160,000)'
   },
   {
     quantity: 2,
-    unitPrice: 155000,
-    totalPrice: 310000,
+    unitPrice: 145000,
+    totalPrice: 290000,
     label: '2 PIECES',
-    savingsNote: 'Save ₦10,000 total (₦155,000 each)',
+    savingsNote: 'Save ₦10,000 total (₦145,000 each)',
     isPopular: true
   },
   {
     quantity: 3,
-    unitPrice: 150000,
-    totalPrice: 450000,
+    unitPrice: 140000,
+    totalPrice: 420000,
     label: '3 PIECES',
-    savingsNote: 'Save ₦30,000 total (₦150,000 each)'
+    savingsNote: 'Save ₦30,000 total (₦140,000 each)'
   },
   {
     quantity: 4,
-    unitPrice: 145000,
-    totalPrice: 580000,
+    unitPrice: 135000,
+    totalPrice: 540000,
     label: '4 PIECES & ABOVE',
-    savingsNote: 'Best Value: ₦145,000 each (Save ₦15,000/unit)'
+    savingsNote: 'Best Value: ₦135,000 each (Save ₦15,000/unit)'
   }
 ];
 
@@ -113,7 +113,7 @@ export const PRODUCT_OPTIONS: Record<ProductId, ProductOption> = {
     shortName: '2-Burner Glass Cooker',
     tagline: 'Compact, Elegant & Dual-Use (Desktop or Built-In)',
     description: 'Double gas burner with toughened black tempered glass, battery impulse ignition, and heavy-duty trivets. Perfect for standard family kitchens and space-efficient modern countertops.',
-    basePrice: 160000,
+    basePrice: 150000,
     mainImage: '/images/He848b3e8bcc24b1e9c9d64ea2c2c4a96q.jpg',
     dimensions: '750 × 450 mm',
     cutout: '630 × 350 mm',
@@ -184,10 +184,10 @@ export function getUnitPrice(quantity: number, productId: ProductId = '2-burner'
     if (quantity === 3) return 270000;
     return 265000;
   }
-  if (quantity === 1) return 160000;
-  if (quantity === 2) return 155000;
-  if (quantity === 3) return 150000;
-  return 145000;
+  if (quantity === 1) return 150000;
+  if (quantity === 2) return 145000;
+  if (quantity === 3) return 140000;
+  return 135000;
 }
 
 export function getTotalPrice(quantity: number, productId: ProductId = '2-burner'): number {
@@ -426,7 +426,7 @@ export const FAQ_ITEMS: FAQItem[] = [
   {
     id: 'faq-1',
     question: 'WHAT ARE THE PRICES FOR EACH MODEL?',
-    answer: 'For the 2-Burner Glass Cooker: 1 piece is ₦160,000 (Promo Price); 2 pieces are ₦155,000 each (₦310,000); 3 pieces are ₦150,000 each (₦450,000); 4+ pieces are ₦145,000 each. For the Executive 5-Burner Gas + Electric Hybrid Cooktop: 1 piece is ₦280,000; 2 pieces are ₦275,000 each (₦550,000); 3 pieces are ₦270,000 each (₦810,000); 4+ pieces are ₦265,000 each.'
+    answer: 'For the 2-Burner Glass Cooker: 1 piece is ₦150,000 (Promo Price); 2 pieces are ₦145,000 each (₦290,000); 3 pieces are ₦140,000 each (₦420,000); 4+ pieces are ₦135,000 each. For the Executive 5-Burner Gas + Electric Hybrid Cooktop: 1 piece is ₦280,000; 2 pieces are ₦275,000 each (₦550,000); 3 pieces are ₦270,000 each (₦810,000); 4+ pieces are ₦265,000 each.'
   },
   {
     id: 'faq-2',
@@ -446,7 +446,7 @@ export const FAQ_ITEMS: FAQItem[] = [
   {
     id: 'faq-4',
     question: 'CAN I ORDER MULTIPLE UNITS FOR A DISCOUNT?',
-    answer: 'Yes! When ordering 2 or more units for family, rental properties, or gifts, volume discounts are automatically applied (₦155,000 each for 2 units, ₦150,000 each for 3 units, and ₦145,000 each for 4+ units). Free nationwide delivery applies to all units.'
+    answer: 'Yes! When ordering 2 or more units for family, rental properties, or gifts, volume discounts are automatically applied (₦145,000 each for 2 units, ₦140,000 each for 3 units, and ₦135,000 each for 4+ units). Free nationwide delivery applies to all units.'
   },
   {
     id: 'faq-5',
@@ -769,7 +769,7 @@ export function trackPixelEvent(
 // Global browser test helper for advertisers to test & activate Purchase events
 if (typeof window !== 'undefined') {
   (window as unknown as { trackPixelEvent: typeof trackPixelEvent }).trackPixelEvent = trackPixelEvent;
-  (window as unknown as { triggerPurchaseEvent: (amount?: number) => string }).triggerPurchaseEvent = (amount: number = 160000) => {
+  (window as unknown as { triggerPurchaseEvent: (amount?: number) => string }).triggerPurchaseEvent = (amount: number = 150000) => {
     const testOrderId = `ORD-${Date.now().toString().slice(-6)}`;
     trackPixelEvent(
       'Purchase',

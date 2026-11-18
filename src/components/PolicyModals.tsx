@@ -96,7 +96,7 @@ export const PolicyModals: React.FC<PolicyModalsProps> = ({ activePolicy, onClos
               </p>
               <h4 className="font-bold text-white text-base">2. Pricing Transparency</h4>
               <p>
-                The prices stated on this website (₦160,000 promo price for 1 piece, ₦155,000 each for 2 pieces, ₦150,000 each for 3 pieces, and ₦145,000 each for 4 pieces or more) are fixed and transparent.
+                The prices stated on this website (₦150,000 promo price for 1 piece, ₦145,000 each for 2 pieces, ₦140,000 each for 3 pieces, and ₦135,000 each for 4 pieces or more) are fixed and transparent.
               </p>
               <h4 className="font-bold text-white text-base">3. Customer Support</h4>
               <p>

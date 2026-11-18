@@ -128,7 +128,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </span>
               <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-black bg-amber-500 hover:bg-amber-600 text-neutral-950 border border-amber-600 shadow-sm">
                 <Sparkles className="w-3.5 h-3.5 text-neutral-950" />
-                FROM ₦160,000 PROMO
+                FROM ₦150,000 PROMO
               </span>
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-yellow-600 text-white shadow-xs">
                 ★ 4.9 RATED
